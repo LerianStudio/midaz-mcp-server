@@ -162,8 +162,8 @@ export const registerLLMDocsResources = (server: McpServer) => {
  */
 export const registerLLMDocsTool = (server: McpServer) => {
   server.tool(
-    'get-available-documentation',
-    'Get information about all available documentation in the Midaz system',
+    'get-documentation-overview',
+    'Get a complete overview of all Midaz documentation from llms.txt - includes guides, API references, and changelog. Use this for a comprehensive view of what documentation is available.',
     undefined as any,
     async (args: any, extra: any): Promise<any> => {
       try {
@@ -184,8 +184,8 @@ export const registerLLMDocsTool = (server: McpServer) => {
   );
 
   server.tool(
-    'search-llm-documentation',
-    'Search for specific documentation topics in LLM docs',
+    'search-documentation-overview',
+    'Search within the documentation overview (llms.txt) for specific topics. Returns matching sections with context. Use this to quickly find topics in the documentation index.',
     {
       query: z.string().describe('Search query for documentation topics')
     },
