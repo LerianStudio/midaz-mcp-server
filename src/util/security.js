@@ -196,23 +196,31 @@ function checkForInjectionPatterns(data, depth = 0) {
  */
 export function readSecureConfig(configPath) {
   try {
-    // Check file permissions (Unix-like systems only)
-    const stats = fs.statSync(configPath);
-    const mode = (stats.mode & parseInt('777', 8)).toString(8);
+    // Open file descriptor first to avoid TOCTOU race condition
+    const fd = fs.openSync(configPath, 'r');
     
-    // Warn if file has overly permissive permissions
-    if (mode !== '600' && mode !== '400') {
-      console.warn(`Warning: Config file ${configPath} has permissions ${mode}. Consider using 600 or 400 for better security.`);
+    try {
+      // Check file permissions using file descriptor
+      const stats = fs.fstatSync(fd);
+      const mode = (stats.mode & parseInt('777', 8)).toString(8);
+      
+      // Warn if file has overly permissive permissions
+      if (mode !== '600' && mode !== '400') {
+        console.warn(`Warning: Config file ${configPath} has permissions ${mode}. Consider using 600 or 400 for better security.`);
+      }
+      
+      // Read and parse config using file descriptor
+      const configContent = fs.readFileSync(fd, 'utf8');
+      const config = JSON.parse(configContent);
+      
+      // Validate config structure
+      validateConfigSecurity(config);
+      
+      return config;
+    } finally {
+      // Always close file descriptor
+      fs.closeSync(fd);
     }
-    
-    // Read and parse config
-    const configContent = fs.readFileSync(configPath, 'utf8');
-    const config = JSON.parse(configContent);
-    
-    // Validate config structure
-    validateConfigSecurity(config);
-    
-    return config;
   } catch (error) {
     throw new Error(`Failed to read secure config: ${error.message}`);
   }
