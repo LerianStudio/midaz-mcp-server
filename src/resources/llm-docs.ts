@@ -2,6 +2,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { enhancedFetch } from '../util/http-client.js';
 import { createLogger } from '../util/mcp-logging.js';
+import { createToolResponse, wrapToolHandler, validateArgs } from '../util/mcp-helpers.js';
+import { fuzzySearchLines } from '../util/fuzzy-search.js';
 import config from '../config.js';
 
 const logger = createLogger('llm-docs');
@@ -162,17 +164,22 @@ export const registerLLMDocsTool = (server: McpServer) => {
   server.tool(
     'get-available-documentation',
     'Get information about all available documentation in the Midaz system',
-    {},
-    async () => {
-      const llmDocs = await fetchLLMDocumentation();
-      
-      return {
-        content: [{
-          type: 'text',
-          text: llmDocs
-        }],
-        isError: false
-      };
+    undefined as any,
+    async (args: any, extra: any): Promise<any> => {
+      try {
+        const llmDocs = await fetchLLMDocumentation();
+        
+        return createToolResponse({
+          documentation: llmDocs,
+          source: 'https://docs.lerian.studio/llms.txt',
+          lastUpdated: new Date().toISOString()
+        });
+      } catch (error) {
+        return createToolResponse({
+          error: 'Failed to fetch documentation',
+          message: error instanceof Error ? error.message : String(error)
+        });
+      }
     }
   );
 
@@ -182,40 +189,52 @@ export const registerLLMDocsTool = (server: McpServer) => {
     {
       query: z.string().describe('Search query for documentation topics')
     },
-    async (args) => {
-      const { query } = args;
+    wrapToolHandler(async (args: any, extra: any) => {
+      const validated = validateArgs(args, z.object({
+        query: z.string()
+      })) as { query: string };
+      
       const llmDocs = await fetchLLMDocumentation();
       
-      // Simple search implementation
-      const lines = llmDocs.split('\n');
-      const results: string[] = [];
-      let currentSection = '';
+      // Use fuzzy search to find matching sections
+      const matches = fuzzySearchLines(llmDocs, validated.query, 3);
       
-      for (const line of lines) {
-        if (line.startsWith('#')) {
-          currentSection = line;
+      let searchResults = '';
+      
+      if (matches.length > 0) {
+        // Build results with sections and context
+        const uniqueSections = new Set<string>();
+        const resultLines: string[] = [];
+        
+        for (const match of matches) {
+          // Add section header if not already added
+          if (match.section && !uniqueSections.has(match.section)) {
+            uniqueSections.add(match.section);
+            resultLines.push(`\n${match.section}`);
+          }
+          
+          // Add the matching context
+          resultLines.push(`\n--- Match (score: ${match.score}) ---`);
+          resultLines.push(match.context);
         }
         
-        if (line.toLowerCase().includes(query.toLowerCase())) {
-          if (currentSection && !results.includes(currentSection)) {
-            results.push(currentSection);
-          }
-          results.push(line);
-        }
+        searchResults = resultLines.join('\n');
+      } else {
+        searchResults = `No results found for "${validated.query}"`;
       }
       
-      const searchResults = results.length > 0 
-        ? results.join('\n')
-        : `No results found for "${query}"`;
-      
       return {
-        content: [{
-          type: 'text',
-          text: searchResults
-        }],
-        isError: false
+        query: validated.query,
+        results: searchResults,
+        resultCount: matches.length,
+        topMatches: matches.slice(0, 5).map(m => ({
+          line: m.line,
+          section: m.section,
+          score: m.score
+        })),
+        timestamp: new Date().toISOString()
       };
-    }
+    }) as any
   );
 };
 

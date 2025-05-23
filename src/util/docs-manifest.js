@@ -6,6 +6,7 @@
 import fetch from 'node-fetch';
 import config from '../config.js';
 import { createLogger } from './mcp-logging.js';
+import { fuzzySearch, scoreText } from './fuzzy-search.js';
 
 const logger = createLogger('docs-manifest');
 
@@ -70,16 +71,21 @@ function parseLLMSContent(content) {
   const resources = [];
   const baseUrl = config.docsUrl || 'https://docs.lerian.studio';
   
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
     
-    // Parse URLs from the content
-    // Expected format: https://docs.lerian.studio/path/to/doc
-    if (trimmed.startsWith('http')) {
+    // Look for markdown links format: [Title](URL)
+    const linkMatch = trimmed.match(/\[([^\]]+)\]\(([^)]+)\)/);
+    
+    if (linkMatch) {
+      const docTitle = linkMatch[1];
+      const docUrl = linkMatch[2];
+      
       try {
-        const url = new URL(trimmed);
-        const pathname = url.pathname;
+        const urlObj = new URL(docUrl);
+        const pathname = urlObj.pathname;
         
         // Extract resource info from URL
         const pathParts = pathname.split('/').filter(p => p);
@@ -131,6 +137,68 @@ function parseLLMSContent(content) {
           resourcePath = 'models/portfolio';
         } else if (category === 'models' && pathname.includes('segments')) {
           resourcePath = 'models/segment';
+        }
+        
+        resources.push({
+          path: resourcePath,
+          url: pathname,
+          category,
+          name: name || 'Document',
+          title: docTitle || (name ? name.charAt(0).toUpperCase() + name.slice(1) : 'Document'),
+          description: docTitle,
+          source: docUrl
+        });
+      } catch (error) {
+        logger.warn('Failed to parse URL from llms.txt', { line: trimmed, error: error.message });
+      }
+    } else if (trimmed.startsWith('http')) {
+      // Handle plain URLs (backward compatibility)
+      try {
+        const url = new URL(trimmed);
+        const pathname = url.pathname;
+        
+        // Extract resource info from URL
+        const pathParts = pathname.split('/').filter(p => p);
+        
+        // Determine category based on path
+        let category = 'docs';
+        let resourcePath = pathname;
+        
+        if (pathname.includes('/docs/')) {
+          if (pathname.includes('organizations') || pathname.includes('ledgers') || 
+              pathname.includes('accounts') || pathname.includes('assets') ||
+              pathname.includes('transactions') || pathname.includes('operations') ||
+              pathname.includes('balances') || pathname.includes('portfolios') ||
+              pathname.includes('segments')) {
+            category = 'models';
+          } else if (pathname.includes('onboarding') || pathname.includes('transaction') || 
+                     pathname.includes('mdz') || pathname.includes('midaz-console')) {
+            category = 'components';
+          } else if (pathname.includes('infrastructure') || pathname.includes('postgres') ||
+                     pathname.includes('mongodb') || pathname.includes('redis') ||
+                     pathname.includes('rabbitmq') || pathname.includes('grafana')) {
+            category = 'infra';
+          }
+        } else if (pathname.includes('/reference/')) {
+          category = 'api';
+        } else if (pathname.includes('/concepts/')) {
+          category = 'concepts';
+        }
+        
+        // Create a friendly name from the last part of the path
+        const name = pathParts[pathParts.length - 1]?.replace('.md', '').replace(/-/g, ' ');
+        
+        // Generate a resource path for internal use based on content
+        if (category === 'models') {
+          if (pathname.includes('organizations')) resourcePath = 'models/organization';
+          else if (pathname.includes('ledgers')) resourcePath = 'models/ledger';
+          else if (pathname.includes('accounts')) resourcePath = 'models/account';
+          else if (pathname.includes('transactions')) resourcePath = 'models/transaction';
+          else if (pathname.includes('operations')) resourcePath = 'models/operation';
+          else if (pathname.includes('balances')) resourcePath = 'models/balance';
+          else if (pathname.includes('assets')) resourcePath = 'models/asset';
+          else if (pathname.includes('portfolios')) resourcePath = 'models/portfolio';
+          else if (pathname.includes('segments')) resourcePath = 'models/segment';
         }
         
         resources.push({
@@ -283,17 +351,29 @@ export async function getResourcesByCategory(category) {
 }
 
 /**
- * Search resources by keyword
+ * Score a resource based on fuzzy matching
+ */
+function scoreResource(resource, searchWords) {
+  let score = 0;
+  
+  // Score each field with different weights
+  score += scoreText(resource.title, searchWords, 5);
+  score += scoreText(resource.description, searchWords, 4);
+  score += scoreText(resource.name, searchWords, 3);
+  score += scoreText(resource.path, searchWords, 2);
+  score += scoreText(resource.url, searchWords, 1);
+  score += scoreText(resource.source, searchWords, 1);
+  
+  return score;
+}
+
+/**
+ * Search resources by keyword with fuzzy matching
  */
 export async function searchResources(keyword) {
   const resources = await getAvailableResources();
-  const lowerKeyword = keyword.toLowerCase();
-  
-  return resources.filter(r => 
-    r.name.toLowerCase().includes(lowerKeyword) ||
-    r.title.toLowerCase().includes(lowerKeyword) ||
-    (r.description && r.description.toLowerCase().includes(lowerKeyword))
-  );
+  // Use a minimum score of 3 to filter out weak matches
+  return fuzzySearch(resources, keyword, scoreResource, 3);
 }
 
 /**
