@@ -3,8 +3,8 @@ name: Release Pipeline
 on:
   push:
     branches:
-      - main
-      - develop
+      - main        # Production releases only
+      - develop     # Pre-releases for testing
   workflow_dispatch:
     inputs:
       release_type:

@@ -3,13 +3,11 @@ name: Docker Build and Publish
 on:
   push:
     branches:
-      - main
-      - develop
+      - main       # Only publish on main (production releases)
+      - develop    # Development builds for testing
     tags:
-      - 'v*'
-  pull_request:
-    branches:
-      - main
+      - 'v*'      # Version tags
+  # Remove pull_request trigger to avoid unnecessary builds
 
 env:
   REGISTRY: ghcr.io
