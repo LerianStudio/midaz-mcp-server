@@ -10,6 +10,7 @@ import { registerModelResources } from './resources/models.js';
 import { registerComponentResources } from './resources/components.js';
 import { registerEducationalResources } from './resources/docs.js';
 import { registerLLMDocsResources, registerLLMDocsTool } from './resources/llm-docs.js';
+import { registerSdkResources } from './resources/sdk.js';
 
 // Import tool definitions
 import { registerOrganizationTools } from './tools/organization.js';
@@ -23,6 +24,7 @@ import { registerPortfolioTools } from './tools/portfolio.js';
 import { registerSegmentTools } from './tools/segment.js';
 import { registerDocsAdminTools } from './tools/docs-admin.js';
 import { registerDocsUserTools } from './tools/docs-user.js';
+import { registerSdkTools } from './tools/sdk.js';
 
 // Import MCP protocol handlers
 import { setupSubscriptionHandlers } from './util/resource-subscriptions.js';
@@ -44,6 +46,7 @@ const main = async () => {
         models: true,
         components: true,
         docs: true,
+        sdks: true,
         subscriptions: true,
         templates: true
       },
@@ -55,7 +58,8 @@ const main = async () => {
         balance: true,
         asset: true,
         portfolio: true,
-        segment: true
+        segment: true,
+        sdk: true
       },
       prompts: false,
       logging: true
@@ -76,6 +80,7 @@ const main = async () => {
     registerComponentResources(server);
     registerEducationalResources(server);
     registerLLMDocsResources(server);
+    registerSdkResources(server);
 
     // Register tools
     registerOrganizationTools(server);
@@ -90,6 +95,7 @@ const main = async () => {
     registerLLMDocsTool(server);
     registerDocsUserTools(server);
     registerDocsAdminTools(server);
+    registerSdkTools(server);
 
     // Setup MCP protocol handlers for subscriptions and discovery
     setupSubscriptionHandlers(server);
