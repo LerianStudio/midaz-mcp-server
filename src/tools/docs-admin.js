@@ -7,13 +7,12 @@ import { z } from "zod";
 import { 
   refreshManifest, 
   getAvailableResources, 
-  searchResources,
   getResourcesByCategory 
 } from "../util/docs-manifest.js";
 import { 
   clearDocumentationCache, 
   getDocsCacheStats,
-  prefetchDocumentation 
+  prefetchDocumentation
 } from "../util/docs-fetcher.js";
 import { wrapToolHandler, validateArgs } from "../util/mcp-helpers.js";
 
@@ -25,7 +24,7 @@ export const registerDocsAdminTools = (server) => {
   // Refresh documentation manifest
   server.tool(
     "refresh-docs-manifest",
-    "Refresh the documentation manifest to discover new documentation",
+    "[ADMIN] Refresh the documentation manifest to discover new documentation",
     {},
     wrapToolHandler(async (args, extra) => {
       refreshManifest();
@@ -45,79 +44,11 @@ export const registerDocsAdminTools = (server) => {
     })
   );
 
-  // List all available documentation
-  server.tool(
-    "list-all-documentation",
-    "Get a list of all available documentation resources",
-    {
-      category: z.string().optional().describe("Filter by category (e.g., 'models', 'components', 'infra', 'docs')")
-    },
-    wrapToolHandler(async (args, extra) => {
-      const { category } = validateArgs(args, z.object({
-        category: z.string().optional()
-      }));
-
-      let resources;
-      if (category) {
-        resources = await getResourcesByCategory(category);
-      } else {
-        resources = await getAvailableResources();
-      }
-
-      // Group by category for better organization
-      const grouped = resources.reduce((acc, resource) => {
-        if (!acc[resource.category]) {
-          acc[resource.category] = [];
-        }
-        acc[resource.category].push({
-          path: resource.path,
-          title: resource.title,
-          url: resource.url
-        });
-        return acc;
-      }, {});
-
-      return {
-        totalResources: resources.length,
-        categories: Object.keys(grouped),
-        resources: grouped,
-        lastUpdated: new Date().toISOString()
-      };
-    })
-  );
-
-  // Search documentation
-  server.tool(
-    "search-documentation",
-    "Search for documentation by keyword",
-    {
-      keyword: z.string().min(2).describe("Search keyword (minimum 2 characters)")
-    },
-    wrapToolHandler(async (args, extra) => {
-      const { keyword } = validateArgs(args, z.object({
-        keyword: z.string().min(2)
-      }));
-
-      const results = await searchResources(keyword);
-
-      return {
-        keyword,
-        resultCount: results.length,
-        results: results.map(r => ({
-          path: r.path,
-          title: r.title,
-          category: r.category,
-          url: r.url,
-          description: r.description
-        }))
-      };
-    })
-  );
 
   // Clear documentation cache
   server.tool(
     "clear-docs-cache",
-    "Clear the documentation cache to force fresh fetches",
+    "[ADMIN] Clear the documentation cache to force fresh fetches",
     {},
     wrapToolHandler(async (args, extra) => {
       const statsBefore = getDocsCacheStats();
@@ -137,7 +68,7 @@ export const registerDocsAdminTools = (server) => {
   // Get cache statistics
   server.tool(
     "get-docs-cache-stats",
-    "Get statistics about the documentation cache",
+    "[ADMIN] Get statistics about the documentation cache",
     {},
     wrapToolHandler(async (args, extra) => {
       const stats = getDocsCacheStats();
@@ -154,7 +85,7 @@ export const registerDocsAdminTools = (server) => {
   // Prefetch documentation
   server.tool(
     "prefetch-documentation",
-    "Prefetch multiple documentation resources to populate the cache",
+    "[ADMIN] Prefetch multiple documentation resources to populate the cache",
     {
       paths: z.array(z.string()).describe("Array of resource paths to prefetch"),
       category: z.string().optional().describe("Prefetch all resources in a category")
@@ -192,4 +123,5 @@ export const registerDocsAdminTools = (server) => {
       };
     })
   );
+
 };
