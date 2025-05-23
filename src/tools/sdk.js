@@ -148,7 +148,11 @@ export const registerSdkTools = (server) => {
 };
 
 /**
- * Generate SDK code examples
+ * Generate SDK code examples for specified language and use case
+ * @param {string} language - SDK language, either 'golang' or 'typescript'
+ * @param {string} useCase - Use case identifier (e.g., 'basic-setup', 'create-account', 'transfer-funds')
+ * @param {boolean} includeComments - Whether to include explanatory comments in generated code
+ * @returns {{title: string, description: string, code: string}} Generated code example with metadata
  */
 function generateSdkCode(language, useCase, includeComments) {
   if (language === 'golang') {
@@ -159,7 +163,10 @@ function generateSdkCode(language, useCase, includeComments) {
 }
 
 /**
- * Generate Golang code examples
+ * Generate Golang SDK code examples for specific use cases
+ * @param {string} useCase - Use case identifier (e.g., 'basic-setup', 'create-account', 'transfer-funds')
+ * @param {boolean} includeComments - Whether to include explanatory comments in generated code
+ * @returns {{title: string, description: string, code: string}} Generated Golang code example with metadata
  */
 function generateGolangCode(useCase, includeComments) {
   const examples = {
@@ -259,7 +266,10 @@ func main() {
 }
 
 /**
- * Generate TypeScript code examples
+ * Generate TypeScript SDK code examples for specific use cases
+ * @param {string} useCase - Use case identifier (e.g., 'basic-setup', 'create-account', 'transfer-funds')
+ * @param {boolean} includeComments - Whether to include explanatory comments in generated code
+ * @returns {{title: string, description: string, code: string}} Generated TypeScript code example with metadata
  */
 function generateTypeScriptCode(useCase, includeComments) {
   const examples = {
@@ -273,9 +283,15 @@ ${includeComments ? '// Load environment variables' : ''}
 dotenv.config();
 
 async function main() {
+\t${includeComments ? '// Validate required environment variables' : ''}
+\tconst apiKey = process.env.MIDAZ_API_KEY;
+\tif (!apiKey) {
+\t\tthrow new Error('MIDAZ_API_KEY environment variable is required');
+\t}
+
 \t${includeComments ? '// Initialize client with API key authentication' : ''}
 \tconst client = createClient({
-\t\tapiKey: process.env.MIDAZ_API_KEY!,
+\t\tapiKey: apiKey,
 \t\tenvironment: 'sandbox',
 \t\tapiVersion: 'v1'
 \t});

@@ -89,14 +89,12 @@ const main = async () => {
 
     // Register resources
     console.error('💾 Registering MCP resources...');
-    const resourceCount = {
-      models: registerModelResources(server) || 0, // Default to 0 if no value is returned
-      components: registerComponentResources(server) || 0,
-      docs: registerEducationalResources(server) || 0,
-      llmDocs: registerLLMDocsResources(server) || 0,
-      sdk: registerSdkResources(server) || 0
-    };
-    logger.info('Resources registered', { resourceCount });
+    registerModelResources(server);
+    registerComponentResources(server);
+    registerEducationalResources(server);
+    registerLLMDocsResources(server);
+    registerSdkResources(server);
+    logger.info('Resources registered successfully');
 
     // Register tools
     console.error('🔧 Registering MCP tools...');

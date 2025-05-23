@@ -269,8 +269,12 @@ export function logLoggingConfig() {
 }
 
 /**
- * Get current logging configuration
- * @returns {Object} Current logging config
+ * Get current logging configuration with detailed settings
+ * @returns {{logLevel: string, consoleLogging: boolean, detailedLogging: boolean, availableLevels: string[]}} Current logging configuration object
+ * @returns {string} returns.logLevel - Current active log level (debug|info|notice|warning|error|critical|alert|emergency)
+ * @returns {boolean} returns.consoleLogging - Whether console logging is enabled
+ * @returns {boolean} returns.detailedLogging - Whether detailed logging with additional metadata is enabled
+ * @returns {string[]} returns.availableLevels - Array of all available log levels
  */
 export function getLoggingConfig() {
   return {

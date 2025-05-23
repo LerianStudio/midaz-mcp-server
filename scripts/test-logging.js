@@ -10,6 +10,7 @@ console.log('🔍 Testing Midaz MCP Server Logging');
 console.log('=====================================\n');
 
 // Show current logging configuration
+/** @type {{logLevel: string, consoleLogging: boolean, detailedLogging: boolean, availableLevels: string[]}} */
 const config = getLoggingConfig();
 console.log('📋 Current Logging Configuration:');
 console.log(`   Log Level: ${config.logLevel}`);
