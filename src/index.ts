@@ -8,7 +8,6 @@ import { initializeManifest } from './util/docs-manifest.js';
 // Import resource definitions
 import { registerModelResources } from './resources/models.js';
 import { registerComponentResources } from './resources/components.js';
-import { registerInfraResources } from './resources/infra.js';
 import { registerEducationalResources } from './resources/docs.js';
 import { registerLLMDocsResources, registerLLMDocsTool } from './resources/llm-docs.js';
 
@@ -44,7 +43,6 @@ const main = async () => {
       resources: {
         models: true,
         components: true,
-        infra: true,
         docs: true,
         subscriptions: true,
         templates: true
@@ -76,7 +74,6 @@ const main = async () => {
     // Register resources
     registerModelResources(server);
     registerComponentResources(server);
-    registerInfraResources(server);
     registerEducationalResources(server);
     registerLLMDocsResources(server);
 

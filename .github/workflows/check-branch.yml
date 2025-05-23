@@ -27,23 +27,29 @@ jobs:
           echo "4. Use hotfix/* branches for emergency fixes to main"
           exit 1
 
-      - name: Add label for release PR
+      - name: Add release label
         if: github.head_ref == 'develop'
-        uses: actions/labeler@v5
+        uses: actions/github-script@v7
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          configuration-path: |
-            release:
-              - head-branch: 'develop'
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['release']
+            });
             
-      - name: Add label for hotfix PR
+      - name: Add hotfix label
         if: startsWith(github.head_ref, 'hotfix/')
-        uses: actions/labeler@v5
+        uses: actions/github-script@v7
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          configuration-path: |
-            hotfix:
-              - head-branch: 'hotfix/*'
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['hotfix']
+            });
 
       - name: Comment on PR
         if: github.head_ref == 'develop'
