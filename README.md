@@ -1,165 +1,33 @@
 # Midaz MCP Server
 
-A Model Context Protocol (MCP) server for Midaz that provides educational content, model information, and read-only API interactions for developer clients through their LLMs. The server runs locally on developer machines and connects to local Midaz backend services.
+A Model Context Protocol (MCP) server that enables AI assistants (like Claude) to understand and interact with the Midaz financial system. Get instant access to Midaz documentation, APIs, and development tools directly in your AI conversations.
 
-## Overview
+## 🚀 Quick Start (Choose One)
 
-This MCP server enables AI assistants (like Claude, ChatGPT, etc.) to understand the Midaz system better and interact with it in a read-only way. It provides:
-
-1. **Educational Content**: Comprehensive documentation fetched from docs.lerian.studio
-2. **Model Information**: Details about the data models in Midaz
-3. **Infrastructure Context**: Understanding of the deployment and infrastructure
-4. **Component Interaction**: How components like onboarding and transaction work together
-5. **API Tools**: Read-only tools for interacting with Midaz APIs
-
-### Online Documentation
-
-The MCP server fetches documentation dynamically from [docs.lerian.studio](https://docs.lerian.studio). This ensures you always have access to the latest documentation without updating the MCP server.
-
-### Dynamic Documentation Discovery
-
-The server automatically discovers new documentation by parsing the `llms.txt` file from docs.lerian.studio. When new documentation is added to the site, the MCP server will automatically make it available without requiring any updates.
-
-#### Documentation Tools
-
-- **`refresh-docs-manifest`** - Force immediate refresh of available documentation
-- **`list-all-documentation`** - Get a categorized list of all available docs
-- **`search-documentation`** - Search for documentation by keyword
-- **`get-available-documentation`** - Returns information about all available documentation
-- **`clear-docs-cache`** - Clear cached documentation for fresh fetches
-- **`get-docs-cache-stats`** - View cache statistics
-- **`prefetch-documentation`** - Pre-load documentation for better performance
-
-### LLM Documentation Resources
-
-The server provides special resources for AI assistants:
-
-- **Resource**: `midaz://llm/documentation` - Fetches the latest documentation index
-- **Resource**: `midaz://llm/available-docs` - Lists all available documentation resources
-
-This ensures AI assistants always know what documentation is available, even as new content is added.
-
-## Prerequisites
-
-- Node.js 18.0.0 or higher
-- (Optional) Midaz backend services running locally:
-  - Onboarding API on port 3000
-  - Transaction API on port 3001
-
-The server works with or without live Midaz services, automatically falling back to comprehensive stub data when services are unavailable.
-
-## Quick Start
-
-### Using Docker (Recommended for isolation)
-
+### Option 1: One-Command Setup (Recommended)
 ```bash
-# Using the helper script (builds and runs the container)
-./scripts/docker-mcp.sh build
-./scripts/docker-mcp.sh run
-
-# Or using docker-compose (alternative method)
-# Note: Use either the script OR docker-compose, not both
-docker-compose up -d
-```
-
-### Using npx (Recommended for simplicity)
-
-```bash
-# Run directly without installation
-npx @midaz/mcp-server
-
-# Or install globally
-npm install -g @midaz/mcp-server
-midaz-mcp-server
-```
-
-### Manual Installation
-
-```bash
-# Clone the repository
 git clone https://github.com/lerianstudio/midaz-mcp-server
-
-# Navigate to the MCP server directory
 cd midaz-mcp-server
-
-# Install dependencies
-npm install
-
-# Build the server
-npm run build
-
-# Run the server
-npm start
+make setup && make start
 ```
 
-## Usage
-
-### Running the Server
-
-The MCP server automatically detects local Midaz services when started:
-
+### Option 2: NPX (No Installation Required)
 ```bash
-# Using npx
 npx @midaz/mcp-server
-
-# Or if installed globally
-midaz-mcp-server
 ```
 
-The server will:
-1. Check for Midaz services on default ports (3000 for Onboarding, 3001 for Transaction)
-2. Use live services if available, or fall back to stub data
-3. Start the MCP server on stdio for Claude Desktop integration
-
-### Runtime Configuration
-
+### Option 3: Docker (Isolated Environment)
 ```bash
-# Connect to custom backend URLs
-midaz-mcp-server --onboarding-url=http://localhost:8080 --transaction-url=http://localhost:8081
-
-# Force stub mode (ignore live services)
-midaz-mcp-server --stub-mode=true
-
-# Disable auto-detection
-midaz-mcp-server --auto-detect=false
+git clone https://github.com/lerianstudio/midaz-mcp-server
+cd midaz-mcp-server
+make docker-build && make docker-run
 ```
 
-### Connecting to Midaz Backend
+## 🔗 Connect to Claude Desktop
 
-The MCP server connects to two different Midaz backend components running on different ports:
+Add this to your Claude Desktop MCP settings:
 
-- **Onboarding API** (default: port 3000): Handles organization, ledger, and account management
-- **Transaction API** (default: port 3001): Handles transactions, operations, balances, and asset rates
-
-You can configure these connections in several ways:
-
-```bash
-# Using the configuration CLI
-npm run config -- --onboarding-url=http://localhost:3000 --transaction-url=http://localhost:3001 --api-key=<your-api-key>
-
-# Using environment variables
-export MIDAZ_ONBOARDING_URL=http://localhost:3000
-export MIDAZ_TRANSACTION_URL=http://localhost:3001
-export MIDAZ_API_KEY=<your-api-key>
-npm start
-
-# Using command-line arguments
-node dist/index.js --onboarding-url=http://localhost:3000 --transaction-url=http://localhost:3001 --api-key=<your-api-key>
-
-# Using a configuration file
-# Create a midaz-mcp-config.json file (see midaz-mcp-config.json.example)
-npm start
-```
-
-### Integrating with Claude Desktop
-
-#### Option 1: Direct Integration (npx)
-
-1. Open Claude Desktop settings
-2. Navigate to MCP section
-3. Add a new global MCP server
-4. Enter the following configuration:
-
+### For NPX Installation:
 ```json
 {
   "mcpServers": {
@@ -171,10 +39,19 @@ npm start
 }
 ```
 
-#### Option 2: Docker Integration
+### For Local Development:
+```json
+{
+  "mcpServers": {
+    "midaz": {
+      "command": "node",
+      "args": ["/path/to/midaz-mcp-server/dist/index.js"]
+    }
+  }
+}
+```
 
-For Docker, configure Claude Desktop to use docker exec:
-
+### For Docker:
 ```json
 {
   "mcpServers": {
@@ -186,167 +63,124 @@ For Docker, configure Claude Desktop to use docker exec:
 }
 ```
 
-Make sure the container is running first:
+## ✨ What You Get
+
+Once connected, you can ask Claude about:
+
+- 📚 **Midaz Documentation** - "Explain how Midaz accounts work"
+- 🔧 **API Usage** - "Show me how to create a transaction"
+- 🏗️ **Architecture** - "What's the difference between onboarding and transaction APIs?"
+- 💡 **Examples** - "Generate Go code for creating an organization"
+- 🐛 **Troubleshooting** - "Help me debug this Midaz integration"
+
+## 🛠️ Configuration (Optional)
+
+The server works out of the box, but you can customize it:
+
+### Environment Variables
 ```bash
-./scripts/docker-mcp.sh run
+# Logging level (debug, info, warning, error)
+export MIDAZ_LOG_LEVEL=info
+
+# Enable detailed console logs
+export MIDAZ_DETAILED_LOGS=true
+
+# Connect to your local Midaz services
+export MIDAZ_ONBOARDING_URL=http://localhost:3000
+export MIDAZ_TRANSACTION_URL=http://localhost:3001
+export MIDAZ_API_KEY=your-api-key
 ```
 
-#### Custom Backend URLs
-
-For custom backend URLs:
-
-```json
-{
-  "mcpServers": {
-    "midaz": {
-      "command": "npx",
-      "args": [
-        "@midaz/mcp-server",
-        "--onboarding-url=http://localhost:3000",
-        "--transaction-url=http://localhost:3001"
-      ],
-      "env": {
-        "MIDAZ_API_KEY": "<your-api-key>"
-      }
-    }
-  }
-}
-```
-
-## Configuration
-
-### Documentation URL
-
-Configure the documentation base URL:
-
+### Configuration File
+Copy and edit the example configs:
 ```bash
-# Via environment variable
-export MIDAZ_DOCS_URL=https://docs.lerian.studio
-
-# Via configuration file
-{
-  "docsUrl": "https://docs.lerian.studio"
-}
+cp .env.example .env
+cp midaz-mcp-config.json.example midaz-mcp-config.json
 ```
 
-## Development
-
-For detailed documentation, see the [docs](./docs/) directory.
+## 🐳 Docker Quick Reference
 
 ```bash
-# Run in development mode
-npm run dev
+# Build and run
+make docker-build
+make docker-run
 
-# Run tests
-npm test
+# View logs
+make docker-logs
 
-# Test with basic server functionality
-npm run test:server
-
-# Test with MCP Inspector (simplified approach)
-npm run test:inspector
-
-# Test tools with actual backend
-npm run test:tools
+# Stop and clean up
+make docker-stop
+make docker-clean
 ```
 
-## Docker Support
-
-The MCP server can run in a Docker container for better isolation and deployment flexibility.
-
-### Quick Docker Commands
+## 🔧 Development Commands
 
 ```bash
-# Build and run with docker-compose
-docker-compose up -d
+# Start development server
+make dev
 
-# Using the helper script
-./scripts/docker-mcp.sh build  # Build image
-./scripts/docker-mcp.sh run    # Run container
-./scripts/docker-mcp.sh exec   # Execute for Claude Desktop
-./scripts/docker-mcp.sh logs   # View logs
-./scripts/docker-mcp.sh stop   # Stop container
+# Run with debug logging
+MIDAZ_LOG_LEVEL=debug make dev
+
+# Test the logging system
+make test-logging
+
+# See all available commands
+make help
 ```
 
-### Docker Environment Variables
+## 🆘 Troubleshooting
 
-- `MIDAZ_ONBOARDING_URL` - Default: `http://host.docker.internal:3000`
-- `MIDAZ_TRANSACTION_URL` - Default: `http://host.docker.internal:3001`
-- `MIDAZ_USE_STUBS` - Default: `true`
-- `MIDAZ_API_KEY` - Optional API key
-- `MIDAZ_DOCS_URL` - Default: `https://docs.lerian.studio`
+### Server Won't Start
+```bash
+# Check if ports are available
+lsof -i :3000 -i :3001
 
-See [Docker Documentation](./docs/docker.md) for detailed Docker usage.
-
-## Project Structure
-
-```
-├── src/                # Source code
-│   ├── index.ts        # Main server entry point
-│   ├── cli.js          # Configuration CLI tool
-│   ├── config.js       # Configuration management
-│   ├── resources/      # Resource definitions
-│   │   ├── models.ts   # Model resource registration
-│   │   ├── components.ts # Component resource registration
-│   │   ├── infra.ts    # Infrastructure resource registration
-│   │   ├── docs.ts     # Educational resource registration
-│   │   └── markdown/   # Markdown content files
-│   │       ├── models/      # Model documentation files
-│   │       ├── components/  # Component documentation files
-│   │       ├── infra/       # Infrastructure documentation files
-│   │       └── docs/        # Educational documentation files
-│   ├── tools/          # Tool implementations
-│   │   ├── organization.js  # Organization-related tools
-│   │   ├── ledger.js        # Ledger-related tools
-│   │   ├── account.js       # Account-related tools
-│   │   ├── transaction.js   # Transaction-related tools
-│   │   └── balance.js       # Balance-related tools
-│   └── util/           # Utility functions
-├── test/               # Test files
-├── dist/               # Compiled JavaScript files
-└── docs/               # Additional documentation
+# Run with debug logging
+MIDAZ_LOG_LEVEL=debug make start
 ```
 
-## Configuration
+### Claude Desktop Connection Issues
+1. Ensure the MCP server is running
+2. Check Claude Desktop logs for errors
+3. Verify the command path in your MCP settings
+4. Try restarting Claude Desktop after configuration changes
 
-The MCP server can be configured using multiple methods (in order of priority):
+### Docker Issues
+```bash
+# Check container status
+docker ps
 
-1. **Command-line arguments**: `node dist/index.js --onboarding-url=<url> --transaction-url=<url> --api-key=<key>`
-2. **Environment variables**: `MIDAZ_ONBOARDING_URL`, `MIDAZ_TRANSACTION_URL`, `MIDAZ_API_KEY`, etc.
-3. **Configuration file**: `midaz-mcp-config.json`
-4. **Default values**
+# View container logs
+make docker-logs
 
-See the [Configuration Guide](./docs/configuration.md) for detailed information.
+# Rebuild if needed
+make docker-clean && make docker-build
+```
 
-## Features
+## 📖 What This Server Provides
 
-- **Resource-based Documentation**: All documentation is available as MCP resources
-- **Tool-based API Interaction**: Read-only API tools for interacting with Midaz
-- **Backend Integration**: Connect to real Midaz backend components (Onboarding and Transaction)
-- **Fallback Mode**: Provides sample data when backend is unavailable
-- **Configuration Management**: CLI tool for managing backend connections
-- **Educational Content**: Comprehensive guides on Midaz architecture and concepts
-- **Flexible Configuration**: Multiple ways to configure the server including runtime arguments
-- **Smart Routing**: Automatically routes API calls to the appropriate backend component
-- **Dynamic Documentation**: Automatically discovers new docs from llms.txt
-- **Enhanced Security**: Input validation, audit logging, and localhost-only connections
-- **MCP Protocol Compliance**: Full support for subscriptions, pagination, and content types
-- **Docker Support**: Run in isolated containers with full Claude Desktop integration
+- **🔍 Documentation Search** - Access all Midaz docs instantly
+- **⚡ API Tools** - Read-only tools for exploring Midaz APIs
+- **📊 Data Models** - Complete understanding of Midaz data structures
+- **🏗️ Architecture Guides** - How components work together
+- **💻 Code Examples** - Ready-to-use code in Go and TypeScript
+- **🔧 SDK Support** - Integrated knowledge of both SDKs
 
-## Security
+## 🔒 Security
 
-The MCP server includes several security features:
+- Localhost-only connections
+- Read-only API access
+- Input validation and sanitization
+- No sensitive data exposure
+- Audit logging for all operations
 
-- **Localhost-only connections**: Only accepts connections from local machine
-- **Input validation**: All tool inputs are validated with Zod schemas
-- **Injection protection**: Detects and blocks common injection patterns
-- **Audit logging**: All tool invocations and resource access are logged
-- **Rate limiting**: Prevents abuse with configurable rate limits
-- **Secure configuration**: Config files use restrictive permissions (600/400)
-- **Environment isolation**: Filters environment variables for security
+## 📞 Support
 
-Audit logs are stored in `logs/audit.log` and automatically rotated after 30 days.
+- **Issues**: [GitHub Issues](https://github.com/lerianstudio/midaz-mcp-server/issues)
+- **Docs**: [Comprehensive Documentation](https://docs.lerian.studio)
+- **Quick Demo**: Run `make demo` to see all features
 
-## License
+---
 
-[MIT](./LICENSE) 
+**Ready to get started?** Run `make setup` and connect to Claude Desktop in under 2 minutes! 🎉

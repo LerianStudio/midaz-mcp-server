@@ -16,7 +16,12 @@
     "version": "0.1.0"
   },
   "useStubs": false,
-  "logLevel": "info",
   "autoDetect": true,
-  "localOnly": true
+  "localOnly": true,
+  "logging": {
+    "level": "info",
+    "console": true,
+    "detailed": false,
+    "description": "Logging configuration - level: debug|info|notice|warning|error|critical|alert|emergency"
+  }
 } 
