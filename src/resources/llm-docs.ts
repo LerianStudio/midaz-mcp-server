@@ -165,7 +165,7 @@ export const registerLLMDocsTool = (server: McpServer) => {
     'get-documentation-overview',
     'Get a complete overview of all Midaz documentation from llms.txt - includes guides, API references, and changelog. Use this for a comprehensive view of what documentation is available.',
     undefined as any,
-    async (args: any, extra: any): Promise<any> => {
+    async (_args: any, _extra: any): Promise<any> => {
       try {
         const llmDocs = await fetchLLMDocumentation();
         
@@ -189,7 +189,7 @@ export const registerLLMDocsTool = (server: McpServer) => {
     {
       query: z.string().describe('Search query for documentation topics')
     },
-    wrapToolHandler(async (args: any, extra: any) => {
+    wrapToolHandler(async (args: any, _extra: any) => {
       const validated = validateArgs(args, z.object({
         query: z.string()
       })) as { query: string };
