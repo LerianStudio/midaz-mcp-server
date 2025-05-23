@@ -1,0 +1,30 @@
+# Source files (TypeScript)
+src/
+*.ts
+!dist/**/*.d.ts
+
+# Development files
+test/
+docs/for-reference/
+ide/
+eslint.config.js
+tsconfig.json
+.gitignore
+.git/
+
+# Config examples
+*.example
+midaz-mcp-config.json
+
+# Build artifacts
+*.log
+.DS_Store
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.swp

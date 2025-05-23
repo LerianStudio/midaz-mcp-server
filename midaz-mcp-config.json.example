@@ -1,0 +1,22 @@
+{
+  "backend": {
+    "onboarding": {
+      "baseUrl": "http://localhost:3000",
+      "apiKey": "your-api-key-here"
+    },
+    "transaction": {
+      "baseUrl": "http://localhost:3001",
+      "apiKey": "your-api-key-here"
+    },
+    "timeout": 10000,
+    "retries": 3
+  },
+  "server": {
+    "name": "midaz-mcp-server",
+    "version": "0.1.0"
+  },
+  "useStubs": false,
+  "logLevel": "info",
+  "autoDetect": true,
+  "localOnly": true
+} 

@@ -1,0 +1,267 @@
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+import { enhancedFetch } from '../util/http-client.js';
+import { createLogger } from '../util/mcp-logging.js';
+import config from '../config.js';
+
+const logger = createLogger('llm-docs');
+
+// Cache for LLM documentation
+let llmDocsCache: { content: string; timestamp: number } | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes for frequently updated content
+
+/**
+ * Fetch LLM documentation from docs.lerian.studio/llms.txt
+ * @returns {Promise<string>} LLM documentation content
+ */
+async function fetchLLMDocumentation(): Promise<string> {
+  const now = Date.now();
+  
+  // Check cache
+  if (llmDocsCache && (now - llmDocsCache.timestamp) < CACHE_TTL) {
+    logger.debug('Returning cached LLM documentation');
+    return llmDocsCache.content;
+  }
+  
+  const docsUrl = config.docsUrl || 'https://docs.lerian.studio';
+  const llmDocsUrl = `${docsUrl}/llms.txt`;
+  
+  logger.info('Fetching LLM documentation', { url: llmDocsUrl });
+  
+  try {
+    const response = await enhancedFetch(llmDocsUrl, {
+      headers: {
+        'Accept': 'text/plain,text/markdown',
+        'User-Agent': 'Midaz-MCP-Server/1.0'
+      },
+      timeout: 10000
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const content = await response.text();
+    
+    // Cache the result
+    llmDocsCache = {
+      content,
+      timestamp: now
+    };
+    
+    logger.debug('Successfully fetched LLM documentation', { size: content.length });
+    return content;
+    
+  } catch (error) {
+    logger.error('Failed to fetch LLM documentation', { 
+      url: llmDocsUrl,
+      error: error instanceof Error ? error.message : String(error) 
+    });
+    
+    // Return fallback content
+    return generateFallbackLLMDocs();
+  }
+}
+
+/**
+ * Generate fallback LLM documentation
+ * @returns {string} Fallback documentation
+ */
+function generateFallbackLLMDocs(): string {
+  return `# Midaz Documentation for LLMs
+
+This documentation is dynamically updated at https://docs.lerian.studio/llms.txt
+
+## Overview
+
+Midaz is a comprehensive financial ledger system that provides:
+- Double-entry bookkeeping
+- Multi-currency support
+- Hierarchical account structures
+- Real-time transaction processing
+- Comprehensive audit trails
+
+## Available Resources
+
+The MCP server provides access to detailed documentation about:
+
+### Models
+- Organization: Top-level business entities
+- Ledger: Financial ledger containers
+- Account: Individual financial accounts
+- Transaction: Financial movements
+- Operation: Debit/credit entries
+- Balance: Account balances by asset
+- Asset: Currencies and commodities
+- Portfolio: Account groupings
+- Segment: Account categorization
+
+### Components
+- Onboarding Service: Manages organizations, ledgers, and accounts
+- Transaction Service: Handles transactions and balances
+- MDZ CLI: Command-line interface
+
+### Infrastructure
+- PostgreSQL: Primary database
+- MongoDB: Document storage
+- Redis: Caching layer
+- RabbitMQ: Message queue
+- Grafana: Monitoring
+
+## Getting Started
+
+Visit https://docs.lerian.studio for complete documentation.
+`;
+}
+
+/**
+ * Register LLM documentation resources with the MCP server
+ * @param server MCP server instance
+ */
+export const registerLLMDocsResources = (server: McpServer) => {
+  // LLM documentation resource
+  server.resource(
+    'llm-documentation',
+    'midaz://llm/documentation',
+    async (uri) => ({
+      contents: [{
+        uri: uri.href,
+        text: await fetchLLMDocumentation(),
+        mimeType: 'text/plain'
+      }]
+    })
+  );
+
+  // Available documentation resource
+  server.resource(
+    'available-docs',
+    'midaz://llm/available-docs',
+    async (uri) => {
+      const llmDocs = await fetchLLMDocumentation();
+      
+      // Extract available documentation from the llms.txt content
+      // This assumes the file contains structured information about available docs
+      const availableDocsSection = extractAvailableDocsSection(llmDocs);
+      
+      return {
+        contents: [{
+          uri: uri.href,
+          text: availableDocsSection,
+          mimeType: 'text/markdown'
+        }]
+      };
+    }
+  );
+};
+
+/**
+ * Register LLM documentation tool
+ * @param server MCP server instance
+ */
+export const registerLLMDocsTool = (server: McpServer) => {
+  server.tool(
+    'get-available-documentation',
+    'Get information about all available documentation in the Midaz system',
+    {},
+    async () => {
+      const llmDocs = await fetchLLMDocumentation();
+      
+      return {
+        content: [{
+          type: 'text',
+          text: llmDocs
+        }],
+        isError: false
+      };
+    }
+  );
+
+  server.tool(
+    'search-documentation',
+    'Search for specific documentation topics',
+    {
+      query: z.string().describe('Search query for documentation topics')
+    },
+    async (args) => {
+      const { query } = args;
+      const llmDocs = await fetchLLMDocumentation();
+      
+      // Simple search implementation
+      const lines = llmDocs.split('\n');
+      const results: string[] = [];
+      let currentSection = '';
+      
+      for (const line of lines) {
+        if (line.startsWith('#')) {
+          currentSection = line;
+        }
+        
+        if (line.toLowerCase().includes(query.toLowerCase())) {
+          if (currentSection && !results.includes(currentSection)) {
+            results.push(currentSection);
+          }
+          results.push(line);
+        }
+      }
+      
+      const searchResults = results.length > 0 
+        ? results.join('\n')
+        : `No results found for "${query}"`;
+      
+      return {
+        content: [{
+          type: 'text',
+          text: searchResults
+        }],
+        isError: false
+      };
+    }
+  );
+};
+
+/**
+ * Extract available documentation section from LLM docs
+ * @param {string} llmDocs - Full LLM documentation
+ * @returns {string} Available documentation section
+ */
+function extractAvailableDocsSection(llmDocs: string): string {
+  // Look for a section about available documentation
+  const lines = llmDocs.split('\n');
+  let inAvailableSection = false;
+  let availableContent: string[] = [];
+  
+  for (const line of lines) {
+    if (line.toLowerCase().includes('available') && 
+        (line.includes('documentation') || line.includes('resources'))) {
+      inAvailableSection = true;
+      availableContent.push(line);
+      continue;
+    }
+    
+    if (inAvailableSection) {
+      // Stop at next major section
+      if (line.startsWith('#') && !line.startsWith('##')) {
+        break;
+      }
+      availableContent.push(line);
+    }
+  }
+  
+  if (availableContent.length === 0) {
+    // Fallback: return a summary
+    return `# Available Documentation
+
+The Midaz MCP server provides comprehensive documentation fetched from docs.lerian.studio.
+
+For a complete list of available documentation, use the \`get-available-documentation\` tool or access the \`midaz://llm/documentation\` resource.
+
+Documentation is organized into:
+- **Models**: Data structures and relationships
+- **Components**: System services and APIs
+- **Infrastructure**: Technical architecture
+- **Guides**: Getting started and best practices
+`;
+  }
+  
+  return availableContent.join('\n');
+}

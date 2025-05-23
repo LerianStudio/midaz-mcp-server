@@ -1,0 +1,49 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Midaz MCP Config JSON
+midaz-mcp-config.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+CLAUDE.md
+cursor/
+windsurf/
+.windsurfrules
+.cursorrules
+ide/
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/ 
+
+# Midaz sub-module
+midaz/

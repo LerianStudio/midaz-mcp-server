@@ -1,0 +1,30 @@
+# Lightweight production Dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy only necessary files
+COPY package*.json ./
+COPY dist ./dist
+
+# Install only production dependencies
+RUN npm ci --only=production --omit=dev && \
+    npm cache clean --force
+
+# Create logs directory
+RUN mkdir -p /app/logs
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs && \
+    chown -R nodejs:nodejs /app
+
+USER nodejs
+
+# Health check for container monitoring
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "console.log('healthy')" || exit 1
+
+ENV NODE_ENV=production
+
+CMD ["node", "dist/index.js"]

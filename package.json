@@ -1,0 +1,92 @@
+{
+  "name": "@midaz/mcp-server",
+  "version": "0.1.0",
+  "description": "A Model Context Protocol (MCP) server for Midaz that provides educational content, model information, and read-only API interactions for developer clients through their LLMs.",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./cli": "./dist/cli.js"
+  },
+  "type": "module",
+  "bin": {
+    "midaz-mcp-server": "./dist/bin/midaz-mcp-server.js",
+    "midaz-mcp-config": "./dist/cli.js"
+  },
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node --esm src/index.ts",
+    "dev:watch": "ts-node --esm --watch src/index.ts",
+    "build": "tsc && chmod +x dist/index.js && chmod +x dist/cli.js && chmod +x dist/bin/midaz-mcp-server.js",
+    "clean": "rm -rf dist",
+    "rebuild": "npm run clean && npm run build",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "test": "npm run build && node test/basic-server-test.js",
+    "test:server": "node test/basic-server-test.js",
+    "test:inspector": "node test/mcp-inspector-esm.js",
+    "test:requests": "node test/run-test-requests.js",
+    "test:mcp": "node test/mcp-inspector-tests.js",
+    "dev:hot": "node src/dev-server.js",
+    "config": "node dist/cli.js",
+    "docker:build": "./scripts/docker-mcp.sh build",
+    "docker:run": "./scripts/docker-mcp.sh run",
+    "docker:stop": "./scripts/docker-mcp.sh stop",
+    "docker:logs": "./scripts/docker-mcp.sh logs",
+    "docker:exec": "./scripts/docker-mcp.sh exec",
+    "docker:bridge": "./scripts/docker-mcp.sh bridge",
+    "docker:clean": "./scripts/docker-mcp.sh clean",
+    "docker:compose": "docker-compose up -d",
+    "docker:compose:down": "docker-compose down",
+    "config:init": "node dist/cli.js && cp .env.example .env",
+    "prepare": "npm run build",
+    "docs": "typedoc --out docs src/"
+  },
+  "keywords": [
+    "midaz",
+    "mcp",
+    "model-context-protocol",
+    "llm",
+    "ai",
+    "financial",
+    "ledger",
+    "claude",
+    "openai"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lerianstudio/midaz-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lerianstudio/midaz-mcp-server/issues"
+  },
+  "homepage": "https://github.com/lerianstudio/midaz-mcp-server#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "src/resources/markdown/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "author": "Midaz Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@typescript-eslint/parser": "^8.30.1",
+    "eslint": "^9.24.0",
+    "ts-node": "^10.0.0",
+    "typedoc": "^0.25.4",
+    "typescript": "^5.3.3"
+  }
+}
