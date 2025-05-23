@@ -53,11 +53,12 @@ The server works with or without live Midaz services, automatically falling back
 ### Using Docker (Recommended for isolation)
 
 ```bash
-# Using the helper script
+# Using the helper script (builds and runs the container)
 ./scripts/docker-mcp.sh build
 ./scripts/docker-mcp.sh run
 
-# Or using docker-compose
+# Or using docker-compose (alternative method)
+# Note: Use either the script OR docker-compose, not both
 docker-compose up -d
 ```
 

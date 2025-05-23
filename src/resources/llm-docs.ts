@@ -177,8 +177,8 @@ export const registerLLMDocsTool = (server: McpServer) => {
   );
 
   server.tool(
-    'search-documentation',
-    'Search for specific documentation topics',
+    'search-llm-documentation',
+    'Search for specific documentation topics in LLM docs',
     {
       query: z.string().describe('Search query for documentation topics')
     },

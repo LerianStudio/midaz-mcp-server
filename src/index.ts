@@ -25,7 +25,7 @@ import { registerSegmentTools } from './tools/segment.js';
 import { registerDocsAdminTools } from './tools/docs-admin.js';
 
 // Import MCP protocol handlers
-import { setupSubscriptionHandlers, setupDiscoveryHandlers } from './util/resource-subscriptions.js';
+import { setupSubscriptionHandlers } from './util/resource-subscriptions.js';
 
 /**
  * Create an MCP server for Midaz
@@ -65,7 +65,7 @@ const main = async () => {
     // Create the MCP server with declared capabilities
     const server = new McpServer({
       name: 'midaz-mcp-server',
-      version: '0.1.0',
+      version: '1.0.0',
       capabilities
     });
 
@@ -94,7 +94,7 @@ const main = async () => {
 
     // Setup MCP protocol handlers for subscriptions and discovery
     setupSubscriptionHandlers(server);
-    setupDiscoveryHandlers(server);
+    // Note: Discovery handlers are non-standard and not supported by the MCP SDK
 
     // Connect to stdio transport
     const transport = new StdioServerTransport();
