@@ -66,8 +66,8 @@ make help
 The MCP server automatically detects local Midaz services when started:
 
 ```bash
-# Using npx
-npx @lerianstudio/midaz-mcp-server
+# Using npx (always gets latest version)
+npx --yes @lerianstudio/midaz-mcp-server
 
 # Or if installed globally
 midaz-mcp-server
@@ -132,16 +132,28 @@ npm start
   "mcpServers": {
     "midaz": {
       "command": "npx",
-      "args": ["@lerianstudio/midaz-mcp-server"]
+      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
     }
   }
 }
 ```
 
-### Option 2: Docker Integration
+### Option 2: Docker Integration (Auto-Updates)
 
-For Docker, configure Claude Desktop to use docker exec:
+For Docker with automatic updates, use docker run with latest tag:
 
+```json
+{
+  "mcpServers": {
+    "midaz": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "lerianstudio/midaz-mcp-server:latest"]
+    }
+  }
+}
+```
+
+For development with persistent containers:
 ```json
 {
   "mcpServers": {
@@ -168,6 +180,7 @@ For custom backend URLs:
     "midaz": {
       "command": "npx",
       "args": [
+        "--yes",
         "@lerianstudio/midaz-mcp-server",
         "--onboarding-url=http://localhost:3000",
         "--transaction-url=http://localhost:3001"

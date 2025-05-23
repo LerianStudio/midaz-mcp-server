@@ -13,7 +13,7 @@ make setup && make start
 
 ### Option 2: NPX (No Installation Required)
 ```bash
-npx @lerianstudio/midaz-mcp-server
+npx --yes @lerianstudio/midaz-mcp-server
 ```
 
 ### Option 3: Docker (Isolated Environment)
@@ -27,13 +27,13 @@ make docker-build && make docker-run
 
 Add this to your Claude Desktop MCP settings:
 
-### For NPX Installation:
+### For NPX Installation (Auto-Updates):
 ```json
 {
   "mcpServers": {
     "midaz": {
       "command": "npx",
-      "args": ["@lerianstudio/midaz-mcp-server"]
+      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
     }
   }
 }
@@ -51,13 +51,13 @@ Add this to your Claude Desktop MCP settings:
 }
 ```
 
-### For Docker:
+### For Docker (Auto-Updates):
 ```json
 {
   "mcpServers": {
     "midaz": {
       "command": "docker",
-      "args": ["exec", "-i", "midaz-mcp-server", "node", "dist/index.js"]
+      "args": ["run", "--rm", "-i", "lerianstudio/midaz-mcp-server:latest"]
     }
   }
 }
