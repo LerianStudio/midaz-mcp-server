@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g., 1.2.3)'
+        description: "Version to publish (e.g., 1.2.3)"
         required: true
         type: string
 
@@ -56,9 +56,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@midaz'
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+          scope: "@lerianstudio"
 
       - name: Verify package version
         run: |
@@ -81,7 +81,7 @@ jobs:
       - name: Check NPM publish status
         id: check_npm
         run: |
-          if npm view @midaz/mcp-server@${{ needs.validate-release.outputs.version }} version 2>/dev/null; then
+          if npm view @lerianstudio/mcp-server@${{ needs.validate-release.outputs.version }} version 2>/dev/null; then
             echo "Package already published"
             echo "already_published=true" >> $GITHUB_OUTPUT
           else
@@ -100,7 +100,7 @@ jobs:
         if: steps.check_npm.outputs.already_published == 'false'
         run: |
           sleep 10
-          npm view @midaz/mcp-server@${{ needs.validate-release.outputs.version }}
+          npm view @lerianstudio/mcp-server@${{ needs.validate-release.outputs.version }}
 
   publish-github-packages:
     name: Publish to GitHub Packages
@@ -115,9 +115,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@lerianstudio'
+          node-version: "18"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@lerianstudio"
 
       - name: Install dependencies
         run: npm ci
@@ -166,13 +166,13 @@ jobs:
       - name: Create version tags
         run: |
           VERSION="${{ needs.validate-release.outputs.version }}"
-          
+
           # GitHub Container Registry
           docker buildx imagetools create \
             ghcr.io/lerianstudio/midaz-mcp-server:sha-${GITHUB_SHA:0:7} \
             --tag ghcr.io/lerianstudio/midaz-mcp-server:$VERSION \
             --tag ghcr.io/lerianstudio/midaz-mcp-server:latest
-          
+
           # Docker Hub (if credentials are configured)
           if [ -n "${{ secrets.DOCKER_USERNAME }}" ]; then
             docker buildx imagetools create \
@@ -193,31 +193,31 @@ jobs:
           script: |
             const version = '${{ needs.validate-release.outputs.version }}';
             const releaseId = context.payload.release.id;
-            
+
             const currentBody = context.payload.release.body || '';
             const additionalNotes = `
-            
+
             ## 📦 Installation
-            
+
             ### NPM
             \`\`\`bash
-            npm install -g @midaz/mcp-server@${version}
+            npm install -g @lerianstudio/mcp-server@${version}
             # or
-            npx @midaz/mcp-server@${version}
+            npx @lerianstudio/mcp-server@${version}
             \`\`\`
-            
+
             ### Docker
             \`\`\`bash
             docker pull ghcr.io/lerianstudio/midaz-mcp-server:${version}
             docker run -it ghcr.io/lerianstudio/midaz-mcp-server:${version}
             \`\`\`
-            
+
             ### GitHub Packages
             \`\`\`bash
             npm install -g @lerianstudio/midaz-mcp-server@${version} --registry=https://npm.pkg.github.com
             \`\`\`
             `;
-            
+
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
