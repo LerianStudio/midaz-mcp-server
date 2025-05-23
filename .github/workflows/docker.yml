@@ -14,6 +14,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: lerianstudio/midaz-mcp-server
+  DOCKERHUB_ORG: lerianstudio
 
 jobs:
   build:
