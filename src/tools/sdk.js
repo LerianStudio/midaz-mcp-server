@@ -4,33 +4,17 @@
  */
 
 import { z } from 'zod';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { wrapToolHandler, validateArgs } from '../util/mcp-helpers.js';
-
-interface CodeExample {
-  title: string;
-  description: string;
-  code: string;
-  dependencies: string[];
-  runInstructions: string[];
-}
-
-interface FeatureComparison {
-  golang: {
-    approach: string;
-    strengths: string[];
-  };
-  typescript: {
-    approach: string;
-    strengths: string[];
-  };
-}
 
 /**
  * Register SDK tools with the MCP server
  * @param server MCP server instance
  */
-export const registerSdkTools = (server: McpServer) => {
+/**
+ * Register SDK tools with the MCP server
+ * @param {import('@modelcontextprotocol/sdk/server/mcp.js').McpServer} server MCP server instance
+ */
+export const registerSdkTools = (server) => {
 
   // SDK Code Generator Tool
   server.tool(
@@ -47,7 +31,7 @@ export const registerSdkTools = (server: McpServer) => {
       ]).describe('Type of code example to generate'),
       includeComments: z.boolean().default(true).describe('Include detailed comments in generated code'),
     },
-    wrapToolHandler(async (args: any, extra: any) => {
+    wrapToolHandler(async (args, extra) => {
       const validatedArgs = validateArgs(args, z.object({
         language: z.enum(['golang', 'typescript']),
         useCase: z.enum([
@@ -58,7 +42,7 @@ export const registerSdkTools = (server: McpServer) => {
           'error-handling'
         ]),
         includeComments: z.boolean().default(true),
-      })) as { language: string; useCase: string; includeComments: boolean };
+      }));
       const { language, useCase, includeComments } = validatedArgs;
 
       const codeExample = generateSdkCode(language, useCase, includeComments);
@@ -92,7 +76,7 @@ export const registerSdkTools = (server: McpServer) => {
         'type-safety'
       ])).describe('Features to compare between SDKs'),
     },
-    wrapToolHandler(async (args: any, extra: any) => {
+    wrapToolHandler(async (args, extra) => {
       const validatedArgs = validateArgs(args, z.object({
         features: z.array(z.enum([
           'authentication',
@@ -102,7 +86,7 @@ export const registerSdkTools = (server: McpServer) => {
           'performance',
           'type-safety'
         ])),
-      })) as { features: string[] };
+      }));
       const { features } = validatedArgs;
 
       const comparison = compareFeatures(features);
@@ -124,12 +108,12 @@ export const registerSdkTools = (server: McpServer) => {
       language: z.enum(['both', 'golang', 'typescript']).default('both').describe('Which SDK language to search'),
       maxResults: z.number().min(1).max(10).default(5).describe('Maximum number of examples to return')
     },
-    wrapToolHandler(async (args: any, extra: any) => {
+    wrapToolHandler(async (args, extra) => {
       const validatedArgs = validateArgs(args, z.object({
         query: z.string().min(3),
         language: z.enum(['both', 'golang', 'typescript']).default('both'),
         maxResults: z.number().min(1).max(10).default(5)
-      })) as { query: string; language: string; maxResults: number };
+      }));
       const { query, language, maxResults } = validatedArgs;
 
       const examples = findSdkExamples(query, language, maxResults);
@@ -157,7 +141,7 @@ export const registerSdkTools = (server: McpServer) => {
 /**
  * Generate SDK code examples
  */
-function generateSdkCode(language: string, useCase: string, includeComments: boolean) {
+function generateSdkCode(language, useCase, includeComments) {
   if (language === 'golang') {
     return generateGolangCode(useCase, includeComments);
   } else {
@@ -168,8 +152,8 @@ function generateSdkCode(language: string, useCase: string, includeComments: boo
 /**
  * Generate Golang code examples
  */
-function generateGolangCode(useCase: string, includeComments: boolean) {
-  const examples: Record<string, CodeExample> = {
+function generateGolangCode(useCase, includeComments) {
+  const examples = {
     'basic-setup': {
       title: 'Basic Midaz Go SDK Setup',
       description: 'Initialize and configure the Midaz Go SDK with authentication',
@@ -268,8 +252,8 @@ func main() {
 /**
  * Generate TypeScript code examples
  */
-function generateTypeScriptCode(useCase: string, includeComments: boolean) {
-  const examples: Record<string, CodeExample> = {
+function generateTypeScriptCode(useCase, includeComments) {
+  const examples = {
     'basic-setup': {
       title: 'Basic TypeScript SDK Setup',
       description: 'Initialize and configure the Midaz TypeScript SDK',
@@ -356,8 +340,8 @@ main().catch(console.error);`,
 /**
  * Compare features between SDKs
  */
-function compareFeatures(features: string[]) {
-  const comparisons: Record<string, FeatureComparison> = {};
+function compareFeatures(features) {
+  const comparisons = {};
   
   for (const feature of features) {
     switch (feature) {
@@ -411,7 +395,7 @@ function compareFeatures(features: string[]) {
 /**
  * Find SDK examples based on query
  */
-function findSdkExamples(query: string, language: string, maxResults: number) {
+function findSdkExamples(query, language, maxResults) {
   const queryLower = query.toLowerCase();
   
   // Mock examples based on the cloned repositories
@@ -470,7 +454,7 @@ function findSdkExamples(query: string, language: string, maxResults: number) {
 /**
  * Calculate relevance score for search
  */
-function calculateRelevance(query: string, tags: string[]): number {
+function calculateRelevance(query, tags) {
   let score = 0;
   const keywords = query.split(' ');
   
