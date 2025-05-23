@@ -1,33 +1,13 @@
 # Midaz MCP Server
 
-A Model Context Protocol (MCP) server that enables AI assistants (like Claude) to understand and interact with the Midaz financial system. Get instant access to Midaz documentation, APIs, and development tools directly in your AI conversations.
+A Model Context Protocol (MCP) server that enables AI assistants to understand and interact with the Midaz financial system. Get instant access to Midaz documentation, APIs, and development tools directly in your AI conversations.
 
-## 🚀 Quick Start (Choose One)
+## 🔗 Connect to Your AI Assistant
 
-### Option 1: One-Command Setup (Recommended)
-```bash
-git clone https://github.com/lerianstudio/midaz-mcp-server
-cd midaz-mcp-server
-make setup && make start
-```
+### Claude/ChatGPT/Cursor/Windsurf and Other MCP Clients (Auto-Updates)
 
-### Option 2: NPX (No Installation Required)
-```bash
-npx --yes @lerianstudio/midaz-mcp-server
-```
+Add this to your MCP settings:
 
-### Option 3: Docker (Isolated Environment)
-```bash
-git clone https://github.com/lerianstudio/midaz-mcp-server
-cd midaz-mcp-server
-make docker-build && make docker-run
-```
-
-## 🔗 Connect to Claude Desktop
-
-Add this to your Claude Desktop MCP settings:
-
-### For NPX Installation (Auto-Updates):
 ```json
 {
   "mcpServers": {
@@ -39,19 +19,10 @@ Add this to your Claude Desktop MCP settings:
 }
 ```
 
-### For Local Development:
-```json
-{
-  "mcpServers": {
-    "midaz": {
-      "command": "node",
-      "args": ["/path/to/midaz-mcp-server/dist/index.js"]
-    }
-  }
-}
-```
+### Docker (Auto-Updates)
 
-### For Docker (Auto-Updates):
+For any MCP-compatible client using Docker:
+
 ```json
 {
   "mcpServers": {
@@ -63,9 +34,15 @@ Add this to your Claude Desktop MCP settings:
 }
 ```
 
+### Direct NPX Usage
+
+```bash
+npx --yes @lerianstudio/midaz-mcp-server
+```
+
 ## ✨ What You Get
 
-Once connected, you can ask Claude about:
+Once connected, you can ask your AI assistant about:
 
 - 📚 **Midaz Documentation** - "Explain how Midaz accounts work"
 - 🔧 **API Usage** - "Show me how to create a transaction"
@@ -78,6 +55,7 @@ Once connected, you can ask Claude about:
 The server works out of the box, but you can customize it:
 
 ### Environment Variables
+
 ```bash
 # Logging level (debug, info, warning, error)
 export MIDAZ_LOG_LEVEL=info
@@ -91,71 +69,59 @@ export MIDAZ_TRANSACTION_URL=http://localhost:3001
 export MIDAZ_API_KEY=your-api-key
 ```
 
-### Configuration File
-Copy and edit the example configs:
-```bash
-cp .env.example .env
-cp midaz-mcp-config.json.example midaz-mcp-config.json
-```
+### Custom Backend URLs
 
-## 🐳 Docker Quick Reference
+For custom backend URLs in your MCP client configuration:
 
-```bash
-# Build and run
-make docker-build
-make docker-run
-
-# View logs
-make docker-logs
-
-# Stop and clean up
-make docker-stop
-make docker-clean
-```
-
-## 🔧 Development Commands
-
-```bash
-# Start development server
-make dev
-
-# Run with debug logging
-MIDAZ_LOG_LEVEL=debug make dev
-
-# Test the logging system
-make test-logging
-
-# See all available commands
-make help
+```json
+{
+  "mcpServers": {
+    "midaz": {
+      "command": "npx",
+      "args": [
+        "--yes",
+        "@lerianstudio/midaz-mcp-server",
+        "--onboarding-url=http://localhost:3000",
+        "--transaction-url=http://localhost:3001"
+      ],
+      "env": {
+        "MIDAZ_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
 ```
 
 ## 🆘 Troubleshooting
 
-### Server Won't Start
-```bash
-# Check if ports are available
-lsof -i :3000 -i :3001
+### Connection Issues
 
-# Run with debug logging
-MIDAZ_LOG_LEVEL=debug make start
+1. Ensure your AI client supports MCP
+2. Check MCP server logs for errors
+3. Verify the command path in your MCP settings
+4. Try restarting your AI client after configuration changes
+
+### Update Issues
+
+```bash
+# Force update to latest version
+npx --yes @lerianstudio/midaz-mcp-server
+
+# Clear npm cache if needed
+npm cache clean --force
 ```
 
-### Claude Desktop Connection Issues
-1. Ensure the MCP server is running
-2. Check Claude Desktop logs for errors
-3. Verify the command path in your MCP settings
-4. Try restarting Claude Desktop after configuration changes
-
 ### Docker Issues
+
 ```bash
+# Pull latest image
+docker pull lerianstudio/midaz-mcp-server:latest
+
 # Check container status
 docker ps
 
 # View container logs
-make docker-logs
-
-# Rebuild if needed
-make docker-clean && make docker-build
+docker logs midaz-mcp-server
 ```
 
 ## 📖 What This Server Provides
@@ -179,8 +145,8 @@ make docker-clean && make docker-build
 
 - **Issues**: [GitHub Issues](https://github.com/lerianstudio/midaz-mcp-server/issues)
 - **Docs**: [Comprehensive Documentation](https://docs.lerian.studio)
-- **Quick Demo**: Run `make demo` to see all features
+- **Developer Guide**: See [DEVELOPER.md](DEVELOPER.md) for advanced setup
 
 ---
 
-**Ready to get started?** Run `make setup` and connect to Claude Desktop in under 2 minutes! 🎉
+**Ready to get started?** Add the configuration to your AI client and start asking questions about Midaz! 🎉

@@ -11,6 +11,22 @@ This document provides detailed information for developers working on or extendi
 
 The server works with or without live Midaz services, automatically falling back to comprehensive stub data when services are unavailable.
 
+## 🚀 Quick Development Setup
+
+### Option 1: One-Command Setup (Recommended)
+```bash
+git clone https://github.com/lerianstudio/midaz-mcp-server
+cd midaz-mcp-server
+make setup && make start
+```
+
+### Option 2: Docker Development Environment
+```bash
+git clone https://github.com/lerianstudio/midaz-mcp-server
+cd midaz-mcp-server
+make docker-build && make docker-run
+```
+
 ## Advanced Installation & Setup
 
 ### Manual Installation
@@ -118,9 +134,11 @@ node dist/index.js --onboarding-url=http://localhost:3000 --transaction-url=http
 npm start
 ```
 
-## Claude Desktop Integration
+## AI Client Integration
 
-### Option 1: Direct Integration (npx)
+### Claude Desktop Integration
+
+#### Option 1: Direct Integration (npx)
 
 1. Open Claude Desktop settings
 2. Navigate to MCP section
@@ -138,7 +156,7 @@ npm start
 }
 ```
 
-### Option 2: Docker Integration (Auto-Updates)
+#### Option 2: Docker Integration (Auto-Updates)
 
 For Docker with automatic updates, use docker run with latest tag:
 
@@ -168,6 +186,51 @@ For development with persistent containers:
 Make sure the container is running first:
 ```bash
 ./scripts/docker-mcp.sh run
+```
+
+### ChatGPT Desktop Integration
+
+Add this to your ChatGPT Desktop MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "midaz": {
+      "command": "npx",
+      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
+    }
+  }
+}
+```
+
+### Windsurf IDE Integration
+
+Add this to your Windsurf MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "midaz": {
+      "command": "npx",
+      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
+    }
+  }
+}
+```
+
+### Cursor IDE Integration
+
+Add this to your Cursor MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "midaz": {
+      "command": "npx",
+      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
+    }
+  }
+}
 ```
 
 ### Custom Backend URLs
