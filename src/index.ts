@@ -23,6 +23,7 @@ import { registerAssetTools } from './tools/asset.js';
 import { registerPortfolioTools } from './tools/portfolio.js';
 import { registerSegmentTools } from './tools/segment.js';
 import { registerDocsAdminTools } from './tools/docs-admin.js';
+import { registerDocsUserTools } from './tools/docs-user.js';
 
 // Import MCP protocol handlers
 import { setupSubscriptionHandlers } from './util/resource-subscriptions.js';
@@ -90,6 +91,7 @@ const main = async () => {
     registerPortfolioTools(server);
     registerSegmentTools(server);
     registerLLMDocsTool(server);
+    registerDocsUserTools(server);
     registerDocsAdminTools(server);
 
     // Setup MCP protocol handlers for subscriptions and discovery
