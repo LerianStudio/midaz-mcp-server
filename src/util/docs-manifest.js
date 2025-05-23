@@ -234,6 +234,11 @@ async function fetchManifest() {
       return manifestCache;
     }
 
+    // Validate URL to prevent file content exposure
+    if (!LLMS_TXT_URL || !LLMS_TXT_URL.startsWith('http')) {
+      throw new Error(`Invalid documentation URL: ${LLMS_TXT_URL}`);
+    }
+
     logger.info('Fetching documentation from llms.txt', { url: LLMS_TXT_URL });
     
     const response = await fetch(LLMS_TXT_URL, {

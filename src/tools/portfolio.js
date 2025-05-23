@@ -2,7 +2,6 @@ import { z } from "zod";
 import api from "../util/api.js";
 import config from "../config.js";
 import { 
-    createToolResponse, 
     createPaginatedResponse, 
     wrapToolHandler, 
     validateArgs,

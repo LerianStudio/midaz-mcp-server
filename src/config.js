@@ -169,6 +169,12 @@ async function autoDetectServices(config) {
 
     for (const service of services) {
         try {
+            // Validate service URL to prevent file content exposure
+            if (!service.url || !service.url.startsWith('http')) {
+                console.warn(`Invalid service URL for ${service.name}: ${service.url}`);
+                continue;
+            }
+            
             // Try health endpoint first
             const healthUrl = `${service.url}${service.healthPath}`;
             const response = await fetch(healthUrl, {
@@ -185,7 +191,13 @@ async function autoDetectServices(config) {
         } catch (error) {
             // Try API endpoint as fallback
             try {
+                // Additional URL validation for API endpoint
                 const apiUrl = `${service.url}${service.apiPath}`;
+                if (!apiUrl.startsWith('http')) {
+                    console.warn(`Invalid API URL for ${service.name}: ${apiUrl}`);
+                    continue;
+                }
+                
                 const response = await fetch(apiUrl, {
                     method: 'GET',
                     signal: AbortSignal.timeout(2000)
