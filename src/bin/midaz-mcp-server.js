@@ -4,7 +4,7 @@
  * Midaz MCP Server - NPX Executable Entry Point
  * 
  * This script enables running the Midaz MCP server via npx:
- * npx @midaz/mcp-server
+ * npx @lerianstudio/midaz-mcp-server
  */
 
 import { spawn } from 'child_process';

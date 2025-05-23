@@ -67,7 +67,7 @@ The MCP server automatically detects local Midaz services when started:
 
 ```bash
 # Using npx
-npx @midaz/mcp-server
+npx @lerianstudio/midaz-mcp-server
 
 # Or if installed globally
 midaz-mcp-server
@@ -132,7 +132,7 @@ npm start
   "mcpServers": {
     "midaz": {
       "command": "npx",
-      "args": ["@midaz/mcp-server"]
+      "args": ["@lerianstudio/midaz-mcp-server"]
     }
   }
 }
@@ -168,7 +168,7 @@ For custom backend URLs:
     "midaz": {
       "command": "npx",
       "args": [
-        "@midaz/mcp-server",
+        "@lerianstudio/midaz-mcp-server",
         "--onboarding-url=http://localhost:3000",
         "--transaction-url=http://localhost:3001"
       ],
