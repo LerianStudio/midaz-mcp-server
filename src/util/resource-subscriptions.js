@@ -8,6 +8,12 @@
 import { watch } from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
+import { 
+  SubscribeRequestSchema, 
+  UnsubscribeRequestSchema,
+  McpError,
+  ErrorCode 
+} from '@modelcontextprotocol/sdk/types.js';
 
 // Subscription manager
 class SubscriptionManager extends EventEmitter {
@@ -168,115 +174,79 @@ export const subscriptionManager = new SubscriptionManager();
 
 /**
  * MCP-compliant subscription handler
- * @param {Object} server - MCP server instance
+ * @param {Object} mcpServer - MCP server instance
  */
-export function setupSubscriptionHandlers(server) {
+export function setupSubscriptionHandlers(mcpServer) {
+  // Get the underlying server instance
+  const server = mcpServer.server;
+  
+  // Register subscription capability
+  server.registerCapabilities({
+    resources: {
+      subscribe: true
+    }
+  });
+
   // Handle subscribe requests
-  server.setRequestHandler('resources/subscribe', async (request) => {
+  server.setRequestHandler(SubscribeRequestSchema, async (request) => {
     const { uri } = request.params;
     const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
       subscriptionManager.subscribe(uri, subscriptionId, (event) => {
         // Send notification to client
-        server.sendNotification('resources/changed', {
-          subscriptionId,
-          ...event
+        server.sendResourceUpdated({
+          uri: event.uri
         });
       });
 
       return {
-        subscriptionId,
-        uri
+        _meta: {
+          subscriptionId
+        }
       };
     } catch (error) {
-      throw {
-        code: -32602,
-        message: 'Invalid subscription request',
-        data: { error: error.message }
-      };
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        'Invalid subscription request',
+        { error: error.message }
+      );
     }
   });
 
   // Handle unsubscribe requests
-  server.setRequestHandler('resources/unsubscribe', async (request) => {
-    const { subscriptionId } = request.params;
+  server.setRequestHandler(UnsubscribeRequestSchema, async (request) => {
+    const { uri } = request.params;
 
-    const success = subscriptionManager.unsubscribe(subscriptionId);
-    if (!success) {
-      throw {
-        code: -32602,
-        message: 'Invalid subscription ID'
-      };
+    // Find and remove subscriptions for this URI
+    let removed = false;
+    const subscriptions = subscriptionManager.listSubscriptions();
+    
+    for (const sub of subscriptions) {
+      if (sub.uri === uri) {
+        subscriptionManager.unsubscribe(sub.subscriptionId);
+        removed = true;
+      }
     }
 
-    return { success: true };
-  });
+    if (!removed) {
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        'No subscription found for URI'
+      );
+    }
 
-  // Handle list changed requests
-  server.setRequestHandler('resources/listChanged', async (request) => {
-    const { since } = request.params;
-    const sinceTimestamp = since ? new Date(since).getTime() : 0;
-
-    const changed = subscriptionManager.listChanged(sinceTimestamp);
-    return { changed };
+    return {};
   });
 }
 
 /**
  * Dynamic tool/resource discovery
- * @param {Object} server - MCP server instance
+ * Note: These are non-standard extensions and may not be supported by all clients
+ * @param {Object} mcpServer - MCP server instance
  */
-export function setupDiscoveryHandlers(server) {
-  // Discover available tools
-  server.setRequestHandler('tools/discover', async () => {
-    const tools = [];
-    
-    // Get all registered tools
-    if (server._tools) {
-      for (const [name, tool] of server._tools.entries()) {
-        tools.push({
-          name,
-          description: tool.description,
-          inputSchema: tool.inputSchema
-        });
-      }
-    }
-
-    return { tools };
-  });
-
-  // Discover available resources
-  server.setRequestHandler('resources/discover', async () => {
-    const resources = [];
-    
-    // Get all registered resources
-    if (server._resources) {
-      for (const [name, resource] of server._resources.entries()) {
-        resources.push({
-          name,
-          uri: resource.uri,
-          description: resource.description
-        });
-      }
-    }
-
-    return { resources };
-  });
-
-  // Server capabilities
-  server.setRequestHandler('server/capabilities', async () => {
-    return {
-      capabilities: {
-        tools: true,
-        resources: true,
-        subscriptions: true,
-        discovery: true,
-        pagination: true,
-        logging: true
-      },
-      version: '1.0.0',
-      name: 'midaz-mcp-server'
-    };
-  });
+export function setupDiscoveryHandlers(mcpServer) {
+  // Discovery is not part of the standard MCP protocol
+  // These handlers won't work with the standard SDK
+  console.warn('Discovery handlers are non-standard and not supported by the MCP SDK');
 }
