@@ -3,8 +3,8 @@ name: Release Pipeline
 on:
   push:
     branches:
-      - main
-      - develop
+      - main        # Production releases only
+      - develop     # Pre-releases for testing
   workflow_dispatch:
     inputs:
       release_type:
@@ -73,8 +73,8 @@ jobs:
 
       - name: Configure npm authentication
         run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "@lerianstudio:registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -126,7 +126,7 @@ jobs:
         with:
           images: |
             ghcr.io/lerianstudio/midaz-mcp-server
-            midaz/mcp-server
+            lerianstudio/midaz-mcp-server
           tags: |
             type=semver,pattern={{version}},value=${{ needs.release.outputs.new_release_version }}
             type=semver,pattern={{major}}.{{minor}},value=${{ needs.release.outputs.new_release_version }}

@@ -1,5 +1,5 @@
 {
-  "name": "@midaz/mcp-server",
+  "name": "@lerianstudio/midaz-mcp-server",
   "version": "1.0.0",
   "description": "A Model Context Protocol (MCP) server for Midaz that provides educational content, model information, and read-only API interactions for developer clients through their LLMs.",
   "main": "dist/index.js",

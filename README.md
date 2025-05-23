@@ -13,7 +13,7 @@ make setup && make start
 
 ### Option 2: NPX (No Installation Required)
 ```bash
-npx @midaz/mcp-server
+npx @lerianstudio/midaz-mcp-server
 ```
 
 ### Option 3: Docker (Isolated Environment)
@@ -33,7 +33,7 @@ Add this to your Claude Desktop MCP settings:
   "mcpServers": {
     "midaz": {
       "command": "npx",
-      "args": ["@midaz/mcp-server"]
+      "args": ["@lerianstudio/midaz-mcp-server"]
     }
   }
 }
