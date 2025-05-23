@@ -17,6 +17,7 @@ RUN npm ci --ignore-scripts
 # Copy TypeScript config and source files
 COPY tsconfig.json ./
 COPY src ./src
+COPY scripts ./scripts
 
 # Build the TypeScript project
 RUN npm run build
