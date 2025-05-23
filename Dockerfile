@@ -10,8 +10,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev) for building
+RUN npm ci
 
 # Copy TypeScript config and source files
 COPY tsconfig.json ./
@@ -19,6 +19,9 @@ COPY src ./src
 
 # Build the TypeScript project
 RUN npm run build
+
+# Remove dev dependencies after build
+RUN npm prune --production
 
 # Create logs directory with proper permissions
 RUN mkdir -p /app/logs && chmod 755 /app/logs
@@ -39,7 +42,7 @@ EXPOSE 3330
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV MIDAZ_USE_STUBS=true
+ENV MIDAZ_USE_STUBS=false
 ENV MIDAZ_DOCS_URL=https://docs.lerian.studio
 
 # The MCP server uses stdio, so we need to keep the container running
