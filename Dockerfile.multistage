@@ -1,6 +1,6 @@
 # Multi-stage build for optimized production image
 # Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:24-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache python3 make g++
@@ -24,7 +24,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Stage 2: Production
-FROM node:18-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 

@@ -1,5 +1,5 @@
 # Use official Node.js Alpine image for smaller size
-FROM node:18-alpine
+FROM node:24-alpine
 
 # Install necessary packages for building native dependencies
 RUN apk add --no-cache python3 make g++
