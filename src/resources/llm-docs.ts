@@ -1,8 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { enhancedFetch } from '../util/http-client.js';
 import { createLogger } from '../util/mcp-logging.js';
-import { createToolResponse, wrapToolHandler, validateArgs } from '../util/mcp-helpers.js';
+import { createToolResponse, validateArgs } from '../util/mcp-helpers.js';
 import { fuzzySearchLines } from '../util/fuzzy-search.js';
 import config from '../config.js';
 
@@ -165,7 +166,7 @@ export const registerLLMDocsTool = (server: McpServer) => {
     'get-documentation-overview',
     'Get a complete overview of all Midaz documentation from llms.txt - includes guides, API references, and changelog. Use this for a comprehensive view of what documentation is available.',
     {},
-    async (_args: Record<string, unknown>, _extra: Record<string, unknown>) => {
+    async (_args: Record<string, unknown>, _extra: Record<string, unknown>): Promise<CallToolResult> => {
       try {
         const llmDocs = await fetchLLMDocumentation();
         
@@ -173,12 +174,12 @@ export const registerLLMDocsTool = (server: McpServer) => {
           documentation: llmDocs,
           source: 'https://docs.lerian.studio/llms.txt',
           lastUpdated: new Date().toISOString()
-        });
+        }) as CallToolResult;
       } catch (error) {
         return createToolResponse({
           error: 'Failed to fetch documentation',
           message: error instanceof Error ? error.message : String(error)
-        });
+        }) as CallToolResult;
       }
     }
   );
@@ -189,7 +190,7 @@ export const registerLLMDocsTool = (server: McpServer) => {
     {
       query: z.string().describe('Search query for documentation topics')
     },
-    wrapToolHandler(async (args: Record<string, unknown>, _extra: Record<string, unknown>) => {
+    async (args: { query: string }, _extra: Record<string, unknown>): Promise<CallToolResult> => {
       const validated = validateArgs(args, z.object({
         query: z.string()
       })) as { query: string };
@@ -223,7 +224,7 @@ export const registerLLMDocsTool = (server: McpServer) => {
         searchResults = `No results found for "${validated.query}"`;
       }
       
-      return {
+      return createToolResponse({
         query: validated.query,
         results: searchResults,
         resultCount: matches.length,
@@ -233,8 +234,8 @@ export const registerLLMDocsTool = (server: McpServer) => {
           score: m.score
         })),
         timestamp: new Date().toISOString()
-      };
-    })
+      }) as CallToolResult;
+    }
   );
 };
 
