@@ -1,0 +1,71 @@
+name: Enforce Branch PR's from Develop
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  check-branch:
+    name: Check PR Source Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is from develop
+        if: github.head_ref != 'develop' && !startsWith(github.head_ref, 'hotfix/')
+        run: |
+          echo "❌ PRs to main branch must come from develop branch or hotfix/* branches"
+          echo "Current branch: ${{ github.head_ref }}"
+          echo ""
+          echo "Please follow the git flow:"
+          echo "1. Create feature branches from develop"
+          echo "2. Merge feature branches to develop"
+          echo "3. Create PR from develop to main for releases"
+          echo "4. Use hotfix/* branches for emergency fixes to main"
+          exit 1
+
+      - name: Add label for release PR
+        if: github.head_ref == 'develop'
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: |
+            release:
+              - head-branch: 'develop'
+            
+      - name: Add label for hotfix PR
+        if: startsWith(github.head_ref, 'hotfix/')
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: |
+            hotfix:
+              - head-branch: 'hotfix/*'
+
+      - name: Comment on PR
+        if: github.head_ref == 'develop'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## 🚀 Release PR Checklist
+            
+            This PR is merging from \`develop\` to \`main\`. Please ensure:
+            
+            - [ ] All tests are passing
+            - [ ] Code quality checks have passed
+            - [ ] Documentation is up to date
+            - [ ] Version has been bumped appropriately
+            - [ ] CHANGELOG has been updated
+            - [ ] No breaking changes without major version bump
+            
+            Once merged, this will trigger an automatic release.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
