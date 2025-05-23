@@ -126,7 +126,7 @@ jobs:
         with:
           images: |
             ghcr.io/lerianstudio/midaz-mcp-server
-            midaz/mcp-server
+            lerianstudio/midaz-mcp-server
           tags: |
             type=semver,pattern={{version}},value=${{ needs.release.outputs.new_release_version }}
             type=semver,pattern={{major}}.{{minor}},value=${{ needs.release.outputs.new_release_version }}
