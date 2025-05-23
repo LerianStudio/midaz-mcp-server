@@ -17,6 +17,23 @@ export const LogLevel = {
   EMERGENCY: 'emergency'
 };
 
+// Log level priority for filtering
+const LogLevelPriority = {
+  debug: 0,
+  info: 1,
+  notice: 2,
+  warning: 3,
+  error: 4,
+  critical: 5,
+  alert: 6,
+  emergency: 7
+};
+
+// Current log level (from environment or default to info)
+const currentLogLevel = process.env.MIDAZ_LOG_LEVEL || 'info';
+const enableConsoleLogging = process.env.MIDAZ_CONSOLE_LOGS !== 'false';
+const enableDetailedLogging = process.env.MIDAZ_DETAILED_LOGS === 'true';
+
 // MCP server instance (will be set during initialization)
 let mcpServer = null;
 
@@ -35,9 +52,28 @@ export function initializeMcpLogger(server) {
  * @param {Object} data - Additional structured data
  */
 export function sendLogMessage(level, message, data = {}) {
+  // Check if we should log this level
+  if (LogLevelPriority[level] < LogLevelPriority[currentLogLevel]) {
+    return; // Skip logging for levels below current threshold
+  }
+
+  const timestamp = new Date().toISOString();
+  const logData = { timestamp, ...data };
+  
+  // Console logging with better formatting
+  if (enableConsoleLogging) {
+    const emoji = getLogEmoji(level);
+    const prefix = `${emoji} [${level.toUpperCase()}]`;
+    
+    if (enableDetailedLogging && Object.keys(data).length > 0) {
+      console.error(`${prefix} ${message}`, logData);
+    } else {
+      console.error(`${prefix} ${message}`);
+    }
+  }
+  
   // Fallback to console if MCP server not initialized
   if (!mcpServer) {
-    console.error(`[${level.toUpperCase()}] ${message}`, data);
     return;
   }
 
@@ -47,16 +83,33 @@ export function sendLogMessage(level, message, data = {}) {
       level,
       logger: 'midaz-mcp-server',
       message,
-      data: {
-        timestamp: new Date().toISOString(),
-        ...data
-      }
+      data: logData
     });
   } catch (error) {
     // Fallback to console on error
-    console.error(`[${level.toUpperCase()}] ${message}`, data);
-    console.error('Failed to send MCP log:', error);
+    if (enableConsoleLogging) {
+      console.error(`⚠️ [ERROR] Failed to send MCP log: ${error.message}`);
+    }
   }
+}
+
+/**
+ * Get emoji for log level
+ * @param {string} level - Log level
+ * @returns {string} Emoji
+ */
+function getLogEmoji(level) {
+  const emojis = {
+    debug: '🔍',
+    info: 'ℹ️',
+    notice: '📢',
+    warning: '⚠️',
+    error: '❌',
+    critical: '🔥',
+    alert: '🚨',
+    emergency: '🆘'
+  };
+  return emojis[level] || '📝';
 }
 
 /**
@@ -199,4 +252,31 @@ export function logLifecycleEvent(event, details = {}) {
     lifecycle_event: event,
     ...details
   });
+}
+
+/**
+ * Log current logging configuration
+ */
+export function logLoggingConfig() {
+  const config = {
+    logLevel: currentLogLevel,
+    consoleLogging: enableConsoleLogging,
+    detailedLogging: enableDetailedLogging,
+    environment: process.env.NODE_ENV || 'development'
+  };
+  
+  sendLogMessage(LogLevel.INFO, 'Logging configuration initialized', config);
+}
+
+/**
+ * Get current logging configuration
+ * @returns {Object} Current logging config
+ */
+export function getLoggingConfig() {
+  return {
+    logLevel: currentLogLevel,
+    consoleLogging: enableConsoleLogging,
+    detailedLogging: enableDetailedLogging,
+    availableLevels: Object.values(LogLevel)
+  };
 }

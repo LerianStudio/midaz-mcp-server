@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { wrapToolHandler, validateArgs } from '../util/mcp-helpers.js';
+import { wrapToolHandler, validateArgs, logToolInvocation } from '../util/mcp-helpers.js';
 
 /**
  * Register SDK tools with the MCP server
@@ -32,6 +32,7 @@ export const registerSdkTools = (server) => {
       includeComments: z.boolean().default(true).describe('Include detailed comments in generated code'),
     },
     wrapToolHandler(async (args, extra) => {
+      logToolInvocation('generate-sdk-code', args, extra);
       const validatedArgs = validateArgs(args, z.object({
         language: z.enum(['golang', 'typescript']),
         useCase: z.enum([
@@ -44,8 +45,10 @@ export const registerSdkTools = (server) => {
         includeComments: z.boolean().default(true),
       }));
       const { language, useCase, includeComments } = validatedArgs;
+      console.error(`🚀 Generating ${language} SDK code for use case: ${useCase}`);
 
       const codeExample = generateSdkCode(language, useCase, includeComments);
+      console.error(`✅ Generated ${language} SDK code example (${codeExample.code.length} chars)`);
       
       return {
         language,
@@ -77,6 +80,7 @@ export const registerSdkTools = (server) => {
       ])).describe('Features to compare between SDKs'),
     },
     wrapToolHandler(async (args, extra) => {
+      logToolInvocation('compare-sdk-features', args, extra);
       const validatedArgs = validateArgs(args, z.object({
         features: z.array(z.enum([
           'authentication',
@@ -88,8 +92,10 @@ export const registerSdkTools = (server) => {
         ])),
       }));
       const { features } = validatedArgs;
+      console.error(`🔍 Comparing SDK features: ${features.join(', ')}`);
 
       const comparison = compareFeatures(features);
+      console.error(`✅ Feature comparison completed for ${features.length} features`);
       
       return {
         features,
@@ -109,14 +115,17 @@ export const registerSdkTools = (server) => {
       maxResults: z.number().min(1).max(10).default(5).describe('Maximum number of examples to return')
     },
     wrapToolHandler(async (args, extra) => {
+      logToolInvocation('find-sdk-examples', args, extra);
       const validatedArgs = validateArgs(args, z.object({
         query: z.string().min(3),
         language: z.enum(['both', 'golang', 'typescript']).default('both'),
         maxResults: z.number().min(1).max(10).default(5)
       }));
       const { query, language, maxResults } = validatedArgs;
+      console.error(`🔍 Searching SDK examples: "${query}" in ${language} (max: ${maxResults})`);
 
       const examples = findSdkExamples(query, language, maxResults);
+      console.error(`✅ Found ${examples.length} SDK examples matching "${query}"`);
       
       return {
         query,
