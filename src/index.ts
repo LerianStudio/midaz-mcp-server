@@ -12,6 +12,7 @@ import { registerComponentResources } from './resources/components.js';
 import { registerEducationalResources } from './resources/docs.js';
 import { registerLLMDocsResources, registerLLMDocsTool } from './resources/llm-docs.js';
 import { registerSdkResources } from './resources/sdk.js';
+import { registerDeploymentResources } from './resources/deployment.js';
 
 // Import tool definitions
 import { registerOrganizationTools } from './tools/organization.js';
@@ -26,6 +27,7 @@ import { registerSegmentTools } from './tools/segment.js';
 import { registerDocsAdminTools } from './tools/docs-admin.js';
 import { registerDocsUserTools } from './tools/docs-user.js';
 import { registerSdkTools } from './tools/sdk.js';
+import { registerMidazSetupTools } from './tools/midaz-setup.js';
 
 // Import MCP protocol handlers
 import { setupSubscriptionHandlers } from './util/resource-subscriptions.js';
@@ -73,7 +75,7 @@ const main = async () => {
     // Create the MCP server with declared capabilities
     const server = new McpServer({
       name: 'midaz-mcp-server',
-      version: '1.7.0',
+      version: '1.7.3',
       capabilities
     });
 
@@ -94,6 +96,7 @@ const main = async () => {
     registerEducationalResources(server);
     registerLLMDocsResources(server);
     registerSdkResources(server);
+    registerDeploymentResources(server);
     logger.info('Resources registered successfully');
 
     // Register tools
@@ -101,7 +104,7 @@ const main = async () => {
     const tools = [
       'organization', 'ledger', 'account', 'transaction', 
       'balance', 'asset', 'portfolio', 'segment', 
-      'llm-docs', 'docs-user', 'docs-admin', 'sdk'
+      'llm-docs', 'docs-user', 'docs-admin', 'sdk', 'midaz-setup'
     ];
     registerOrganizationTools(server);
     registerLedgerTools(server);
@@ -116,6 +119,7 @@ const main = async () => {
     registerDocsUserTools(server);
     registerDocsAdminTools(server);
     registerSdkTools(server);
+    registerMidazSetupTools(server);
     logger.info('Tools registered', { toolCount: tools.length, tools });
 
     // Setup MCP protocol handlers for subscriptions and discovery
