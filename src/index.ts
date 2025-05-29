@@ -75,7 +75,7 @@ const main = async () => {
     // Create the MCP server with declared capabilities
     const server = new McpServer({
       name: 'midaz-mcp-server',
-      version: '2.4.0',
+      version: '2.4.1',
       capabilities
     });
 
