@@ -242,10 +242,10 @@ async function fetchManifest() {
     logger.info('Fetching documentation from llms.txt', { url: LLMS_TXT_URL });
     
     const response = await fetch(LLMS_TXT_URL, {
-      timeout: 5000,
+      timeout: 10000, // Increase timeout to 10 seconds
       headers: {
-        'User-Agent': 'Midaz-MCP-Server/0.1.0',
-        'Accept': 'text/plain'
+        'User-Agent': 'Midaz-MCP-Server/2.2.0',
+        'Accept': 'text/plain, */*'
       }
     });
 
