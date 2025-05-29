@@ -77,20 +77,9 @@ export function sendLogMessage(level, message, data = {}) {
     return;
   }
 
-  try {
-    // Send via MCP logging protocol
-    mcpServer.sendLoggingMessage({
-      level,
-      logger: 'midaz-mcp-server',
-      message,
-      data: logData
-    });
-  } catch (error) {
-    // Fallback to console on error
-    if (enableConsoleLogging) {
-      console.error(`⚠️ [ERROR] Failed to send MCP log: ${error.message}`);
-    }
-  }
+  // Note: MCP SDK doesn't have sendLoggingMessage method
+  // For now, we'll just use console logging
+  // TODO: Implement proper MCP logging when SDK supports it
 }
 
 /**

@@ -12,7 +12,9 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "allowJs": true,
-        "checkJs": false
+        "checkJs": false,
+        "lib": ["ES2020"],
+        "types": ["node"]
     },
     "include": [
         "src/**/*"
