@@ -98,9 +98,9 @@ jobs:
         id: semantic
         uses: cycjimmy/semantic-release-action@v4
         with:
-          semantic_version: 24.2.3
+          semantic_version: 22.0.12
           extra_plugins: |
-            conventional-changelog-conventionalcommits@7.0.2
+            conventional-changelog-conventionalcommits@6.1.0
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

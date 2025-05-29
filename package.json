@@ -92,7 +92,7 @@
     "@types/node": "^20.17.52",
     "@typescript-eslint/eslint-plugin": "^8.30.1",
     "@typescript-eslint/parser": "^8.30.1",
-    "conventional-changelog-conventionalcommits": "^7.0.2",
+    "conventional-changelog-conventionalcommits": "^6.1.0",
     "eslint": "^9.24.0",
     "semantic-release": "^22.0.12",
     "ts-node": "^10.0.0",
