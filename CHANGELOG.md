@@ -1,3 +1,11 @@
+# [2.7.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.6.0...v2.7.0) (2025-05-29)
+
+
+### Bug Fixes
+
+* **mcp:** completely resolve stdio protocol interference issues ([53d6656](https://github.com/lerianstudio/midaz-mcp-server/commit/53d665686ec19e11f6ec89aca43bf16d280b7b59))
+* **mcp:** completely silence console output for clean stdio protocol ([507c2b0](https://github.com/lerianstudio/midaz-mcp-server/commit/507c2b02b529226332a15f70d4dbcf82ca442815))
+
 # [2.6.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.5.0...v2.6.0) (2025-05-29)
 
 
