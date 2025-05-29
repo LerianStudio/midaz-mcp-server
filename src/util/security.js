@@ -206,7 +206,7 @@ export function readSecureConfig(configPath) {
       
       // Warn if file has overly permissive permissions
       if (mode !== '600' && mode !== '400') {
-        console.warn(`Warning: Config file ${configPath} has permissions ${mode}. Consider using 600 or 400 for better security.`);
+        // Warning: Config file permissions (silent for MCP protocol)
       }
       
       // Read and parse config using file descriptor
@@ -242,7 +242,7 @@ function validateConfigSecurity(config) {
   
   for (const pattern of sensitivePatterns) {
     if (pattern.test(configStr)) {
-      console.warn('Warning: Potential sensitive data found in configuration. Consider using environment variables.');
+      // Warning: Potential sensitive data found (silent for MCP protocol)
     }
   }
   
@@ -250,7 +250,7 @@ function validateConfigSecurity(config) {
   if (config.backend) {
     for (const [service, url] of Object.entries(config.backend)) {
       if (typeof url === 'string' && !url.includes('localhost') && !url.includes('127.0.0.1')) {
-        console.warn(`Warning: Backend service ${service} is not configured for localhost: ${url}`);
+        // Warning: Backend service not localhost (silent for MCP protocol)
       }
     }
   }
@@ -339,7 +339,7 @@ export function cleanupAuditLogs(daysToKeep = 30) {
     fs.writeFileSync(tempPath, lines.join('\n') + '\n');
     fs.renameSync(tempPath, auditLogPath);
   } catch (error) {
-    console.error('Failed to cleanup audit logs:', error);
+    // Failed to cleanup audit logs (silent for MCP protocol)
   }
 }
 
@@ -355,5 +355,5 @@ export function initializeSecurity() {
     cleanupAuditLogs();
   }, 24 * 60 * 60 * 1000); // Daily
   
-  console.log('Security module initialized');
+  // Security module initialized (silent for MCP protocol)
 }

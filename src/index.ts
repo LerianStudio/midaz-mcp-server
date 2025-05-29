@@ -36,11 +36,10 @@ import { initializeClientDetection } from './util/client-integration.js';
  */
 const main = async () => {
   try {
-    // Initialize security module (silent during MCP startup)
+    // Initialize silently - no console output until after MCP connection
     initializeSecurity();
     logConfigEvent('security_initialized');
 
-    // Initialize documentation manifest system (silent during MCP startup)
     await initializeManifest();
     logConfigEvent('docs_manifest_initialized');
 
@@ -73,7 +72,7 @@ const main = async () => {
     // Create the MCP server with declared capabilities
     const server = new McpServer({
       name: 'midaz-mcp-server',
-      version: '2.5.1',
+      version: '2.5.2',
       capabilities
     });
 
@@ -124,8 +123,7 @@ const main = async () => {
     
     await server.connect(transport);
     
-    // Only log to stderr after successful connection
-    console.error('✅ Midaz MCP Server ready');
+    // Log internally only - no console output to keep stdio clean
     logLifecycleEvent('started', { 
       transport: 'stdio', 
       client: clientContext.client.name,
