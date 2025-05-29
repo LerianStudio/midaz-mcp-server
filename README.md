@@ -57,7 +57,7 @@ Add this to your Claude Desktop MCP settings:
   "mcpServers": {
     "midaz": {
       "command": "docker",
-      "args": ["exec", "-i", "midaz-mcp-server", "node", "dist/index.js"]
+      "args": ["run", "--rm", "-i", "lerianstudio/midaz-mcp-server:latest"]
     }
   }
 }
@@ -78,6 +78,7 @@ Once connected, you can ask Claude about:
 The server works out of the box, but you can customize it:
 
 ### Environment Variables
+
 ```bash
 # Logging level (debug, info, warning, error)
 export MIDAZ_LOG_LEVEL=info
@@ -91,71 +92,58 @@ export MIDAZ_TRANSACTION_URL=http://localhost:3001
 export MIDAZ_API_KEY=your-api-key
 ```
 
-### Configuration File
-Copy and edit the example configs:
-```bash
-cp .env.example .env
-cp midaz-mcp-config.json.example midaz-mcp-config.json
-```
+### Custom Backend URLs
 
-## 🐳 Docker Quick Reference
+For custom backend URLs:
 
-```bash
-# Build and run
-make docker-build
-make docker-run
-
-# View logs
-make docker-logs
-
-# Stop and clean up
-make docker-stop
-make docker-clean
-```
-
-## 🔧 Development Commands
-
-```bash
-# Start development server
-make dev
-
-# Run with debug logging
-MIDAZ_LOG_LEVEL=debug make dev
-
-# Test the logging system
-make test-logging
-
-# See all available commands
-make help
+```json
+{
+  "mcpServers": {
+    "midaz": {
+      "command": "npx",
+      "args": [
+        "@lerianstudio/midaz-mcp-server",
+        "--onboarding-url=http://localhost:3000",
+        "--transaction-url=http://localhost:3001"
+      ],
+      "env": {
+        "MIDAZ_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
 ```
 
 ## 🆘 Troubleshooting
 
-### Server Won't Start
-```bash
-# Check if ports are available
-lsof -i :3000 -i :3001
+### Connection Issues
 
-# Run with debug logging
-MIDAZ_LOG_LEVEL=debug make start
-```
-
-### Claude Desktop Connection Issues
-1. Ensure the MCP server is running
-2. Check Claude Desktop logs for errors
-3. Verify the command path in your MCP settings
+1. Ensure Claude Desktop supports MCP
+2. Check MCP server logs for errors
+3. Verify the command path in your Claude Desktop settings
 4. Try restarting Claude Desktop after configuration changes
 
-### Docker Issues
+### Update Issues
+
 ```bash
+# Force update to latest version
+npx @lerianstudio/midaz-mcp-server@latest
+
+# Clear npm cache if needed
+npm cache clean --force
+```
+
+### Docker Issues
+
+```bash
+# Pull latest image
+docker pull lerianstudio/midaz-mcp-server:latest
+
 # Check container status
 docker ps
 
 # View container logs
-make docker-logs
-
-# Rebuild if needed
-make docker-clean && make docker-build
+docker logs midaz-mcp-server
 ```
 
 ## 📖 What This Server Provides
