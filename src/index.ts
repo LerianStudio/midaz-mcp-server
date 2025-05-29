@@ -36,13 +36,11 @@ import { initializeClientDetection } from './util/client-integration.js';
  */
 const main = async () => {
   try {
-    // Initialize security module
-    console.error('🔒 Initializing security module...');
+    // Initialize security module (silent during MCP startup)
     initializeSecurity();
     logConfigEvent('security_initialized');
 
-    // Initialize documentation manifest system
-    console.error('📚 Initializing documentation manifest...');
+    // Initialize documentation manifest system (silent during MCP startup)
     await initializeManifest();
     logConfigEvent('docs_manifest_initialized');
 
@@ -75,7 +73,7 @@ const main = async () => {
     // Create the MCP server with declared capabilities
     const server = new McpServer({
       name: 'midaz-mcp-server',
-      version: '2.4.1',
+      version: '2.5.1',
       capabilities
     });
 
@@ -84,19 +82,16 @@ const main = async () => {
     logLoggingConfig();
     const logger = createLogger('server');
     
-    // Log startup
-    console.error('🚀 Starting Midaz MCP Server...');
-    logLifecycleEvent('starting', { version: '1.0.0', capabilities });
-    logger.info('Server initialization started', { version: '1.0.0' });
+    // Log startup (to logger only, not console during MCP startup)
+    logLifecycleEvent('starting', { version: '2.5.1', capabilities });
+    logger.info('Server initialization started', { version: '2.5.1' });
 
     // Register comprehensive documentation tools (replaces resources)
-    console.error('📚 Registering comprehensive documentation tools...');
     registerAllDocumentationTools(server);
     registerDocsDemoTools(server);
     logger.info('Documentation tools registered successfully - replaces resource system for broader compatibility');
 
     // Register financial/ledger tools
-    console.error('🔧 Registering financial/ledger tools...');
     const financialTools = [
       'organization', 'ledger', 'account', 'transaction', 
       'balance', 'asset', 'portfolio', 'segment', 'sdk'
@@ -113,17 +108,14 @@ const main = async () => {
     logger.info('Financial tools registered', { toolCount: financialTools.length, tools: financialTools });
 
     // Setup MCP protocol handlers for subscriptions and discovery
-    console.error('🔌 Setting up MCP protocol handlers...');
     setupSubscriptionHandlers(server);
     logger.info('Protocol handlers configured');
     // Note: Discovery handlers are non-standard and not supported by the MCP SDK
 
     // Connect to stdio transport
-    console.error('🔗 Connecting to stdio transport...');
     const transport = new StdioServerTransport();
     
     // Initialize client detection system before connecting
-    console.error('🎯 Initializing client detection...');
     const clientContext = await initializeClientDetection(server);
     logger.info('Client detected and configured', { 
       client: clientContext.client.name,
@@ -132,7 +124,8 @@ const main = async () => {
     
     await server.connect(transport);
     
-    console.error('✅ Midaz MCP Server running successfully!');
+    // Only log to stderr after successful connection
+    console.error('✅ Midaz MCP Server ready');
     logLifecycleEvent('started', { 
       transport: 'stdio', 
       client: clientContext.client.name,

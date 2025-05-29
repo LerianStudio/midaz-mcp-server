@@ -1,6 +1,6 @@
 {
   "name": "@lerianstudio/midaz-mcp-server",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "A Model Context Protocol (MCP) server for Midaz that provides educational content, model information, and read-only API interactions for developer clients through their LLMs.",
   "main": "dist/index.js",
   "exports": {
@@ -10,6 +10,7 @@
   "type": "module",
   "bin": {
     "midaz-mcp-server": "./dist/bin/midaz-mcp-server.js",
+    "midaz-mcp-server-minimal": "./dist/index-minimal.js",
     "midaz-mcp-config": "./dist/cli.js"
   },
   "scripts": {
