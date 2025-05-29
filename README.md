@@ -1,63 +1,94 @@
 # Midaz MCP Server
 
-A Model Context Protocol (MCP) server that enables AI assistants (like Claude) to understand and interact with the Midaz financial system. Get instant access to Midaz documentation, APIs, and development tools directly in your AI conversations.
+Give your AI assistant instant access to Midaz documentation and APIs! This plugin connects Claude, ChatGPT, and other AI assistants to the Midaz financial system, so you can get help with integration, APIs, and troubleshooting directly in your conversations.
 
-## 🚀 Quick Start (Choose One)
+## ⚡ 5-Minute Setup
 
-### Option 1: One-Command Setup (Recommended)
-```bash
-git clone https://github.com/lerianstudio/midaz-mcp-server
-cd midaz-mcp-server
-make setup && make start
-```
+**Step 1:** Choose your AI assistant
+**Step 2:** Copy the configuration below  
+**Step 3:** Restart your AI app
+**Step 4:** Start asking questions about Midaz!
 
-### Option 2: NPX (No Installation Required)
-```bash
-npx @lerianstudio/midaz-mcp-server
-```
+### 🖥️ Claude Desktop
 
-### Option 3: Docker (Isolated Environment)
-```bash
-git clone https://github.com/lerianstudio/midaz-mcp-server
-cd midaz-mcp-server
-make docker-build && make docker-run
-```
+**Location:** `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
 
-## 🔗 Connect to Claude Desktop
-
-Add this to your Claude Desktop MCP settings:
-
-### For NPX Installation:
 ```json
 {
   "mcpServers": {
     "midaz": {
       "command": "npx",
-      "args": ["@lerianstudio/midaz-mcp-server"]
+      "args": ["@lerianstudio/midaz-mcp-server@latest"]
     }
   }
 }
 ```
 
-### For Local Development:
+### 🖥️ Claude Code (Command Line)
+
+```bash
+# Install once
+npm install -g @lerianstudio/midaz-mcp-server
+
+# Add to Claude Code
+claude mcp add midaz "midaz-mcp-server"
+```
+
+### 💬 ChatGPT Desktop
+
+Add to your ChatGPT Desktop MCP configuration file:
+
 ```json
 {
   "mcpServers": {
     "midaz": {
-      "command": "node",
-      "args": ["/path/to/midaz-mcp-server/dist/index.js"]
+      "command": "npx",
+      "args": ["@lerianstudio/midaz-mcp-server@latest"]
     }
   }
 }
 ```
 
-### For Docker:
+### ⚡ Cursor IDE
+
+**Location:** Cursor Settings → MCP Servers
+
+```json
+{
+  "mcp.servers": {
+    "midaz": {
+      "command": "npm",
+      "args": ["exec", "@lerianstudio/midaz-mcp-server@latest"]
+    }
+  }
+}
+```
+
+### 🌊 Windsurf IDE
+
+**Location:** Windsurf Settings → MCP Configuration
+
 ```json
 {
   "mcpServers": {
     "midaz": {
-      "command": "docker",
-      "args": ["run", "--rm", "-i", "lerianstudio/midaz-mcp-server:latest"]
+      "command": "npm",
+      "args": ["exec", "@lerianstudio/midaz-mcp-server@latest"]
+    }
+  }
+}
+```
+
+### 🔄 Continue IDE
+
+**Location:** Continue Settings → MCP Servers
+
+```json
+{
+  "mcpServers": {
+    "midaz": {
+      "command": "npm",
+      "args": ["exec", "@lerianstudio/midaz-mcp-server@latest"]
     }
   }
 }
@@ -65,110 +96,36 @@ Add this to your Claude Desktop MCP settings:
 
 ## ✨ What You Get
 
-Once connected, you can ask Claude about:
+Once connected, you can ask your AI assistant:
 
-- 📚 **Midaz Documentation** - "Explain how Midaz accounts work"
-- 🔧 **API Usage** - "Show me how to create a transaction"
-- 🏗️ **Architecture** - "What's the difference between onboarding and transaction APIs?"
-- 💡 **Examples** - "Generate Go code for creating an organization"
-- 🐛 **Troubleshooting** - "Help me debug this Midaz integration"
+- 📚 **"Explain how Midaz accounts work"**
+- 🔧 **"Show me how to create a transaction"**
+- 🏗️ **"What's the difference between onboarding and transaction APIs?"**
+- 💡 **"Generate Go code for creating an organization"**
+- 🐛 **"Help me debug this Midaz integration error"**
+- 📊 **"What data models does Midaz use?"**
 
-## 🛠️ Configuration (Optional)
+## 🆘 Need Help?
 
-The server works out of the box, but you can customize it:
+### Not Working?
 
-### Environment Variables
+1. **Restart your AI app** after adding the configuration
+2. **Check the file location** - make sure you edited the right config file
+3. **Try the basic test**: Ask your AI "Can you access Midaz documentation?"
 
-```bash
-# Logging level (debug, info, warning, error)
-export MIDAZ_LOG_LEVEL=info
+### Still Having Issues?
 
-# Enable detailed console logs
-export MIDAZ_DETAILED_LOGS=true
+- **Claude Desktop Users**: Verify MCP is enabled in your Claude Desktop version
+- **All Users**: Make sure you have Node.js installed on your computer
+- **Get Support**: [GitHub Issues](https://github.com/lerianstudio/midaz-mcp-server/issues)
 
-# Connect to your local Midaz services
-export MIDAZ_ONBOARDING_URL=http://localhost:3000
-export MIDAZ_TRANSACTION_URL=http://localhost:3001
-export MIDAZ_API_KEY=your-api-key
-```
+## 🔒 Safe & Secure
 
-### Custom Backend URLs
-
-For custom backend URLs:
-
-```json
-{
-  "mcpServers": {
-    "midaz": {
-      "command": "npx",
-      "args": [
-        "@lerianstudio/midaz-mcp-server",
-        "--onboarding-url=http://localhost:3000",
-        "--transaction-url=http://localhost:3001"
-      ],
-      "env": {
-        "MIDAZ_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-## 🆘 Troubleshooting
-
-### Connection Issues
-
-1. Ensure Claude Desktop supports MCP
-2. Check MCP server logs for errors
-3. Verify the command path in your Claude Desktop settings
-4. Try restarting Claude Desktop after configuration changes
-
-### Update Issues
-
-```bash
-# Force update to latest version
-npx @lerianstudio/midaz-mcp-server@latest
-
-# Clear npm cache if needed
-npm cache clean --force
-```
-
-### Docker Issues
-
-```bash
-# Pull latest image
-docker pull lerianstudio/midaz-mcp-server:latest
-
-# Check container status
-docker ps
-
-# View container logs
-docker logs midaz-mcp-server
-```
-
-## 📖 What This Server Provides
-
-- **🔍 Documentation Search** - Access all Midaz docs instantly
-- **⚡ API Tools** - Read-only tools for exploring Midaz APIs
-- **📊 Data Models** - Complete understanding of Midaz data structures
-- **🏗️ Architecture Guides** - How components work together
-- **💻 Code Examples** - Ready-to-use code in Go and TypeScript
-- **🔧 SDK Support** - Integrated knowledge of both SDKs
-
-## 🔒 Security
-
-- Localhost-only connections
-- Read-only API access
-- Input validation and sanitization
-- No sensitive data exposure
-- Audit logging for all operations
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/lerianstudio/midaz-mcp-server/issues)
-- **Docs**: [Comprehensive Documentation](https://docs.lerian.studio)
-- **Quick Demo**: Run `make demo` to see all features
+- ✅ Read-only access (can't modify your data)
+- ✅ No API keys required for basic usage
+- ✅ All data stays on your computer
+- ✅ Open source and auditable
 
 ---
 
-**Ready to get started?** Run `make setup` and connect to Claude Desktop in under 2 minutes! 🎉
+**Ready to get started?** Copy the configuration for your AI assistant above and restart the app! 🚀
