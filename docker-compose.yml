@@ -3,7 +3,7 @@ version: '3.8'
 services:
   midaz-mcp-server:
     build: .
-    image: midaz/mcp-server:latest
+    image: lerianstudio/mcp-server:latest
     container_name: midaz-mcp-server
     restart: unless-stopped
     environment:
@@ -29,20 +29,6 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-    networks:
-      - midaz-network
-
-  # Example of running with Claude Desktop via socat
-  # This creates a bridge between network socket and stdio
-  midaz-mcp-bridge:
-    image: alpine/socat:latest
-    container_name: midaz-mcp-bridge
-    restart: unless-stopped
-    command: TCP-LISTEN:3330,fork,reuseaddr EXEC:'docker exec -i midaz-mcp-server node dist/index.js'
-    ports:
-      - "3330:3330"
-    depends_on:
-      - midaz-mcp-server
     networks:
       - midaz-network
 

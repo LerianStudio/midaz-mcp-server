@@ -1,6 +1,6 @@
 {
   "name": "@lerianstudio/midaz-mcp-server",
-  "version": "1.8.0",
+  "version": "1.0.0",
   "description": "A Model Context Protocol (MCP) server for Midaz that provides educational content, model information, and read-only API interactions for developer clients through their LLMs.",
   "main": "dist/index.js",
   "exports": {
@@ -77,25 +77,26 @@
   "author": "Midaz Team",
   "license": "MIT",
   "dependencies": {
+    "@lerianstudio/midaz-mcp-server": "^1.8.0",
     "@modelcontextprotocol/sdk": "^1.9.0",
     "node-fetch": "^3.3.2",
     "zod": "^3.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.30.1",
-    "@typescript-eslint/parser": "^8.30.1",
-    "eslint": "^9.24.0",
-    "ts-node": "^10.0.0",
-    "typedoc": "^0.25.4",
-    "typescript": "^5.3.3",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.6",
     "@semantic-release/npm": "^11.0.2",
     "@semantic-release/release-notes-generator": "^12.1.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@typescript-eslint/parser": "^8.30.1",
     "conventional-changelog-conventionalcommits": "^7.0.2",
-    "semantic-release": "^22.0.12"
+    "eslint": "^9.24.0",
+    "semantic-release": "^22.0.12",
+    "ts-node": "^10.0.0",
+    "typedoc": "^0.25.4",
+    "typescript": "^5.3.3"
   }
 }

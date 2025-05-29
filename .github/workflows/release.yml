@@ -94,175 +94,22 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Determine Version
-        id: version
-        run: |
-          # Get current version from package.json
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          
-          # Check if we need a release (if there are commits since last tag)
-          if git describe --tags --exact-match HEAD >/dev/null 2>&1; then
-            echo "No new commits since last release"
-            echo "skip_release=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          # Get latest tag to compare commits
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          
-          # If no tags exist, this is the first release
-          if [ -z "$LATEST_TAG" ]; then
-            COMMITS=$(git log --oneline --pretty=format:"%s")
-          else
-            COMMITS=$(git log --oneline --pretty=format:"%s" $LATEST_TAG..HEAD)
-          fi
-          
-          # If no commits since last tag, skip release
-          if [ -z "$COMMITS" ]; then
-            echo "No new commits since last tag"
-            echo "skip_release=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          # Determine release type based on commit messages
-          if echo "$COMMITS" | grep -E "^feat(\(.+\))?!:" > /dev/null; then
-            RELEASE_TYPE="major"
-          elif echo "$COMMITS" | grep -E "^feat(\(.+\))?:" > /dev/null; then
-            RELEASE_TYPE="minor"
-          else
-            RELEASE_TYPE="patch"
-          fi
-          
-          # Calculate new version
-          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
-          case $RELEASE_TYPE in
-            "major") NEW_VERSION="$((major + 1)).0.0" ;;
-            "minor") NEW_VERSION="$major.$((minor + 1)).0" ;;
-            "patch") NEW_VERSION="$major.$minor.$((patch + 1))" ;;
-          esac
-          
-          # Check if the calculated version tag already exists
-          if git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; then
-            echo "Tag v$NEW_VERSION already exists, incrementing patch version"
-            NEW_VERSION="$major.$minor.$((patch + 1))"
-            # Keep incrementing until we find a non-existing tag
-            while git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; do
-              patch=$((patch + 1))
-              NEW_VERSION="$major.$minor.$patch"
-            done
-          fi
-          
-          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
-          echo "skip_release=false" >> $GITHUB_OUTPUT
-
-      - name: Update Package Version
-        if: steps.version.outputs.skip_release == 'false'
-        run: |
-          npm version ${{ steps.version.outputs.new_version }} --no-git-tag-version
-          git add package.json package-lock.json
-          git commit -m "chore(release): ${{ steps.version.outputs.new_version }} [skip ci]"
-
-      - name: Push Changes and Create Tag
-        if: steps.version.outputs.skip_release == 'false'
-        run: |
-          # Push the version commit first
-          git push origin HEAD:main
-          
-          # Create and push the tag
-          git tag v${{ steps.version.outputs.new_version }}
-          git push origin v${{ steps.version.outputs.new_version }}
-
-      - name: Publish to NPM
-        if: steps.version.outputs.skip_release == 'false'
-        run: |
-          npm publish
+      - name: Create Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          semantic_version: 24.2.3
+          extra_plugins: |
+            conventional-changelog-conventionalcommits@7.0.2
         env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GIT_AUTHOR_NAME: ${{ secrets.LERIAN_CI_CD_USER_NAME }}
+          GIT_AUTHOR_EMAIL: ${{ secrets.LERIAN_CI_CD_USER_EMAIL }}
+          GIT_COMMITTER_NAME: ${{ secrets.LERIAN_CI_CD_USER_NAME }}
+          GIT_COMMITTER_EMAIL: ${{ secrets.LERIAN_CI_CD_USER_EMAIL }}
 
-      - name: Create GitHub Release
-        if: steps.version.outputs.skip_release == 'false'
-        run: |
-          gh release create v${{ steps.version.outputs.new_version }} \
-            --title "🚀 Release v${{ steps.version.outputs.new_version }}" \
-            --notes "## ✨ What's New
-
-          This release includes comprehensive MCP server enhancements:
-
-          ### 🔧 SDK Integration & Knowledge System
-          - 22 new SDK resources for Golang and TypeScript
-          - SDK tools for code generation and feature comparison
-          - Dynamic learning from SDK patterns and examples
-
-          ### 🔒 Enhanced Security & Code Quality  
-          - Resolved all 25 CodeQL security alerts
-          - Fixed race conditions and data exposure vulnerabilities
-          - Improved TypeScript type safety
-
-          ### ⚙️ Developer Experience & Automation
-          - Complete Makefile automation workflow
-          - Enhanced logging system with 8 levels
-          - Simplified documentation and setup
-
-          ### 📦 Package & Distribution
-          - NPM: \`@lerianstudio/midaz-mcp-server\`
-          - Docker: \`lerianstudio/midaz-mcp-server\`
-          - NPX: \`npx @lerianstudio/midaz-mcp-server\`
-
-          **Installation:**
-          \`\`\`bash
-          npx @lerianstudio/midaz-mcp-server
-          \`\`\`
-
-          See [README.md](https://github.com/LerianStudio/midaz-mcp-server#readme) for complete documentation."
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-
-  publish-github-packages:
-    name: Publish to GitHub Packages
-    runs-on: ubuntu-latest
-    needs: release
-    if: needs.release.outputs.skip_release != 'true'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: v${{ needs.release.outputs.new_release_version }}
-
-      - name: Setup Node.js for GitHub Packages
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@lerianstudio'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build package
-        run: npm run build
-
-      - name: Configure package for GitHub Packages
-        run: |
-          # Create a temporary package.json for GitHub Packages
-          cp package.json package.json.backup
-          node -e "
-          const pkg = require('./package.json');
-          pkg.publishConfig = {
-            registry: 'https://npm.pkg.github.com',
-            access: 'public'
-          };
-          require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));
-          "
-
-      - name: Publish to GitHub Packages
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Restore original package.json
-        run: mv package.json.backup package.json
 
   publish-docker:
     name: Publish Docker Images

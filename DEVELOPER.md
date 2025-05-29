@@ -11,22 +11,6 @@ This document provides detailed information for developers working on or extendi
 
 The server works with or without live Midaz services, automatically falling back to comprehensive stub data when services are unavailable.
 
-## 🚀 Quick Development Setup
-
-### Option 1: One-Command Setup (Recommended)
-```bash
-git clone https://github.com/lerianstudio/midaz-mcp-server
-cd midaz-mcp-server
-make setup && make start
-```
-
-### Option 2: Docker Development Environment
-```bash
-git clone https://github.com/lerianstudio/midaz-mcp-server
-cd midaz-mcp-server
-make docker-build && make docker-run
-```
-
 ## Advanced Installation & Setup
 
 ### Manual Installation
@@ -82,8 +66,8 @@ make help
 The MCP server automatically detects local Midaz services when started:
 
 ```bash
-# Using npx (always gets latest version)
-npx --yes @lerianstudio/midaz-mcp-server
+# Using npx
+npx @lerianstudio/midaz-mcp-server
 
 # Or if installed globally
 midaz-mcp-server
@@ -134,11 +118,9 @@ node dist/index.js --onboarding-url=http://localhost:3000 --transaction-url=http
 npm start
 ```
 
-## AI Client Integration
+## Claude Desktop Integration
 
-### Claude Desktop Integration
-
-#### Option 1: Direct Integration (npx)
+### Option 1: Direct Integration (npx)
 
 1. Open Claude Desktop settings
 2. Navigate to MCP section
@@ -150,28 +132,16 @@ npm start
   "mcpServers": {
     "midaz": {
       "command": "npx",
-      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
+      "args": ["@lerianstudio/midaz-mcp-server"]
     }
   }
 }
 ```
 
-#### Option 2: Docker Integration (Auto-Updates)
+### Option 2: Docker Integration
 
-For Docker with automatic updates, use docker run with latest tag:
+For Docker, configure Claude Desktop to use docker exec:
 
-```json
-{
-  "mcpServers": {
-    "midaz": {
-      "command": "docker",
-      "args": ["run", "--rm", "-i", "lerianstudio/midaz-mcp-server:latest"]
-    }
-  }
-}
-```
-
-For development with persistent containers:
 ```json
 {
   "mcpServers": {
@@ -188,51 +158,6 @@ Make sure the container is running first:
 ./scripts/docker-mcp.sh run
 ```
 
-### ChatGPT Desktop Integration
-
-Add this to your ChatGPT Desktop MCP settings:
-
-```json
-{
-  "mcpServers": {
-    "midaz": {
-      "command": "npx",
-      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
-    }
-  }
-}
-```
-
-### Windsurf IDE Integration
-
-Add this to your Windsurf MCP configuration:
-
-```json
-{
-  "mcpServers": {
-    "midaz": {
-      "command": "npx",
-      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
-    }
-  }
-}
-```
-
-### Cursor IDE Integration
-
-Add this to your Cursor MCP configuration:
-
-```json
-{
-  "mcpServers": {
-    "midaz": {
-      "command": "npx",
-      "args": ["--yes", "@lerianstudio/midaz-mcp-server"]
-    }
-  }
-}
-```
-
 ### Custom Backend URLs
 
 For custom backend URLs:
@@ -243,7 +168,6 @@ For custom backend URLs:
     "midaz": {
       "command": "npx",
       "args": [
-        "--yes",
         "@lerianstudio/midaz-mcp-server",
         "--onboarding-url=http://localhost:3000",
         "--transaction-url=http://localhost:3001"
