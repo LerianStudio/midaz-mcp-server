@@ -31,7 +31,7 @@ const LogLevelPriority = {
 
 // Current log level (from environment or default to info)
 const currentLogLevel = process.env.MIDAZ_LOG_LEVEL || 'info';
-const enableConsoleLogging = process.env.MIDAZ_CONSOLE_LOGS !== 'false';
+const enableConsoleLogging = false; // Disabled for MCP protocol compatibility
 const enableDetailedLogging = process.env.MIDAZ_DETAILED_LOGS === 'true';
 
 // MCP server instance (will be set during initialization)

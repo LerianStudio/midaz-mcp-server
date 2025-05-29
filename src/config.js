@@ -183,10 +183,10 @@ async function autoDetectServices(config) {
             });
 
             if (response.ok) {
-                console.error(`✅ Auto-detected ${service.name} service at ${service.url}`);
+                // Auto-detected service (silent for MCP protocol)
                 config.useStubs = false; // Disable stubs if any service is available
             } else {
-                console.error(`⚠️  ${service.name} service at ${service.url} returned status ${response.status}`);
+                // Service status error (silent for MCP protocol)
             }
         } catch (error) {
             // Try API endpoint as fallback
@@ -204,21 +204,21 @@ async function autoDetectServices(config) {
                 });
 
                 if (response.ok || response.status === 404 || response.status === 401) {
-                    console.error(`✅ Auto-detected ${service.name} service at ${service.url} (API endpoint)`);
+                    // Auto-detected service API endpoint (silent for MCP protocol)
                     config.useStubs = false; // Disable stubs if any service is available
                 } else {
                     throw new Error(`Status ${response.status}`);
                 }
             } catch (apiError) {
-                console.error(`ℹ️  ${service.name} service not available at ${service.url} - will use stub data`);
+                // Service not available (silent for MCP protocol)
             }
         }
     }
 
     if (config.useStubs) {
-        console.error('\n📚 Using stub data mode (no live services detected)');
+        // Using stub data mode (silent for MCP protocol)
     } else {
-        console.error('\n🔗 Connected to live Midaz services');
+        // Connected to live Midaz services (silent for MCP protocol)
     }
 }
 
@@ -265,7 +265,7 @@ async function loadConfig() {
                 return loadedConfig;
             }
         } catch (err) {
-            console.error(`Error loading config from ${argsConfig._configFile}:`, err.message);
+            // Error loading config file (silent for MCP protocol)
         }
     }
 
@@ -356,7 +356,7 @@ async function loadConfig() {
                 }
             } catch (err) {
                 // Continue to next config location on error
-                console.error(`Error loading config from ${configPath}:`, err.message);
+                // Error loading config from path (silent for MCP protocol)
             }
         }
     }
@@ -370,7 +370,7 @@ async function loadConfig() {
         };
     }
 
-    console.error(`Midaz MCP server using config from: ${configSource}`);
+    // MCP server config source (silent for MCP protocol)
 
     // Auto-detect local services if enabled
     if (loadedConfig.autoDetect) {
