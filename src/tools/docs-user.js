@@ -17,33 +17,7 @@ import { wrapToolHandler, validateArgs } from "../util/mcp-helpers.js";
  * @param {import("@modelcontextprotocol/sdk/server/mcp.js").McpServer} server MCP server instance
  */
 export const registerDocsUserTools = (server) => {
-  // Search documentation
-  server.tool(
-    "search-documentation",
-    "Search for specific documentation pages by keyword. Returns matching documentation resources. Use this to find API endpoints, guides, or specific topics.",
-    {
-      keyword: z.string().min(2).describe("Search keyword (minimum 2 characters)")
-    },
-    wrapToolHandler(async (args, extra) => {
-      const { keyword } = validateArgs(args, z.object({
-        keyword: z.string().min(2)
-      }));
-
-      const results = await searchResources(keyword);
-
-      return {
-        keyword,
-        resultCount: results.length,
-        results: results.map(r => ({
-          path: r.path,
-          title: r.title,
-          category: r.category,
-          url: r.url,
-          description: r.description
-        }))
-      };
-    })
-  );
+  // Note: search-documentation tool is provided by docs-comprehensive.js to avoid duplicates
 
   // Read documentation content
   server.tool(

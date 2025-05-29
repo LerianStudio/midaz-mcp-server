@@ -13,8 +13,7 @@
         "resolveJsonModule": true,
         "allowJs": true,
         "checkJs": false,
-        "lib": ["ES2020"],
-        "types": ["node"]
+        "lib": ["ES2020", "DOM"]
     },
     "include": [
         "src/**/*"

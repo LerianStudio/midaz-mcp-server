@@ -1,6 +1,13 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+
+// Node.js imports
+declare const require: any;
+declare const process: any;
+const fs = require('fs');
+const path = require('path');
+
+const { readFileSync, existsSync } = fs;
+const { join } = path;
 
 /**
  * SDK Knowledge Cache - Stores processed SDK information for quick access
@@ -86,9 +93,9 @@ const loadSdkKnowledge = (): SdkKnowledge => {
 /**
  * Load Golang SDK overview and features
  */
-const loadGolangOverview = (path: string): string => {
+const loadGolangOverview = (sdkPath: string): string => {
   try {
-    const readmePath = join(path, 'README.md');
+    const readmePath = join(sdkPath, 'README.md');
     if (existsSync(readmePath)) {
       const readme = readFileSync(readmePath, 'utf-8');
       
