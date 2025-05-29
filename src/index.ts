@@ -84,8 +84,8 @@ const main = async () => {
     
     // Log startup
     console.error('🚀 Starting Midaz MCP Server...');
-    logLifecycleEvent('starting', { version: '1.0.0', capabilities });
-    logger.info('Server initialization started', { version: '1.0.0' });
+    logLifecycleEvent('starting', { version: '1.8.0', capabilities });
+    logger.info('Server initialization started', { version: '1.8.0' });
 
     // Register resources
     console.error('💾 Registering MCP resources...');
