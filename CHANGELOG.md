@@ -1,3 +1,18 @@
+# [2.5.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.4.1...v2.5.0) (2025-05-29)
+
+
+### Bug Fixes
+
+* **ci:** correct NPM authentication in manual publish workflow ([2dac6c2](https://github.com/lerianstudio/midaz-mcp-server/commit/2dac6c2ecc43d4dbc1c142ef1d7ff6c007c19f20))
+* **ci:** prepare v2.4.1 release with fixed semantic-release config ([cecb263](https://github.com/lerianstudio/midaz-mcp-server/commit/cecb2638ff040d80425b024c3e56f2109a12152b))
+* **ci:** resolve semantic-release Date prototype errors completely ([26c9dec](https://github.com/lerianstudio/midaz-mcp-server/commit/26c9dec36bec82e5a7b75d860c853c4bcef0e229))
+* **deps:** update package-lock.json with compatible semantic-release versions ([8d301c7](https://github.com/lerianstudio/midaz-mcp-server/commit/8d301c7e59e4f42b74975a69b53f310a2a55a90a))
+
+
+### Features
+
+* **ci:** add manual NPM publish workflow to bypass semantic-release issues ([65a0fbb](https://github.com/lerianstudio/midaz-mcp-server/commit/65a0fbb6a2f6cdce5740a3f9e2d55e7b966a2318))
+
 ## 1.0.0 (2025-05-23)
 
 
