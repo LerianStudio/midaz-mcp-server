@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.5.0...v2.6.0) (2025-05-29)
+
+
+### Bug Fixes
+
+* **mcp:** resolve MCP client connection issues ([d40d2c0](https://github.com/lerianstudio/midaz-mcp-server/commit/d40d2c02dfb26a5cfc0b0f78dd977c69df269c9b))
+
 # [2.5.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.4.1...v2.5.0) (2025-05-29)
 
 
