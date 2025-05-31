@@ -2,8 +2,6 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { z } from 'zod';
-
 // Node.js globals
 declare const process: any;
 
@@ -19,7 +17,7 @@ const main = async () => {
     });
 
     // Add one simple test tool using the MCP server API
-    server.tool('test-connection', 'Test MCP connection', {}, async (args: any) => {
+    server.tool('test-connection', 'Test MCP connection', {}, async (_args: any) => {
       return {
         content: [{
           type: 'text',

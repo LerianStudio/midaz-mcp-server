@@ -623,5 +623,3 @@ function generateProgressBar(current, total) {
   const empty = 10 - filled;
   return `[${'█'.repeat(filled)}${'░'.repeat(empty)}] ${progress}%`;
 }
-
-export { registerMidazLearningTools };
