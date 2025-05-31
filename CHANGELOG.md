@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.10.0...v2.11.0) (2025-05-31)
+
+
+### Bug Fixes
+
+* **ci:** reorganize CI/CD pipeline for reliable releases ([76bf79c](https://github.com/lerianstudio/midaz-mcp-server/commit/76bf79ccb0078d9a1f6b43cff7eb0a45acce9c3f))
+
 # [2.10.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.9.0...v2.10.0) (2025-05-31)
 
 
