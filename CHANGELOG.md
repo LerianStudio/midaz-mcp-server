@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.8.0...v2.9.0) (2025-05-31)
+
+
+### Features
+
+* **learning:** implement enhanced instructional system with dynamic content ([a8f7f09](https://github.com/lerianstudio/midaz-mcp-server/commit/a8f7f09238a660f60652c74c751346c9e48e124a))
+
 # [2.8.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.7.0...v2.8.0) (2025-05-29)
 
 # [2.7.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.6.0...v2.7.0) (2025-05-29)
