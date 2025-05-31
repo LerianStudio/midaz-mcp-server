@@ -1,3 +1,10 @@
+# [2.10.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.9.0...v2.10.0) (2025-05-31)
+
+
+### Bug Fixes
+
+* **ci:** resolve linting errors for enhanced learning system ([f8124dd](https://github.com/lerianstudio/midaz-mcp-server/commit/f8124dd547bbad4fa3448ef672d9c5d7c1904c8f))
+
 # [2.9.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.8.0...v2.9.0) (2025-05-31)
 
 
