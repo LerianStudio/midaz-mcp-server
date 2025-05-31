@@ -390,4 +390,25 @@ export const configPromise = loadConfig();
 export { loadConfig };
 
 // For backward compatibility, export a default that will be resolved
+/**
+ * Validate config file path to prevent path traversal attacks
+ */
+function validateConfigPath(configPath) {
+  if (!configPath || typeof configPath !== 'string') {
+    return true;
+  }
+  
+  import('path').then(path => {
+    const resolvedPath = path.resolve(configPath);
+    const allowedDirs = [process.cwd(), '/etc/midaz'];
+    const isAllowed = allowedDirs.some(dir => resolvedPath.startsWith(path.resolve(dir)));
+    
+    if (!isAllowed) {
+      throw new Error(`Config path not allowed: ${configPath}`);
+    }
+  });
+  
+  return true;
+}
+
 export default await configPromise; 

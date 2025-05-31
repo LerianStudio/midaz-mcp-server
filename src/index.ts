@@ -13,6 +13,10 @@ import { initializeMcpLogger, createLogger, logLifecycleEvent, logConfigEvent, l
 import { registerAllDocumentationTools } from './tools/docs-registry.js';
 import { registerDocsDemoTools } from './tools/docs-demo.js';
 
+// Import enhanced learning tools
+import { registerMidazDocsTools } from './tools/midaz-docs.js';
+import { registerMidazLearningTools } from './tools/midaz-learning.js';
+
 // Import tool definitions
 import { registerOrganizationTools } from './tools/organization.js';
 import { registerLedgerTools } from './tools/ledger.js';
@@ -72,7 +76,7 @@ const main = async () => {
     // Create the MCP server with declared capabilities
     const server = new McpServer({
       name: 'midaz-mcp-server',
-      version: '2.6.0',
+      version: '2.8.0',
       capabilities
     });
 
@@ -88,6 +92,11 @@ const main = async () => {
     // Register comprehensive documentation tools (replaces resources)
     registerAllDocumentationTools(server);
     registerDocsDemoTools(server);
+    
+    // Register enhanced learning tools (THE BEST way to learn Midaz)
+    registerMidazDocsTools(server);
+    registerMidazLearningTools(server);
+    logger.info('Enhanced learning system registered - dynamically sourced from docs.lerian.studio/llms.txt and GitHub OpenAPI specs');
     logger.info('Documentation tools registered successfully - replaces resource system for broader compatibility');
 
     // Register financial/ledger tools
