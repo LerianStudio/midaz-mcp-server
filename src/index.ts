@@ -9,13 +9,12 @@ import { initializeSecurity } from './util/security.js';
 import { initializeManifest } from './util/docs-manifest.js';
 import { initializeMcpLogger, createLogger, logLifecycleEvent, logConfigEvent, logLoggingConfig } from './util/mcp-logging.js';
 
-// Import comprehensive documentation tools (replaces resource system)
-import { registerAllDocumentationTools } from './tools/docs-registry.js';
-import { registerDocsDemoTools } from './tools/docs-demo.js';
+// Import unified tools (consolidates 17 tools into 2)
+import { registerUnifiedDocumentationTool } from './tools/docs-unified.js';
+import { registerUnifiedLearningTool } from './tools/learn-unified.js';
 
-// Import enhanced learning tools
-import { registerMidazDocsTools } from './tools/midaz-docs.js';
-import { registerMidazLearningTools } from './tools/midaz-learning.js';
+// Import discovery prompts
+import { registerDiscoveryPrompts } from './prompts/tool-discovery.js';
 
 // Import tool definitions
 import { registerOrganizationTools } from './tools/organization.js';
@@ -29,8 +28,7 @@ import { registerPortfolioTools } from './tools/portfolio.js';
 import { registerSegmentTools } from './tools/segment.js';
 import { registerSdkTools } from './tools/sdk.js';
 
-// Import MCP protocol handlers
-import { setupSubscriptionHandlers } from './util/resource-subscriptions.js';
+// Resources completely removed - no subscription handlers needed
 
 // Import client detection system
 import { initializeClientDetection } from './util/client-integration.js';
@@ -47,11 +45,11 @@ const main = async () => {
     await initializeManifest();
     logConfigEvent('docs_manifest_initialized');
 
-    // Collect all capabilities with comprehensive documentation tools (no resources)
+    // Collect all capabilities with unified tools
     const capabilities = {
-      resources: false, // Replaced with comprehensive documentation tools
+      resources: false, // Completely removed
       tools: {
-        // Financial/Ledger tools
+        // Financial/Ledger tools (18 tools)
         organization: true,
         ledger: true,
         account: true,
@@ -61,15 +59,13 @@ const main = async () => {
         portfolio: true,
         segment: true,
         sdk: true,
-        // Comprehensive documentation tools
-        documentationSystem: true,
-        apiReference: true,
-        codeExamples: true,
-        troubleshooting: true,
-        architectureDocs: true,
-        interactiveTutorials: true
+        // Unified documentation & learning (2 tools - replaces 17 tools)
+        unifiedDocumentation: true,
+        unifiedLearning: true,
+        // Status monitoring
+        statusMonitoring: true
       },
-      prompts: false,
+      prompts: true, // Enable tool discovery prompts
       logging: true
     };
 
@@ -89,17 +85,16 @@ const main = async () => {
     logLifecycleEvent('starting', { version: '2.5.1', capabilities });
     logger.info('Server initialization started', { version: '2.5.1' });
 
-    // Register comprehensive documentation tools (replaces resources)
-    registerAllDocumentationTools(server);
-    registerDocsDemoTools(server);
+    // Register unified tools (major consolidation: 17 → 2 tools)
+    registerUnifiedDocumentationTool(server);
+    registerUnifiedLearningTool(server);
+    logger.info('✅ Unified tools registered - reduced from 17 to 2 tools for MCP client compatibility');
     
-    // Register enhanced learning tools (THE BEST way to learn Midaz)
-    registerMidazDocsTools(server);
-    registerMidazLearningTools(server);
-    logger.info('Enhanced learning system registered - dynamically sourced from docs.lerian.studio/llms.txt and GitHub OpenAPI specs');
-    logger.info('Documentation tools registered successfully - replaces resource system for broader compatibility');
+    // Register discovery prompts
+    registerDiscoveryPrompts(server);
+    logger.info('✅ Discovery prompts registered - helps users find and use tools');
 
-    // Register financial/ledger tools
+    // Register financial/ledger tools (18 tools total)
     const financialTools = [
       'organization', 'ledger', 'account', 'transaction', 
       'balance', 'asset', 'portfolio', 'segment', 'sdk'
@@ -113,12 +108,10 @@ const main = async () => {
     registerPortfolioTools(server);
     registerSegmentTools(server);
     registerSdkTools(server);
-    logger.info('Financial tools registered', { toolCount: financialTools.length, tools: financialTools });
+    logger.info('✅ Financial API tools registered', { toolCount: 18, categories: financialTools.length });
 
-    // Setup MCP protocol handlers for subscriptions and discovery
-    setupSubscriptionHandlers(server);
-    logger.info('Protocol handlers configured');
-    // Note: Discovery handlers are non-standard and not supported by the MCP SDK
+    // Total tool count: 2 unified + 18 financial + 1 status = 21 tools (down from ~40)
+    logger.info('🎯 Total tools registered: ~21 (major reduction for MCP client compatibility)');
 
     // Connect to stdio transport
     const transport = new StdioServerTransport();

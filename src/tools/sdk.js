@@ -19,17 +19,19 @@ export const registerSdkTools = (server) => {
   // SDK Code Generator Tool
   server.tool(
     'generate-sdk-code',
-    'Generate code examples using Midaz SDKs for specific use cases. Supports both Golang and TypeScript SDKs with various patterns like CRUD operations, transactions, authentication, etc.',
+    'Generate production-ready code examples using official Midaz SDKs. Returns complete, runnable code with dependencies, setup instructions, and best practices. Ideal for accelerating development and learning SDK patterns.',
     {
-      language: z.enum(['golang', 'typescript']).describe('Programming language/SDK to use'),
+      language: z.enum(['golang', 'typescript']).describe('SDK programming language (REQUIRED). \'golang\': for backend services, high performance, strong typing. \'typescript\': for web applications, Node.js services, better IDE support. Both SDKs have feature parity.'),
+      
       useCase: z.enum([
-        'basic-setup',
-        'organization-crud',
-        'transaction-processing',
-        'authentication-setup',
-        'error-handling'
-      ]).describe('Type of code example to generate'),
-      includeComments: z.boolean().default(true).describe('Include detailed comments in generated code'),
+        'basic-setup',           // Authentication, client initialization, environment setup
+        'organization-crud',     // Create, read, update, delete organizations and management
+        'transaction-processing', // Financial transactions, balance transfers, multi-party payments
+        'authentication-setup',  // OAuth configuration, API key management, token handling
+        'error-handling'         // Exception handling, retry patterns, graceful degradation
+      ]).describe('Type of implementation pattern to generate (REQUIRED). \'basic-setup\': client initialization and auth, \'organization-crud\': entity management, \'transaction-processing\': financial operations, \'authentication-setup\': security configuration, \'error-handling\': robust error patterns.'),
+      
+      includeComments: z.boolean().default(true).describe('Whether to include detailed code comments and explanations (default: true). True: comprehensive comments explaining each step, best practices, common pitfalls. False: clean production code without explanatory comments.'),
     },
     wrapToolHandler(async (args, extra) => {
       logToolInvocation('generate-sdk-code', args, extra);

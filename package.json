@@ -1,6 +1,6 @@
 {
   "name": "@lerianstudio/midaz-mcp-server",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "description": "A Model Context Protocol (MCP) server for Midaz that provides educational content, model information, and read-only API interactions for developer clients through their LLMs.",
   "main": "dist/index.js",
   "exports": {
@@ -10,14 +10,12 @@
   "type": "module",
   "bin": {
     "midaz-mcp-server": "./dist/bin/midaz-mcp-server.js",
-    "midaz-mcp-server-minimal": "./dist/index-minimal.js",
     "midaz-mcp-config": "./dist/cli.js"
   },
   "scripts": {
     "start": "node dist/index.js",
     "dev": "ts-node --esm src/index.ts",
     "dev:watch": "ts-node --esm --watch src/index.ts",
-    "dev:minimal": "ts-node --esm src/index-minimal.ts",
     "version:update": "node scripts/update-version.js",
     "build": "tsc && chmod +x dist/index.js && chmod +x dist/cli.js && chmod +x dist/bin/midaz-mcp-server.js",
     "build:release": "npm run version:update && npm run build",
@@ -32,15 +30,6 @@
     "test:mcp": "node test/mcp-inspector-tests.js",
     "dev:hot": "node src/dev-server.js",
     "config": "node dist/cli.js",
-    "docker:build": "./scripts/docker-mcp.sh build",
-    "docker:run": "./scripts/docker-mcp.sh run",
-    "docker:stop": "./scripts/docker-mcp.sh stop",
-    "docker:logs": "./scripts/docker-mcp.sh logs",
-    "docker:exec": "./scripts/docker-mcp.sh exec",
-    "docker:bridge": "./scripts/docker-mcp.sh bridge",
-    "docker:clean": "./scripts/docker-mcp.sh clean",
-    "docker:compose": "docker-compose up -d",
-    "docker:compose:down": "docker-compose down",
     "config:init": "node dist/cli.js && cp .env.example .env",
     "prepare": "npm run build",
     "docs": "typedoc --out docs src/"

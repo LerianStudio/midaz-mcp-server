@@ -42,28 +42,3 @@ jobs:
       - name: Run tests
         run: npm test
 
-  docker-build:
-    name: Docker Build Test
-    runs-on: ubuntu-latest
-    # Only run Docker builds on main and develop to save costs
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile.multistage
-          push: false
-          tags: test-build:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Test Docker image
-        run: |
-          docker run --rm test-build:latest node dist/index.js --help || true

@@ -1,7 +1,7 @@
 # Midaz MCP Server - Makefile
 # Automates setup, configuration, and running of the MCP server
 
-.PHONY: help setup build start dev docker-build docker-run docker-exec docker-logs docker-stop docker-clean test lint clean install demo validate
+.PHONY: help setup build start dev test lint clean install demo validate docs docs-serve docs-clean
 
 # Default target
 help:
@@ -22,15 +22,10 @@ help:
 	@echo "  lint            Run ESLint"
 	@echo "  lint-fix        Run ESLint with auto-fix"
 	@echo ""
-	@echo "🐳 Docker Commands:"
-	@echo "  docker-build    Build Docker image"
-	@echo "  docker-run      Run MCP server in Docker (stub mode)"
-	@echo "  docker-live     Run MCP server in Docker (live mode)"
-	@echo "  docker-exec     Execute MCP server for Claude Desktop"
-	@echo "  docker-logs     Show Docker container logs"
-	@echo "  docker-bridge   Start socat bridge for Claude Desktop"
-	@echo "  docker-stop     Stop Docker container"
-	@echo "  docker-clean    Clean Docker resources"
+	@echo "📚 Documentation:"
+	@echo "  docs            Generate TypeDoc API documentation"
+	@echo "  docs-serve      Generate and serve docs locally"
+	@echo "  docs-clean      Clean generated documentation"
 	@echo ""
 	@echo "🧹 Maintenance:"
 	@echo "  clean           Clean build artifacts"
@@ -46,16 +41,15 @@ help:
 	@echo "📖 Examples:"
 	@echo "  make setup                    # Initial project setup"
 	@echo "  make dev                      # Start development server"
+	@echo "  make docs-serve               # Generate and serve documentation"
 	@echo "  MIDAZ_LOG_LEVEL=debug make start  # Start with debug logging"
-	@echo "  make docker-build docker-run      # Run in Docker"
 
 # Setup project from scratch
 setup: config install build
 	@echo "✅ Project setup complete!"
 	@echo "📝 Next steps:"
 	@echo "   1. Edit .env with your configuration"
-	@echo "   2. Edit midaz-mcp-config.json if needed"
-	@echo "   3. Run 'make start' to start the server"
+	@echo "   2. Run 'make start' to start the server"
 
 # Copy configuration files
 config:
@@ -65,12 +59,6 @@ config:
 		echo "✅ Created .env from .env.example"; \
 	else \
 		echo "ℹ️  .env already exists, skipping"; \
-	fi
-	@if [ ! -f midaz-mcp-config.json ]; then \
-		cp midaz-mcp-config.json.example midaz-mcp-config.json && \
-		echo "✅ Created midaz-mcp-config.json from example"; \
-	else \
-		echo "ℹ️  midaz-mcp-config.json already exists, skipping"; \
 	fi
 
 # Install dependencies
@@ -113,39 +101,6 @@ lint-fix:
 	@echo "🔧 Running ESLint with auto-fix..."
 	npm run lint:fix
 
-# Docker commands
-docker-build:
-	@echo "🐳 Building Docker image..."
-	./scripts/docker-mcp.sh build
-
-docker-run:
-	@echo "🐳 Running MCP server in Docker (stub mode)..."
-	./scripts/docker-mcp.sh run --stub
-
-docker-live:
-	@echo "🐳 Running MCP server in Docker (live mode)..."
-	./scripts/docker-mcp.sh run --live
-
-docker-exec:
-	@echo "🐳 Executing MCP server for Claude Desktop..."
-	./scripts/docker-mcp.sh exec
-
-docker-logs:
-	@echo "📋 Showing Docker container logs..."
-	./scripts/docker-mcp.sh logs
-
-docker-bridge:
-	@echo "🌉 Starting socat bridge for Claude Desktop..."
-	@echo "📝 Configure Claude Desktop with: socat STDIO TCP:localhost:3330"
-	./scripts/docker-mcp.sh bridge
-
-docker-stop:
-	@echo "🛑 Stopping Docker container..."
-	./scripts/docker-mcp.sh stop
-
-docker-clean:
-	@echo "🧹 Cleaning Docker resources..."
-	./scripts/docker-mcp.sh clean
 
 # Maintenance
 clean:
@@ -153,11 +108,10 @@ clean:
 	rm -rf dist
 	rm -rf logs/*.log 2>/dev/null || true
 
-clean-all: clean
+clean-all: clean docs-clean
 	@echo "🧹 Cleaning everything..."
 	rm -rf node_modules
 	rm -rf .env 2>/dev/null || true
-	rm -rf midaz-mcp-config.json 2>/dev/null || true
 
 # Development shortcuts with different log levels
 dev-debug:
@@ -189,6 +143,39 @@ ci: clean install lint build test
 demo:
 	@echo "🎯 Running Makefile demo..."
 	./scripts/demo-makefile.sh
+
+# Documentation generation
+docs:
+	@echo "📚 Generating TypeDoc API documentation..."
+	npm run docs
+	@echo "✅ Documentation generated in docs/ directory"
+	@echo "🌐 Open docs/index.html in your browser to view"
+
+# Generate and serve docs locally (requires Python or Node.js HTTP server)
+docs-serve: docs
+	@echo "🌐 Starting local documentation server..."
+	@if command -v python3 >/dev/null 2>&1; then \
+		echo "📄 Serving docs at http://localhost:8080"; \
+		echo "🔴 Press Ctrl+C to stop the server"; \
+		cd docs && python3 -m http.server 8080; \
+	elif command -v python >/dev/null 2>&1; then \
+		echo "📄 Serving docs at http://localhost:8080"; \
+		echo "🔴 Press Ctrl+C to stop the server"; \
+		cd docs && python -m SimpleHTTPServer 8080; \
+	elif command -v npx >/dev/null 2>&1; then \
+		echo "📄 Serving docs at http://localhost:8080"; \
+		echo "🔴 Press Ctrl+C to stop the server"; \
+		cd docs && npx http-server -p 8080; \
+	else \
+		echo "❌ No HTTP server available. Install Python or Node.js http-server"; \
+		echo "💡 Alternative: Open docs/index.html directly in your browser"; \
+	fi
+
+# Clean generated documentation
+docs-clean:
+	@echo "🧹 Cleaning generated documentation..."
+	rm -rf docs
+	@echo "✅ Documentation cleaned"
 
 # Validate setup process
 validate:

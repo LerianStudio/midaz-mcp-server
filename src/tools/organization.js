@@ -68,10 +68,10 @@ export const registerOrganizationTools = (server) => {
     // List organizations tool
     server.tool(
         "list-organizations",
-        "List all organizations with optional pagination",
+        "List all organizations with cursor-based pagination. Returns organization IDs, names, status, and metadata. Use this as the starting point for exploring the Midaz hierarchy: Organization → Ledger → Portfolio → Account.",
         {
-            cursor: z.string().optional().describe("Pagination cursor for next page"),
-            limit: z.number().optional().default(10).describe("Number of items to return (max 100)")
+            cursor: z.string().optional().describe("Pagination cursor for next page of results (optional). Format: opaque string returned from previous response. Omit for first page. Example: 'eyJpZCI6IjEyMyJ9'. Use exact cursor value from previous response - do not modify."),
+            limit: z.number().optional().default(10).describe("Number of organizations to return per page (range: 1-100, default: 10). Recommended: 10-20 for UI display, 50-100 for data processing. Large limits may impact performance. Each organization includes full details (name, status, metadata, timestamps).")
         },
         wrapToolHandler(async (args, extra) => {
             logToolInvocation("list-organizations", args, extra);
@@ -103,9 +103,9 @@ export const registerOrganizationTools = (server) => {
     // Get organization by ID tool
     server.tool(
         "get-organization",
-        "Get organization details by ID",
+        "Get detailed information for a specific organization by ID. Returns complete organization profile including legal details, address, status, metadata, and timestamps. Required for accessing organization-specific ledgers and accounts.",
         {
-            id: z.string().uuid().describe("Organization ID in UUID format"),
+            id: z.string().uuid().describe("Organization ID in UUID v4 format (REQUIRED). Format: '12345678-1234-1234-1234-123456789012'. Get valid IDs from list-organizations first. Example: '00000000-0000-0000-0000-000000000001'. Must be exact UUID - partial IDs or names will not work."),
         },
         wrapToolHandler(async (args, extra) => {
             logToolInvocation("get-organization", args, extra);

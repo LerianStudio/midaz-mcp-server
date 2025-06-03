@@ -66,18 +66,26 @@ export const registerAccountTools = (server) => {
     // List accounts tool
     server.tool(
         "list-accounts",
-        "List accounts in a ledger with optional pagination",
+        "List all accounts within a specific ledger with advanced filtering and pagination. Accounts hold balances and are the core entities for financial transactions. Essential for transaction processing and balance management.",
         {
-            organization_id: z.string().uuid().describe("Organization ID in UUID format"),
-            ledger_id: z.string().uuid().describe("Ledger ID in UUID format"),
-            cursor: z.string().optional().describe("Pagination cursor for next page"),
-            limit: z.number().optional().default(10).describe("Number of items to return (max 100)"),
-            start_date: z.string().optional().describe("Filter by creation date (YYYY-MM-DD)"),
-            end_date: z.string().optional().describe("Filter by creation date (YYYY-MM-DD)"),
-            sort_order: z.enum(["asc", "desc"]).optional().describe("Sort direction"),
-            asset_code: z.string().optional().describe("Filter by asset code"),
-            type: z.string().optional().describe("Filter by account type"),
-            metadata: z.string().optional().describe("JSON string to filter accounts by metadata fields"),
+            organization_id: z.string().uuid().describe("Organization ID in UUID v4 format (REQUIRED). Parent container for the ledger. Format: '12345678-1234-1234-1234-123456789012'. Get from list-organizations first. All ledgers belong to an organization."),
+            
+            ledger_id: z.string().uuid().describe("Ledger ID in UUID v4 format (REQUIRED). The ledger containing the accounts to list. Format: '12345678-1234-1234-1234-123456789012'. Get from list-ledgers with the organization_id first. Ledgers group related accounts."),
+            
+            cursor: z.string().optional().describe("Pagination cursor for next page (optional). Opaque string from previous response. Omit for first page. Use exact value returned in 'nextCursor' field - do not modify or construct manually."),
+            
+            limit: z.number().optional().default(10).describe("Number of accounts per page (range: 1-100, default: 10). Recommended: 10-20 for UI lists, 50-100 for data processing. Each account includes balance information, so large limits may impact performance."),
+            
+            start_date: z.string().optional().describe("Filter accounts created after this date (optional). Format: 'YYYY-MM-DD' (ISO 8601 date only). Example: '2024-01-01'. Useful for finding recently created accounts or filtering by creation periods."),
+            
+            end_date: z.string().optional().describe("Filter accounts created before this date (optional). Format: 'YYYY-MM-DD' (ISO 8601 date only). Example: '2024-12-31'. Must be after start_date if both provided. Use with start_date for date range filtering."),
+            
+            sort_order: z.enum(["asc", "desc"]).optional().describe("Sort direction for results (optional). 'asc': oldest first (chronological), 'desc': newest first (reverse chronological). Default sorting is by creation date. Affects pagination order."),
+            
+            asset_code: z.string().optional().describe("Filter by asset/currency code (optional). Examples: 'USD', 'EUR', 'BTC', 'POINTS'. Case-sensitive exact match. Returns only accounts that hold balances in this specific asset type."),
+            
+            type: z.string().optional().describe("Filter by account type (optional). Common types: 'asset', 'liability', 'equity', 'revenue', 'expense'. Follows double-entry accounting principles. Use for organizing accounts by their accounting purpose."),
+            metadata: z.string().optional().describe("JSON string to filter accounts by custom metadata fields (optional). Format: '{\"key\":\"value\"}' for exact matches. Examples: '{\"department\":\"sales\"}', '{\"customer_id\":\"12345\"}', '{\"region\":\"us-west\"}'. Useful for finding accounts tagged with specific business context. Must be valid JSON syntax."),
         },
         wrapToolHandler(async (args, extra) => {
             logToolInvocation("list-accounts", args, extra);
