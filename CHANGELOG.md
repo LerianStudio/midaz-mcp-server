@@ -1,3 +1,15 @@
+# [2.12.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.11.0...v2.12.0) (2025-06-03)
+
+
+### Bug Fixes
+
+* **build:** resolve ESLint parsing error in code generation tool ([d39a761](https://github.com/lerianstudio/midaz-mcp-server/commit/d39a76119812136d555c4a1a6587e89362b6a86a))
+
+
+### Features
+
+* **docs:** add comprehensive sequence diagrams and documentation target ([e9c8fd9](https://github.com/lerianstudio/midaz-mcp-server/commit/e9c8fd91b88ff3a64ca39f8373be2f5e01be4b84))
+
 # [2.11.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.10.0...v2.11.0) (2025-05-31)
 
 
