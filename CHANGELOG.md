@@ -1,3 +1,5 @@
+# [2.15.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.14.0...v2.15.0) (2025-06-03)
+
 # [2.14.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.13.0...v2.14.0) (2025-06-03)
 
 
