@@ -137,29 +137,6 @@ jobs:
       - name: Run TypeScript compiler check
         run: npx tsc --noEmit
 
-  docker-security:
-    name: Docker Security Scan
-    runs-on: ubuntu-latest
-    # Only run Docker security scans on main and develop to save costs
-    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')) || github.event.pull_request.head.repo.full_name == github.repository
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: docker build -t mcp-server:scan -f Dockerfile.multistage .
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'mcp-server:scan'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
 
   dependency-review:
     name: Dependency Review

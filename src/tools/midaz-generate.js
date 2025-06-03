@@ -382,7 +382,7 @@ class MidazPaymentService {
     try {
       return await this.createTransaction(transactionData);
     } catch (error) {
-      throw new Error('Payment processing failed: ' + error.message);
+      throw new Error(\`Payment processing failed: \${error.message}\`);
     }
   }
 

@@ -47,15 +47,3 @@ updates:
     assignees:
       - "fredamaral"
 
-  # Docker dependencies
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "08:00"
-    labels:
-      - "dependencies"
-      - "docker"
-    assignees:
-      - "fredamaral"
