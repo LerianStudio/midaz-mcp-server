@@ -126,6 +126,29 @@ Once connected, you can ask your AI assistant:
 - ✅ All data stays on your computer
 - ✅ Open source and auditable
 
+## 🛠️ Development & Contributing
+
+### **Quick Start for Developers**
+```bash
+# Setup and run locally
+make setup                    # Initial project setup
+make dev                      # Start development server
+
+# Before committing (matches CI/CD exactly)
+make ci-all                   # Run complete CI pipeline locally
+```
+
+### **Available Commands**
+- **`make ci-all`** - Run complete CI/CD pipeline locally (recommended before commits)
+- **`make docs-serve`** - Generate and serve documentation locally
+- **`make typecheck`** - TypeScript type checking
+- **`make audit`** - Security vulnerability scan
+
+### **Documentation**
+- 📚 [CI/CD Alignment Guide](docs/ci-cd-alignment.md) - Run the same commands locally as in CI/CD
+- 📊 [Sequence Diagrams](diagrams/README.md) - Visual system architecture documentation
+- 🏗️ [Developer Guide](CLAUDE.md) - Comprehensive development documentation
+
 ---
 
 **Ready to get started?** Copy the configuration for your AI assistant above and restart the app! 🚀

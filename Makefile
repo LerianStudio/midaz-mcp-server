@@ -1,7 +1,7 @@
 # Midaz MCP Server - Makefile
 # Automates setup, configuration, and running of the MCP server
 
-.PHONY: help setup build start dev test lint clean install demo validate docs docs-serve docs-clean
+.PHONY: help setup build start dev test lint clean install demo validate docs docs-serve docs-clean typecheck audit ci-install ci-lint ci-test ci-audit ci-all
 
 # Default target
 help:
@@ -21,11 +21,20 @@ help:
 	@echo "  test-logging    Test logging functionality"
 	@echo "  lint            Run ESLint"
 	@echo "  lint-fix        Run ESLint with auto-fix"
+	@echo "  typecheck       Run TypeScript type checking"
+	@echo "  audit           Run npm security audit"
 	@echo ""
 	@echo "📚 Documentation:"
 	@echo "  docs            Generate TypeDoc API documentation"
 	@echo "  docs-serve      Generate and serve docs locally"
 	@echo "  docs-clean      Clean generated documentation"
+	@echo ""
+	@echo "🤖 CI/CD Commands (align with pipeline):"
+	@echo "  ci-install      Install dependencies (like CI)"
+	@echo "  ci-lint         Run lint + typecheck (like CI)"
+	@echo "  ci-test         Run build + test (like CI)"
+	@echo "  ci-audit        Run security audit (like CI)"
+	@echo "  ci-all          Run complete CI pipeline locally"
 	@echo ""
 	@echo "🧹 Maintenance:"
 	@echo "  clean           Clean build artifacts"
@@ -41,6 +50,7 @@ help:
 	@echo "📖 Examples:"
 	@echo "  make setup                    # Initial project setup"
 	@echo "  make dev                      # Start development server"
+	@echo "  make ci-all                   # Run complete CI pipeline locally"
 	@echo "  make docs-serve               # Generate and serve documentation"
 	@echo "  MIDAZ_LOG_LEVEL=debug make start  # Start with debug logging"
 
@@ -101,6 +111,16 @@ lint-fix:
 	@echo "🔧 Running ESLint with auto-fix..."
 	npm run lint:fix
 
+# TypeScript type checking
+typecheck:
+	@echo "🔍 Running TypeScript type checking..."
+	npm run typecheck
+
+# Security audit
+audit:
+	@echo "🔒 Running npm security audit..."
+	npm run audit
+
 
 # Maintenance
 clean:
@@ -112,6 +132,27 @@ clean-all: clean docs-clean
 	@echo "🧹 Cleaning everything..."
 	rm -rf node_modules
 	rm -rf .env 2>/dev/null || true
+
+# CI/CD aligned commands
+ci-install:
+	@echo "🤖 Installing dependencies (CI mode)..."
+	npm ci
+
+ci-lint:
+	@echo "🤖 Running lint + typecheck (like CI)..."
+	npm run ci:lint
+
+ci-test:
+	@echo "🤖 Running build + test (like CI)..."
+	npm run ci:test
+
+ci-audit:
+	@echo "🤖 Running security audit (like CI)..."
+	npm run ci:audit
+
+ci-all:
+	@echo "🤖 Running complete CI pipeline locally..."
+	npm run ci:all
 
 # Development shortcuts with different log levels
 dev-debug:
@@ -132,11 +173,11 @@ start-quiet:
 	MIDAZ_LOG_LEVEL=error npm run start
 
 # Quick development cycle
-quick: lint-fix build test
+quick: lint-fix typecheck build test
 	@echo "✅ Quick development cycle complete!"
 
-# Full CI/CD cycle
-ci: clean install lint build test
+# Full CI/CD cycle (matches pipeline exactly)
+ci: clean ci-install ci-lint ci-test ci-audit
 	@echo "✅ CI/CD cycle complete!"
 
 # Demo Makefile capabilities
