@@ -1,3 +1,10 @@
+# [2.14.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.13.0...v2.14.0) (2025-06-03)
+
+
+### Features
+
+* **ci:** align local development with CI/CD pipeline ([83c2764](https://github.com/lerianstudio/midaz-mcp-server/commit/83c2764481ebc44b1858eb6802641c0e6dbf391b))
+
 # [2.13.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.12.0...v2.13.0) (2025-06-03)
 
 # [2.12.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.11.0...v2.12.0) (2025-06-03)
