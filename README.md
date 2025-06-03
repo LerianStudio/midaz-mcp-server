@@ -145,9 +145,7 @@ make ci-all                   # Run complete CI pipeline locally
 - **`make audit`** - Security vulnerability scan
 
 ### **Documentation**
-- 📚 [CI/CD Alignment Guide](docs/ci-cd-alignment.md) - Run the same commands locally as in CI/CD
-- 📊 [Sequence Diagrams](diagrams/README.md) - Visual system architecture documentation
-- 🏗️ [Developer Guide](CLAUDE.md) - Comprehensive development documentation
+- 📊 [System Architecture Diagrams](diagrams/README.md) - Visual system documentation
 
 ---
 
