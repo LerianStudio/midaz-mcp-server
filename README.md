@@ -105,6 +105,33 @@ Once connected, you can ask your AI assistant:
 - 🐛 **"Help me debug this Midaz integration error"**
 - 📊 **"What data models does Midaz use?"**
 
+## 🧙‍♂️ Enhanced Workflow Prompts
+
+**NEW!** Interactive wizards and troubleshooting assistants:
+
+### Basic Workflows
+- 🎯 **`create-transaction-wizard`** - Step-by-step transaction creation
+- 🔍 **`debug-my-balance`** - Balance troubleshooting with context
+- 🏗️ **`setup-my-org`** - Organization setup wizard
+- 📊 **`explain-my-data`** - Smart data analysis and insights
+- 🚀 **`help-me-start`** - Quick start guide
+- 🔧 **`help-with-api`** - API-specific guidance
+- 📚 **`help-me-learn`** - Personalized learning paths
+
+### Advanced Intelligence (NEW!)
+- 📄 **`check-file-balances`** - Multi-format file analysis (CSV/TXT/JSON) with smart UUID extraction
+- 💰 **`check-external-balance`** - External account balance checking by asset (USD, EUR, BTC, etc.)
+- 🔍 **`discover-midaz-hierarchy`** - Explore complete org → ledger → asset → account chains
+- 🛠️ **`show-all-tools`** - Complete catalog of all tools, operations, and parameters
+
+**Enhanced Features:**
+- **File Format Support:** Automatic detection of CSV, TXT, and JSON files
+- **Smart UUID Extraction:** Intelligent parsing with optional LLM confirmation for TXT files
+- **External Balance Monitoring:** Check system-level asset balances and liquidity
+- **Business Intelligence:** Asset distribution analysis and treasury management insights
+
+**Usage:** *"Use check-file-balances to analyze my accounts.txt file"* or *"Use check-external-balance to see USD liquidity"*
+
 ## 🆘 Need Help?
 
 ### Not Working?

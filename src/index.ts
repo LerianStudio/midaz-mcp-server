@@ -15,6 +15,8 @@ import { registerUnifiedLearningTool } from './tools/learn-unified.js';
 
 // Import discovery prompts
 import { registerDiscoveryPrompts } from './prompts/tool-discovery.js';
+import { registerWorkflowPrompts } from './prompts/midaz-workflows.js';
+import { registerAdvancedPrompts } from './prompts/advanced-workflows.js';
 
 // Import tool definitions
 import { registerOrganizationTools } from './tools/organization.js';
@@ -93,6 +95,14 @@ const main = async () => {
     // Register discovery prompts
     registerDiscoveryPrompts(server);
     logger.info('✅ Discovery prompts registered - helps users find and use tools');
+    
+    // Register workflow prompts
+    registerWorkflowPrompts(server);
+    logger.info('✅ Workflow prompts registered - contextual wizards and troubleshooting');
+    
+    // Register advanced prompts
+    registerAdvancedPrompts(server);
+    logger.info('✅ Advanced prompts registered - CSV analysis, hierarchy discovery, tools catalog');
 
     // Register financial/ledger tools (18 tools total)
     const financialTools = [
