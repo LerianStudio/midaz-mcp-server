@@ -1,12 +1,20 @@
 import { z } from "zod";
 import api from "../util/api.js";
 import config from "../config.js";
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { 
     createPaginatedResponse, 
     wrapToolHandler, 
     validateArgs,
     logToolInvocation 
 } from "../util/mcp-helpers.js";
+
+// Get package.json version info
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf8'));
 
 // Sample data for when real API is not available
 const sampleOrganizations = [
@@ -129,6 +137,47 @@ export const registerOrganizationTools = (server) => {
             }
 
             return organizationData;
+        })
+    );
+
+    // Version tool for debugging MCP server status
+    server.tool(
+        "midaz-mcp-version",
+        "Get the current version and status of the Midaz MCP server. Useful for debugging and ensuring you're connected to the right server instance.",
+        {},
+        wrapToolHandler(async (args, extra) => {
+            logToolInvocation("midaz-mcp-version", args, extra);
+            
+            const versionInfo = {
+                name: packageJson.name,
+                version: packageJson.version,
+                description: packageJson.description,
+                timestamp: new Date().toISOString(),
+                nodeVersion: process.version,
+                platform: process.platform,
+                architecture: process.arch,
+                uptime: process.uptime(),
+                pid: process.pid,
+                memoryUsage: process.memoryUsage(),
+                config: {
+                    useStubs: config.useStubs,
+                    baseURL: config.baseURL,
+                    environment: process.env.NODE_ENV || 'development'
+                },
+                capabilities: {
+                    prompts: true,
+                    tools: true,
+                    resources: false
+                },
+                serverStatus: "running",
+                buildInfo: {
+                    builtAt: packageJson.version,
+                    main: packageJson.main,
+                    type: packageJson.type
+                }
+            };
+
+            return versionInfo;
         })
     );
 }; 
