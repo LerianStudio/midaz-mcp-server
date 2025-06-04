@@ -1,3 +1,10 @@
+# [2.19.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.18.0...v2.19.0) (2025-06-04)
+
+
+### Bug Fixes
+
+* **prompts:** resolve MCP client prompt visibility and Zod compatibility issues ([c580552](https://github.com/lerianstudio/midaz-mcp-server/commit/c580552293ef2189d7fa22a0d8d655f89830e8e4))
+
 # [2.18.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.17.0...v2.18.0) (2025-06-04)
 
 # [2.17.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.16.0...v2.17.0) (2025-06-04)
