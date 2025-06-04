@@ -1,3 +1,10 @@
+# [2.16.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.15.0...v2.16.0) (2025-06-04)
+
+
+### Features
+
+* **prompts:** implement advanced MCP prompt primitives with multi-format file support ([5ae9f33](https://github.com/lerianstudio/midaz-mcp-server/commit/5ae9f33f2de3c4d58ed5f909613091c29f7c2345))
+
 # [2.15.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.14.0...v2.15.0) (2025-06-03)
 
 # [2.14.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.13.0...v2.14.0) (2025-06-03)
