@@ -17,7 +17,7 @@ export const registerAdvancedPrompts = (server) => {
   server.prompt(
     "check-file-balances",
     "Analyze CSV, TXT, or JSON files to find account UUIDs and check their balances in Midaz",
-    {
+    z.object({
       file_content: z.string().describe("File content (CSV, TXT, or JSON format)"),
       file_type: z.enum(["csv", "txt", "json", "auto"]).optional().describe("File type (auto-detect if not specified)"),
       organization_hint: z.string().optional().describe("Hint for which organization to use (will auto-detect if not provided)"),
@@ -25,7 +25,7 @@ export const registerAdvancedPrompts = (server) => {
       account_column: z.string().optional().describe("CSV column name containing account IDs (default: auto-detect)"),
       json_path: z.string().optional().describe("JSON path to account IDs (e.g., 'accounts[].id' or 'data.account_ids')"),
       confirm_uuids: z.boolean().optional().describe("For TXT files: confirm found UUIDs before proceeding")
-    },
+    }),
     async (args) => {
       const { file_content, file_type = "auto", organization_hint, ledger_hint, account_column, json_path, confirm_uuids = false } = args;
       
@@ -190,12 +190,12 @@ This creates a complete audit trail from your CSV to live Midaz balances! 🎯`;
   server.prompt(
     "check-external-balance",
     "Check the balance of external accounts for specific assets in Midaz ledgers",
-    {
+    z.object({
       organization_id: z.string().describe("Organization ID to check external balances"),
       ledger_id: z.string().describe("Ledger ID to check external balances"),
       asset_code: z.string().optional().describe("Specific asset code to check (e.g., USD, EUR, BTC)"),
       list_all_assets: z.boolean().optional().describe("List all available assets first before checking balances")
-    },
+    }),
     async (args) => {
       const { organization_id, ledger_id, asset_code, list_all_assets = false } = args;
       
@@ -374,13 +374,13 @@ Ready to check your external balances! 🚀`;
   server.prompt(
     "discover-midaz-hierarchy",
     "Explore the complete Midaz hierarchy: organizations → ledgers → assets → accounts → portfolios",
-    {
+    z.object({
       discovery_level: z.enum(["organizations", "ledgers", "assets", "accounts", "portfolios", "full"]).describe("How deep to explore the hierarchy"),
       organization_id: z.string().optional().describe("Focus on specific organization"),
       ledger_id: z.string().optional().describe("Focus on specific ledger"),
       show_counts: z.boolean().optional().describe("Include count statistics"),
       include_metadata: z.boolean().optional().describe("Include metadata in results")
-    },
+    }),
     async (args) => {
       const { discovery_level = "full", organization_id, ledger_id, show_counts = true, include_metadata = false } = args;
       
@@ -567,12 +567,12 @@ This gives you a **complete picture** of your Midaz ecosystem! 🚀`;
   server.prompt(
     "show-all-tools",
     "Display complete catalog of all Midaz MCP tools, operations, and parameters with descriptions",
-    {
+    z.object({
       category_filter: z.enum(["all", "financial", "documentation", "learning", "workflow", "discovery"]).optional().describe("Filter tools by category"),
       detail_level: z.enum(["summary", "detailed", "examples"]).optional().describe("Level of detail to show"),
       show_parameters: z.boolean().optional().describe("Include parameter details"),
       show_examples: z.boolean().optional().describe("Include usage examples")
-    },
+    }),
     async (args) => {
       const { category_filter = "all", detail_level = "detailed", show_parameters = true, show_examples = false } = args;
       

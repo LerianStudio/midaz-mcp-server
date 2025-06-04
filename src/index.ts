@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { ListPromptsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
 // Node.js globals
 declare const process: any;
@@ -103,6 +104,39 @@ const main = async () => {
     // Register advanced prompts
     registerAdvancedPrompts(server);
     logger.info('✅ Advanced prompts registered - CSV analysis, hierarchy discovery, tools catalog');
+
+    // Fix prompt list handler to work around Zod compatibility issue
+    server.server.setRequestHandler(ListPromptsRequestSchema, () => {
+      try {
+        // Get registered prompts directly from the server
+        const registeredPrompts = (server as any)._registeredPrompts || {};
+        logger.info('Listing prompts', { 
+          promptCount: Object.keys(registeredPrompts).length,
+          promptNames: Object.keys(registeredPrompts)
+        });
+        
+        const prompts = Object.entries(registeredPrompts)
+          .filter(([, prompt]: [string, any]) => prompt.enabled)
+          .map(([name, prompt]: [string, any]) => ({
+            name,
+            description: prompt.description,
+            arguments: prompt.argsSchema 
+              ? Object.entries(prompt.argsSchema.shape).map(([argName, field]: [string, any]) => ({
+                name: argName,
+                description: field.description,
+                required: field._def?.typeName !== 'ZodOptional'
+              }))
+              : undefined
+          }));
+        
+        logger.info('Returning prompts', { resultCount: prompts.length });
+        return { prompts };
+      } catch (error) {
+        logger.error('Error listing prompts', { error: String(error) });
+        return { prompts: [] };
+      }
+    });
+    logger.info('✅ Prompt list handler override applied');
 
     // Register financial/ledger tools (18 tools total)
     const financialTools = [

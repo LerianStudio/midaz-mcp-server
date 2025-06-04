@@ -17,12 +17,12 @@ export const registerWorkflowPrompts = (server) => {
   server.prompt(
     "create-transaction-wizard",
     "Guide me through creating a transaction step by step with my actual Midaz data",
-    {
+    z.object({
       organization_id: z.string().optional().describe("Organization ID (will help find your ledgers)"),
       ledger_id: z.string().optional().describe("Ledger ID (will help find your accounts)"),
       transaction_type: z.enum(["transfer", "payment", "deposit", "withdrawal"]).optional().describe("Type of transaction"),
       step: z.number().optional().describe("Current step in the wizard (1-5)")
-    },
+    }),
     async (args) => {
       const { organization_id, ledger_id, transaction_type = "transfer", step = 1 } = args;
       
@@ -173,12 +173,12 @@ Use transaction creation tools with your prepared data structure.
   server.prompt(
     "debug-my-balance",
     "Help me understand and troubleshoot balance issues with my accounts",
-    {
+    z.object({
       organization_id: z.string().describe("Organization ID to check"),
       ledger_id: z.string().describe("Ledger ID to check"),
       account_id: z.string().optional().describe("Specific account ID to debug"),
       issue_type: z.enum(["wrong_balance", "missing_transactions", "unexpected_amount", "zero_balance"]).optional().describe("Type of balance issue")
-    },
+    }),
     async (args) => {
       const { organization_id, ledger_id, account_id, issue_type = "wrong_balance" } = args;
       
@@ -256,11 +256,11 @@ After gathering data above, use:
   server.prompt(
     "setup-my-org",
     "Guide me through setting up a new organization with ledgers, accounts, and initial configuration",
-    {
+    z.object({
       org_name: z.string().optional().describe("Name for the new organization"),
       business_type: z.enum(["fintech", "ecommerce", "gaming", "marketplace", "traditional"]).optional().describe("Type of business"),
       setup_stage: z.enum(["planning", "organization", "ledger", "accounts", "assets", "complete"]).optional().describe("Current setup stage")
-    },
+    }),
     async (args) => {
       const { org_name, business_type, setup_stage = "planning" } = args;
       
@@ -448,12 +448,12 @@ business_type === "gaming" ? `
   server.prompt(
     "explain-my-data",
     "Help me understand my current Midaz data, balances, and transaction patterns",
-    {
+    z.object({
       organization_id: z.string().describe("Organization ID to analyze"),
       ledger_id: z.string().optional().describe("Specific ledger to focus on"),
       analysis_type: z.enum(["overview", "balances", "transactions", "patterns", "health"]).optional().describe("Type of analysis to perform"),
       time_period: z.enum(["today", "week", "month", "quarter", "all"]).optional().describe("Time period for analysis")
-    },
+    }),
     async (args) => {
       const { organization_id, ledger_id, analysis_type = "overview", time_period = "month" } = args;
       

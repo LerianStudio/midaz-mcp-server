@@ -4,6 +4,7 @@
  */
 
 import { createLogger } from "../util/mcp-logging.js";
+import { z } from 'zod';
 
 const logger = createLogger('prompts');
 
@@ -116,18 +117,10 @@ Ask me to use any specific tool with these parameters!`
   server.prompt(
     "help-me-learn",
     "Get personalized learning guidance for Midaz based on your role and experience", 
-    [
-      {
-        name: "role",
-        description: "Your primary role (developer, admin, business, explorer)",
-        required: false
-      },
-      {
-        name: "experience", 
-        description: "Your experience level (beginner, intermediate, advanced)",
-        required: false
-      }
-    ],
+    z.object({
+      role: z.enum(["developer", "admin", "business", "explorer"]).optional().describe("Your primary role (developer, admin, business, explorer)"),
+      experience: z.enum(["beginner", "intermediate", "advanced"]).optional().describe("Your experience level (beginner, intermediate, advanced)")
+    }),
     async (args) => {
       const role = args.role || "developer";
       const experience = args.experience || "beginner";
