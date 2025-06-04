@@ -1,3 +1,10 @@
+# [2.17.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.16.0...v2.17.0) (2025-06-04)
+
+
+### Features
+
+* **docs:** add enhanced workflow prompts and system architecture documentation ([cb5f02c](https://github.com/lerianstudio/midaz-mcp-server/commit/cb5f02c3080abd19f2ddf162c190657150e78663))
+
 # [2.16.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.15.0...v2.16.0) (2025-06-04)
 
 
