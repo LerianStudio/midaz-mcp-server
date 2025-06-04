@@ -74,7 +74,7 @@ const main = async () => {
     // Create the MCP server with declared capabilities
     const server = new McpServer({
       name: 'midaz-mcp-server',
-      version: '2.12.0',
+      version: '2.17.0',
       capabilities
     });
 
@@ -90,7 +90,7 @@ const main = async () => {
     // Register unified tools (major consolidation: 17 → 2 tools)
     registerUnifiedDocumentationTool(server);
     registerUnifiedLearningTool(server);
-    logger.info('✅ Unified tools registered - reduced from 17 to 2 tools for MCP client compatibility');
+    logger.info('✅ Unified tools registered - 2 tools for MCP client compatibility');
     
     // Register discovery prompts
     registerDiscoveryPrompts(server);
@@ -121,7 +121,7 @@ const main = async () => {
     logger.info('✅ Financial API tools registered', { toolCount: 18, categories: financialTools.length });
 
     // Total tool count: 2 unified + 18 financial + 1 status = 21 tools (down from ~40)
-    logger.info('🎯 Total tools registered: ~21 (major reduction for MCP client compatibility)');
+    logger.info('🎯 Total tools registered: ~21');
 
     // Connect to stdio transport
     const transport = new StdioServerTransport();
