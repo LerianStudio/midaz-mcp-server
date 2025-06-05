@@ -116,29 +116,100 @@ const main = async () => {
     // Fix prompt list handler to work around Zod compatibility issue
     server.server.setRequestHandler(ListPromptsRequestSchema, () => {
       try {
-        // Get registered prompts directly from the server
-        const registeredPrompts = (server as any)._registeredPrompts || {};
-        logger.info('Listing prompts', {
-          promptCount: Object.keys(registeredPrompts).length,
-          promptNames: Object.keys(registeredPrompts)
-        });
+        logger.info('Listing prompts - using known prompts list');
 
-        const prompts = Object.entries(registeredPrompts)
-          .filter(([, prompt]: [string, any]) => prompt.enabled)
-          .map(([name, prompt]: [string, any]) => ({
-            name,
-            description: prompt.description,
-            arguments: prompt.argsSchema
-              ? Object.entries(prompt.argsSchema.shape).map(([argName, field]: [string, any]) => ({
-                name: argName,
-                description: field.description,
-                required: field._def?.typeName !== 'ZodOptional'
-              }))
-              : undefined
-          }));
+        // Return the complete list of known prompts since they are registered but not accessible via server properties
+        const knownPrompts = [
+          {
+            name: "help-me-start",
+            description: "Show me what I can do with this Lerian MCP server and how to get started quickly",
+            arguments: []
+          },
+          {
+            name: "help-with-api",
+            description: "Show me how to use the Midaz API effectively with practical examples",
+            arguments: []
+          },
+          {
+            name: "help-me-learn",
+            description: "Get personalized learning guidance for Midaz based on your role and experience",
+            arguments: [
+              { name: "role", description: "Your primary role (developer, admin, business, explorer)", required: false },
+              { name: "experience", description: "Your experience level (beginner, intermediate, advanced)", required: false }
+            ]
+          },
+          {
+            name: "create-transaction-wizard",
+            description: "Guide me through creating a transaction step by step with my actual Midaz data",
+            arguments: [
+              { name: "organization_id", description: "Organization ID (will help find your ledgers)", required: false },
+              { name: "ledger_id", description: "Ledger ID (will help find your accounts)", required: false },
+              { name: "transaction_type", description: "Type of transaction", required: false },
+              { name: "step", description: "Current step in the wizard (1-5)", required: false }
+            ]
+          },
+          {
+            name: "debug-my-balance",
+            description: "Help me understand and troubleshoot balance issues with my accounts",
+            arguments: [
+              { name: "organization_id", description: "Organization ID to check", required: true },
+              { name: "ledger_id", description: "Ledger ID to check", required: true },
+              { name: "account_id", description: "Specific account ID to debug", required: false },
+              { name: "issue_type", description: "Type of balance issue", required: false }
+            ]
+          },
+          {
+            name: "setup-my-org",
+            description: "Guide me through setting up a new organization with ledgers, accounts, and initial configuration",
+            arguments: [
+              { name: "org_name", description: "Name for the new organization", required: false },
+              { name: "business_type", description: "Type of business", required: false },
+              { name: "setup_stage", description: "Current setup stage", required: false }
+            ]
+          },
+          {
+            name: "explain-my-data",
+            description: "Help me understand my current Midaz data, balances, and transaction patterns",
+            arguments: [
+              { name: "organization_id", description: "Organization ID to analyze", required: true },
+              { name: "ledger_id", description: "Specific ledger to focus on", required: false },
+              { name: "analysis_type", description: "Type of analysis to perform", required: false },
+              { name: "time_period", description: "Time period for analysis", required: false }
+            ]
+          },
+          {
+            name: "check-file-balances",
+            description: "Analyze CSV, TXT, or JSON files to find account UUIDs and check their balances in Midaz",
+            arguments: [
+              { name: "file_content", description: "File content (CSV, TXT, or JSON format)", required: true },
+              { name: "file_type", description: "File type (auto-detect if not specified)", required: false },
+              { name: "organization_hint", description: "Hint for which organization to use", required: false },
+              { name: "ledger_hint", description: "Hint for which ledger to use", required: false }
+            ]
+          },
+          {
+            name: "discover-midaz-hierarchy",
+            description: "Explore the complete Midaz hierarchy: organizations → ledgers → assets → accounts → portfolios",
+            arguments: [
+              { name: "discovery_level", description: "How deep to explore the hierarchy", required: true },
+              { name: "organization_id", description: "Focus on specific organization", required: false },
+              { name: "ledger_id", description: "Focus on specific ledger", required: false },
+              { name: "show_counts", description: "Include count statistics", required: false }
+            ]
+          },
+          {
+            name: "show-all-tools",
+            description: "Display complete catalog of all Midaz MCP tools, operations, and parameters with descriptions",
+            arguments: [
+              { name: "category_filter", description: "Filter tools by category", required: false },
+              { name: "detail_level", description: "Level of detail to show", required: false },
+              { name: "show_parameters", description: "Include parameter details", required: false }
+            ]
+          }
+        ];
 
-        logger.info('Returning prompts', { resultCount: prompts.length });
-        return { prompts };
+        logger.info('Returning known prompts list', { promptCount: knownPrompts.length });
+        return { prompts: knownPrompts };
       } catch (error) {
         logger.error('Error listing prompts', { error: String(error) });
         return { prompts: [] };

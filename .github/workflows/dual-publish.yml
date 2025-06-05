@@ -1,0 +1,142 @@
+name: Dual NPM Publish
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  dual-publish:
+    name: Publish to Both Package Names
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Configure npm authentication
+        run: |
+          echo "@lerianstudio:registry=https://registry.npmjs.org/" > ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Get current version
+        id: current_version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Bump version if manual trigger
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npm version ${{ github.event.inputs.version_bump }} --no-git-tag-version
+          echo "NEW_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Set version for auto trigger
+        if: github.event_name == 'push'
+        run: echo "NEW_VERSION=${{ steps.current_version.outputs.version }}" >> $GITHUB_ENV
+
+      - name: Publish to new package name (@lerianstudio/lerian-mcp-server)
+        run: |
+          echo "Publishing to @lerianstudio/lerian-mcp-server v${{ env.NEW_VERSION }}"
+          npm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Backup current package.json
+        run: cp package.json package.json.backup
+
+      - name: Update package.json for legacy package
+        run: |
+          # Update package name to legacy name
+          node -e "
+            const pkg = require('./package.json');
+            pkg.name = '@lerianstudio/midaz-mcp-server';
+            pkg.description = 'DEPRECATED: Use @lerianstudio/lerian-mcp-server instead. ' + pkg.description;
+            pkg.deprecated = 'This package has been renamed to @lerianstudio/lerian-mcp-server. Please update your dependencies.';
+            require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+          "
+
+      - name: Publish to legacy package name (@lerianstudio/midaz-mcp-server)
+        run: |
+          echo "Publishing to @lerianstudio/midaz-mcp-server v${{ env.NEW_VERSION }} (deprecated)"
+          npm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Restore original package.json
+        run: mv package.json.backup package.json
+
+      - name: Create Git tag and push (if manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "chore: bump version to ${{ env.NEW_VERSION }}"
+          git tag "v${{ env.NEW_VERSION }}"
+          git push origin main --tags
+
+      - name: Create GitHub Release
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.NEW_VERSION }}
+          release_name: Release v${{ env.NEW_VERSION }}
+          body: |
+            ## Changes in v${{ env.NEW_VERSION }}
+            
+            ### 📦 Package Information
+            - **New Package**: `@lerianstudio/lerian-mcp-server@${{ env.NEW_VERSION }}`
+            - **Legacy Package**: `@lerianstudio/midaz-mcp-server@${{ env.NEW_VERSION }}` (deprecated)
+            
+            ### 🔄 Migration Notice
+            The package has been renamed from `@lerianstudio/midaz-mcp-server` to `@lerianstudio/lerian-mcp-server`.
+            
+            **To update:**
+            ```bash
+            npm uninstall @lerianstudio/midaz-mcp-server
+            npm install @lerianstudio/lerian-mcp-server
+            ```
+            
+            Both packages are functionally identical, but the old package is deprecated.
+            
+            ### ✨ Features
+            - 26 tools available
+            - 10 interactive prompts
+            - Full backward compatibility
+            - Comprehensive documentation and learning system
+          draft: false
+          prerelease: false 

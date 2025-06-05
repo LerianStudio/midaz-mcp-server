@@ -29,8 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     outputs:
-      skip_release: ${{ steps.version.outputs.skip_release }}
-      new_release_version: ${{ steps.version.outputs.new_version }}
+      skip_release: ${{ steps.semantic.outputs.new_release_published == 'false' }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
     steps:
       - name: Generate GitHub App Token
         id: app-token
