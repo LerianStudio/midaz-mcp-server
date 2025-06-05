@@ -31,21 +31,21 @@ export function isLocalConnection(request) {
   if (!request || !request.headers) {
     return true; // stdio transport
   }
-  
+
   const host = request.headers.host || '';
   const remoteAddress = request.socket?.remoteAddress || '';
-  
+
   // Check if host is in allowed list
   const hostName = host.split(':')[0];
   if (!SECURITY_CONFIG.allowedHosts.includes(hostName)) {
     return false;
   }
-  
+
   // Check remote address
-  const isLocalAddress = remoteAddress === '127.0.0.1' || 
-                        remoteAddress === '::1' || 
-                        remoteAddress === '::ffff:127.0.0.1';
-  
+  const isLocalAddress = remoteAddress === '127.0.0.1' ||
+    remoteAddress === '::1' ||
+    remoteAddress === '::ffff:127.0.0.1';
+
   return isLocalAddress;
 }
 
@@ -54,22 +54,22 @@ export function isLocalConnection(request) {
  */
 export function sanitizeSensitiveData(data, depth = 0) {
   if (depth > 10) return data; // Prevent infinite recursion
-  
+
   if (typeof data !== 'object' || data === null) {
     return data;
   }
-  
+
   if (Array.isArray(data)) {
     return data.map(item => sanitizeSensitiveData(item, depth + 1));
   }
-  
+
   const sanitized = {};
   for (const [key, value] of Object.entries(data)) {
     const lowerKey = key.toLowerCase();
-    const isSensitive = SECURITY_CONFIG.sensitiveFields.some(field => 
+    const isSensitive = SECURITY_CONFIG.sensitiveFields.some(field =>
       lowerKey.includes(field.toLowerCase())
     );
-    
+
     if (isSensitive) {
       sanitized[key] = '[REDACTED]';
     } else if (typeof value === 'object') {
@@ -78,7 +78,7 @@ export function sanitizeSensitiveData(data, depth = 0) {
       sanitized[key] = value;
     }
   }
-  
+
   return sanitized;
 }
 
@@ -92,11 +92,11 @@ export function createAuditLog(entry) {
     ...sanitizeSensitiveData(entry),
     id: crypto.randomUUID()
   };
-  
+
   // Append to audit log file
   const logLine = JSON.stringify(logEntry) + '\n';
   fs.appendFileSync(SECURITY_CONFIG.auditLogPath, logLine);
-  
+
   return logEntry;
 }
 
@@ -113,7 +113,7 @@ export function auditToolInvocation(toolName, args, userId = 'anonymous', result
     error: error ? error.message : null,
     resultSize: result ? JSON.stringify(result).length : 0
   };
-  
+
   return createAuditLog(entry);
 }
 
@@ -128,7 +128,7 @@ export function auditResourceAccess(resourceUri, userId = 'anonymous', success =
     success,
     error: error ? error.message : null
   };
-  
+
   return createAuditLog(entry);
 }
 
@@ -142,13 +142,13 @@ export function validateInput(schema, data) {
     if (dataSize > SECURITY_CONFIG.maxRequestSize) {
       throw new Error(`Request size (${dataSize} bytes) exceeds maximum allowed size (${SECURITY_CONFIG.maxRequestSize} bytes)`);
     }
-    
+
     // Validate against schema
     const validated = schema.parse(data);
-    
+
     // Additional security checks
     checkForInjectionPatterns(validated);
-    
+
     return { success: true, data: validated };
   } catch (error) {
     return { success: false, error: error.message };
@@ -160,7 +160,7 @@ export function validateInput(schema, data) {
  */
 function checkForInjectionPatterns(data, depth = 0) {
   if (depth > 10) return;
-  
+
   const injectionPatterns = [
     /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)/i,
     /<script[^>]*>.*?<\/script>/gi,
@@ -169,7 +169,7 @@ function checkForInjectionPatterns(data, depth = 0) {
     /\.\.[\/\\]/g, // Path traversal
     /[<>\"\'`]/g // Basic XSS characters (might be too restrictive)
   ];
-  
+
   const checkString = (str) => {
     for (const pattern of injectionPatterns) {
       if (pattern.test(str)) {
@@ -177,7 +177,7 @@ function checkForInjectionPatterns(data, depth = 0) {
       }
     }
   };
-  
+
   if (typeof data === 'string') {
     checkString(data);
   } else if (typeof data === 'object' && data !== null) {
@@ -198,24 +198,24 @@ export function readSecureConfig(configPath) {
   try {
     // Open file descriptor first to avoid TOCTOU race condition
     const fd = fs.openSync(configPath, 'r');
-    
+
     try {
       // Check file permissions using file descriptor
       const stats = fs.fstatSync(fd);
       const mode = (stats.mode & parseInt('777', 8)).toString(8);
-      
+
       // Warn if file has overly permissive permissions
       if (mode !== '600' && mode !== '400') {
         // Warning: Config file permissions (silent for MCP protocol)
       }
-      
+
       // Read and parse config using file descriptor
       const configContent = fs.readFileSync(fd, 'utf8');
       const config = JSON.parse(configContent);
-      
+
       // Validate config structure
       validateConfigSecurity(config);
-      
+
       return config;
     } finally {
       // Always close file descriptor
@@ -232,20 +232,20 @@ export function readSecureConfig(configPath) {
 function validateConfigSecurity(config) {
   // Check for sensitive data in config
   const configStr = JSON.stringify(config);
-  
+
   // Ensure no plaintext passwords or tokens
   const sensitivePatterns = [
     /password\s*[:=]\s*["\']?[^"\'{}]+["\']?/i,
     /token\s*[:=]\s*["\']?[^"\'{}]+["\']?/i,
     /secret\s*[:=]\s*["\']?[^"\'{}]+["\']?/i
   ];
-  
+
   for (const pattern of sensitivePatterns) {
     if (pattern.test(configStr)) {
       // Warning: Potential sensitive data found (silent for MCP protocol)
     }
   }
-  
+
   // Ensure backend URLs are localhost only
   if (config.backend) {
     for (const [service, url] of Object.entries(config.backend)) {
@@ -272,16 +272,18 @@ export function createSecureEnvironment() {
     'MIDAZ_USE_STUBS',
     'MIDAZ_CONFIG_PATH'
   ];
-  
+
   const currentEnv = { ...process.env };
   for (const key of Object.keys(currentEnv)) {
     if (!allowedEnvVars.includes(key) && !key.startsWith('npm_')) {
       delete process.env[key];
     }
   }
-  
-  // Set secure defaults
-  process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
+  // Set secure defaults (only if not already set)
+  if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = 'production';
+  }
 }
 
 /**
@@ -292,24 +294,24 @@ const rateLimitMap = new Map();
 export function checkRateLimit(identifier, limit = 100, windowMs = 60000) {
   const now = Date.now();
   const key = `ratelimit:${identifier}`;
-  
+
   if (!rateLimitMap.has(key)) {
     rateLimitMap.set(key, { count: 1, resetAt: now + windowMs });
     return true;
   }
-  
+
   const limiter = rateLimitMap.get(key);
-  
+
   if (now > limiter.resetAt) {
     limiter.count = 1;
     limiter.resetAt = now + windowMs;
     return true;
   }
-  
+
   if (limiter.count >= limit) {
     return false;
   }
-  
+
   limiter.count++;
   return true;
 }
@@ -320,10 +322,10 @@ export function checkRateLimit(identifier, limit = 100, windowMs = 60000) {
 export function cleanupAuditLogs(daysToKeep = 30) {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-  
+
   const auditLogPath = SECURITY_CONFIG.auditLogPath;
   const tempPath = auditLogPath + '.tmp';
-  
+
   try {
     const input = fs.readFileSync(auditLogPath, 'utf8');
     const lines = input.split('\n').filter(line => {
@@ -335,7 +337,7 @@ export function cleanupAuditLogs(daysToKeep = 30) {
         return false;
       }
     });
-    
+
     fs.writeFileSync(tempPath, lines.join('\n') + '\n');
     fs.renameSync(tempPath, auditLogPath);
   } catch (error) {
@@ -349,11 +351,11 @@ export function cleanupAuditLogs(daysToKeep = 30) {
 export function initializeSecurity() {
   // Create secure environment
   createSecureEnvironment();
-  
+
   // Set up periodic audit log cleanup
   setInterval(() => {
     cleanupAuditLogs();
   }, 24 * 60 * 60 * 1000); // Daily
-  
+
   // Security module initialized (silent for MCP protocol)
 }

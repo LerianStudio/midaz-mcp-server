@@ -229,8 +229,13 @@ class SecurityAuditor {
                 severity: 'MEDIUM'
             },
             {
-                pattern: /process\.env\.\w+\s*\|\|\s*['"][^'"]*['"]/,
-                message: 'Hardcoded fallback for environment variable',
+                pattern: /process\.env\.(?:PASSWORD|SECRET|TOKEN|KEY|CREDENTIAL)\w*\s*\|\|\s*['"][^'"]*['"]/i,
+                message: 'Hardcoded fallback for sensitive environment variable',
+                severity: 'MEDIUM'
+            },
+            {
+                pattern: /process\.env\.\w+\s*\|\|\s*['"](?!unknown|development|info|production|localhost)[^'"]{8,}['"]/,
+                message: 'Potentially sensitive hardcoded fallback',
                 severity: 'LOW'
             }
         ];
@@ -326,7 +331,60 @@ class SecurityAuditor {
             });
         }
 
+        // Add general security recommendations
+        this.addSecurityRecommendations();
+
         console.log('   ✅ Security configuration validated');
+    }
+
+    addSecurityRecommendations() {
+        // Check if we have any high-severity issues
+        const highSeverityIssues = this.results.vulnerabilities.filter(v =>
+            v.severity === 'HIGH' || v.severity === 'CRITICAL'
+        ).length;
+
+        if (highSeverityIssues > 0) {
+            this.results.recommendations.push({
+                type: 'CRITICAL_ISSUES',
+                message: `Address ${highSeverityIssues} high-severity security issues immediately`
+            });
+        }
+
+        // Check environment variable security
+        const envWarnings = this.results.warnings.filter(w => w.type === 'WEAK_ENV_VALUE').length;
+        if (envWarnings > 0) {
+            this.results.recommendations.push({
+                type: 'ENV_SECURITY',
+                message: 'Generate strong values for sensitive environment variables using crypto.randomBytes()'
+            });
+        }
+
+        // Check file permissions
+        const permissionIssues = this.results.warnings.filter(w => w.type === 'INSECURE_FILE_PERMISSIONS').length;
+        if (permissionIssues > 0) {
+            this.results.recommendations.push({
+                type: 'FILE_PERMISSIONS',
+                message: 'Set secure file permissions: chmod 600 .env && chmod 644 package*.json'
+            });
+        }
+
+        // General security recommendations
+        this.results.recommendations.push({
+            type: 'REGULAR_AUDITS',
+            message: 'Schedule regular security audits using npm run security:audit'
+        });
+
+        this.results.recommendations.push({
+            type: 'DEPENDENCY_UPDATES',
+            message: 'Keep dependencies updated with npm run security:update'
+        });
+
+        if (this.results.score < 50) {
+            this.results.recommendations.push({
+                type: 'SECURITY_REVIEW',
+                message: 'Consider a comprehensive security review with external tools like Semgrep'
+            });
+        }
     }
 
     async runAdvancedScans() {
