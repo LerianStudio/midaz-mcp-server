@@ -47,7 +47,9 @@ export class ErrorMonitor {
             errors: new Map(),
             performance: new Map(),
             operations: new Map(),
-            startTime: Date.now()
+            startTime: Date.now(),
+            totalDuration: 0,
+            totalOperations: 0
         };
 
         // Ensure log directory exists
@@ -155,6 +157,10 @@ export class ErrorMonitor {
         const perfKey = `${operationName}:${performanceLevel}`;
         this.metrics.performance.set(perfKey, (this.metrics.performance.get(perfKey) || 0) + 1);
 
+        // Update totals for average calculation
+        this.metrics.totalDuration += duration;
+        this.metrics.totalOperations += 1;
+
         // Log slow operations
         if (duration > PerformanceThresholds.SLOW) {
             console.warn(`🐌 Slow operation detected: ${operationName} took ${duration.toFixed(2)}ms`);
@@ -209,17 +215,16 @@ export class ErrorMonitor {
     }
 
     /**
-     * Calculate health score based on error rates and performance
-     */
+ * Calculate health score based on error rates and performance
+ */
     calculateHealthScore() {
-        const metrics = this.getMetrics();
         let score = 100;
 
-        // Deduct points for errors
-        score -= metrics.errors.critical * 20;
-        score -= metrics.errors.high * 10;
-        score -= metrics.errors.medium * 5;
-        score -= metrics.errors.low * 1;
+        // Deduct points for errors using direct helper methods
+        score -= this.getErrorCountBySeverity(ErrorSeverity.CRITICAL) * 20;
+        score -= this.getErrorCountBySeverity(ErrorSeverity.HIGH) * 10;
+        score -= this.getErrorCountBySeverity(ErrorSeverity.MEDIUM) * 5;
+        score -= this.getErrorCountBySeverity(ErrorSeverity.LOW) * 1;
 
         // Deduct points for poor performance
         const slowOps = this.getPerformanceCountByLevel('slow');
@@ -250,9 +255,12 @@ export class ErrorMonitor {
     }
 
     calculateAverageResponseTime() {
-        // This would need to be implemented with actual timing data
-        // For now, return a placeholder
-        return 'N/A - Implement with actual timing data';
+        if (this.metrics.totalOperations === 0) {
+            return 'N/A - No operations tracked yet';
+        }
+
+        const average = this.metrics.totalDuration / this.metrics.totalOperations;
+        return Math.round(average * 100) / 100; // Round to 2 decimal places
     }
 
     formatUptime(milliseconds) {
