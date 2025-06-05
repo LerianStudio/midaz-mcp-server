@@ -334,8 +334,14 @@ async function handleSearch(query, category, maxResults) {
 }
 
 async function handleSitemap(format) {
-  const sitemap = await generateSitemap();
-  return format === 'summary' ? sitemap.summary : sitemap;
+  try {
+    // Get all available resources first
+    const resources = await getAvailableResources();
+    const sitemap = generateSitemap(resources, format || 'tree', false);
+    return format === 'summary' ? { summary: 'Complete documentation sitemap with navigation paths' } : sitemap;
+  } catch (error) {
+    throw new Error(`Failed to generate sitemap: ${error.message}`);
+  }
 }
 
 async function handleRead(path) {

@@ -46,7 +46,8 @@
     "config": "node dist/cli.js",
     "config:init": "node dist/cli.js && cp .env.example .env",
     "prepare": "npm run build",
-    "docs": "typedoc --out docs src/"
+    "docs": "typedoc --out docs src/",
+    "publish:dual": "node scripts/dual-publish.js"
   },
   "keywords": [
     "lerian",
