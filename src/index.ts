@@ -37,7 +37,13 @@ import { registerSdkTools } from './tools/sdk.js';
 import { initializeClientDetection } from './util/client-integration.js';
 
 /**
- * Create an MCP server for Midaz
+ * Create an MCP server for Lerian
+ * 
+ * This server provides Model Context Protocol (MCP) access to Lerian's financial ledger system.
+ * It offers read-only API access, documentation, learning resources, and SDK code generation
+ * for AI assistants like Claude, ChatGPT, and others.
+ * 
+ * @since 3.0.0 - Rebranded from Midaz to Lerian with full backward compatibility
  */
 const main = async () => {
   try {
@@ -74,8 +80,8 @@ const main = async () => {
 
     // Create the MCP server with declared capabilities
     const server = new McpServer({
-      name: 'midaz-mcp-server',
-      version: '2.17.0',
+      name: 'lerian-mcp-server',
+      version: '3.0.0',
       capabilities
     });
 

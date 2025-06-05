@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Command-line interface for managing the Midaz MCP server
+ * Command-line interface for managing the Lerian MCP server
+ * Provides interactive configuration setup and management tools
+ * 
+ * @since 3.0.0 - Rebranded from Midaz to Lerian with full backward compatibility
  */
 
 import { setupUserConfig, setupLocalConfig } from './util/setup.js';
@@ -35,16 +38,16 @@ function ask(question) {
  * @param {string} title - Section title
  */
 function printSection(title) {
-    console.log('\n' + '='.repeat(50));
-    console.log(` ${title} `);
-    console.log('='.repeat(50) + '\n');
+    console.log('');
+    console.log(`📋 ${title}`);
+    console.log('─'.repeat(title.length + 4));
 }
 
 /**
  * Display main menu and handle user selection
  */
 async function mainMenu() {
-    printSection('Midaz MCP Server Configuration');
+    printSection('Lerian MCP Server Configuration');
     console.log('Please select an option:');
     console.log('1. Create local configuration file');
     console.log('2. Create user configuration file');
@@ -127,27 +130,27 @@ async function updateBackendSettings(configPath) {
         console.log('Please select which configuration file to update:');
 
         // Determine available config files
-        const localConfigPath = path.join(process.cwd(), 'midaz-mcp-config.json');
-        let userConfigPath;
-
-        if (process.platform === 'win32') {
-            userConfigPath = path.join(os.homedir(), 'AppData', 'Local', 'Midaz', 'mcp-config.json');
-        } else if (process.platform === 'darwin') {
-            userConfigPath = path.join(os.homedir(), 'Library', 'Application Support', 'Midaz', 'mcp-config.json');
-        } else {
-            userConfigPath = path.join(os.homedir(), '.config', 'midaz', 'mcp-config.json');
-        }
-
+        const { local, legacyLocal, user, legacyUser } = getConfigPaths();
         let options = [];
 
-        if (fs.existsSync(localConfigPath)) {
-            console.log(`1. Local configuration (${localConfigPath})`);
-            options.push(localConfigPath);
+        if (fs.existsSync(local)) {
+            console.log(`1. Local configuration (${local})`);
+            options.push(local);
         }
 
-        if (fs.existsSync(userConfigPath)) {
-            console.log(`${options.length + 1}. User configuration (${userConfigPath})`);
-            options.push(userConfigPath);
+        if (fs.existsSync(user)) {
+            console.log(`${options.length + 1}. User configuration (${user})`);
+            options.push(user);
+        }
+
+        if (fs.existsSync(legacyLocal)) {
+            console.log(`${options.length + 1}. Legacy local configuration (${legacyLocal})`);
+            options.push(legacyLocal);
+        }
+
+        if (fs.existsSync(legacyUser)) {
+            console.log(`${options.length + 1}. Legacy user configuration (${legacyUser})`);
+            options.push(legacyUser);
         }
 
         if (options.length === 0) {
@@ -223,27 +226,27 @@ async function toggleStubMode() {
     printSection('Toggle Stub Mode');
 
     // Determine available config files
-    const localConfigPath = path.join(process.cwd(), 'midaz-mcp-config.json');
-    let userConfigPath;
-
-    if (process.platform === 'win32') {
-        userConfigPath = path.join(os.homedir(), 'AppData', 'Local', 'Midaz', 'mcp-config.json');
-    } else if (process.platform === 'darwin') {
-        userConfigPath = path.join(os.homedir(), 'Library', 'Application Support', 'Midaz', 'mcp-config.json');
-    } else {
-        userConfigPath = path.join(os.homedir(), '.config', 'midaz', 'mcp-config.json');
-    }
-
+    const { local, legacyLocal, user, legacyUser } = getConfigPaths();
     let options = [];
 
-    if (fs.existsSync(localConfigPath)) {
-        console.log(`1. Local configuration (${localConfigPath})`);
-        options.push(localConfigPath);
+    if (fs.existsSync(local)) {
+        console.log(`1. Local configuration (${local})`);
+        options.push(local);
     }
 
-    if (fs.existsSync(userConfigPath)) {
-        console.log(`${options.length + 1}. User configuration (${userConfigPath})`);
-        options.push(userConfigPath);
+    if (fs.existsSync(user)) {
+        console.log(`${options.length + 1}. User configuration (${user})`);
+        options.push(user);
+    }
+
+    if (fs.existsSync(legacyLocal)) {
+        console.log(`${options.length + 1}. Legacy local configuration (${legacyLocal})`);
+        options.push(legacyLocal);
+    }
+
+    if (fs.existsSync(legacyUser)) {
+        console.log(`${options.length + 1}. Legacy user configuration (${legacyUser})`);
+        options.push(legacyUser);
     }
 
     if (options.length === 0) {
@@ -310,6 +313,53 @@ function showCurrentConfig() {
 
     // Wait for user to press Enter
     rl.once('line', () => { });
+}
+
+function getConfigPaths() {
+    // Primary config paths (new Lerian branding)
+    const localConfigPath = path.join(process.cwd(), 'lerian-mcp-config.json');
+    const legacyLocalConfigPath = path.join(process.cwd(), 'midaz-mcp-config.json'); // backward compatibility
+
+    let userConfigPath;
+    let legacyUserConfigPath;
+
+    if (process.platform === 'win32') {
+        userConfigPath = path.join(os.homedir(), 'AppData', 'Local', 'Lerian', 'mcp-config.json');
+        legacyUserConfigPath = path.join(os.homedir(), 'AppData', 'Local', 'Midaz', 'mcp-config.json'); // backward compatibility
+    } else if (process.platform === 'darwin') {
+        userConfigPath = path.join(os.homedir(), 'Library', 'Application Support', 'Lerian', 'mcp-config.json');
+        legacyUserConfigPath = path.join(os.homedir(), 'Library', 'Application Support', 'Midaz', 'mcp-config.json'); // backward compatibility
+    } else {
+        userConfigPath = path.join(os.homedir(), '.config', 'lerian', 'mcp-config.json');
+        legacyUserConfigPath = path.join(os.homedir(), '.config', 'midaz', 'mcp-config.json'); // backward compatibility
+    }
+
+    return {
+        local: localConfigPath,
+        user: userConfigPath,
+        legacyLocal: legacyLocalConfigPath,
+        legacyUser: legacyUserConfigPath
+    };
+}
+
+function saveConfigPaths() {
+    // Primary config paths (new Lerian branding)
+    const localConfigPath = path.join(process.cwd(), 'lerian-mcp-config.json');
+
+    let userConfigPath;
+
+    if (process.platform === 'win32') {
+        userConfigPath = path.join(os.homedir(), 'AppData', 'Local', 'Lerian', 'mcp-config.json');
+    } else if (process.platform === 'darwin') {
+        userConfigPath = path.join(os.homedir(), 'Library', 'Application Support', 'Lerian', 'mcp-config.json');
+    } else {
+        userConfigPath = path.join(os.homedir(), '.config', 'lerian', 'mcp-config.json');
+    }
+
+    return {
+        local: localConfigPath,
+        user: userConfigPath
+    };
 }
 
 // Start the CLI

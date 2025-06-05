@@ -1,6 +1,8 @@
 /**
  * Tool Discovery Prompts
  * Helps users discover and understand available tools
+ * 
+ * @since 3.0.0 - Updated for Lerian branding with backward compatibility
  */
 
 import { createLogger } from "../util/mcp-logging.js";
@@ -12,26 +14,26 @@ const logger = createLogger('prompts');
  * Register discovery prompts
  */
 export const registerDiscoveryPrompts = (server) => {
-  
+
   // Main help prompt - more intuitive name
   server.prompt(
     "help-me-start",
-    "Show me what I can do with this Midaz MCP server and how to get started quickly",
+    "Show me what I can do with this Lerian MCP server and how to get started quickly",
     [],
     async () => {
       return {
-        description: "Quick start guide with essential tools and common workflows for Midaz",
+        description: "Quick start guide with essential tools and common workflows for Lerian",
         messages: [{
           role: "user",
           content: {
             type: "text",
-            text: `# Quick Start with Midaz MCP Server 🚀
+            text: `# Quick Start with Lerian MCP Server 🚀
 
 ## Most Common Tasks (Start Here!)
 - **New to Midaz?** → \`midaz-learn\` type="path" userRole="developer" experienceLevel="beginner"
 - **Need setup help?** → \`midaz-docs\` operation="getting-started"
 - **Want code examples?** → \`midaz-docs\` operation="code-examples" useCase="create transaction"
-- **Check system health?** → \`midaz_status\`
+- **Check system health?** → \`midaz-mcp-version\`
 
 ## Available Tools (21 total - optimized for MCP clients)
 
@@ -43,7 +45,7 @@ export const registerDiscoveryPrompts = (server) => {
 Organizations, Ledgers, Accounts, Transactions, Assets, Portfolios, Segments, Balances
 
 ### 🔧 Utilities (1 tool)  
-**midaz_status** - Real-time system monitoring
+**midaz-mcp-version** - Real-time system monitoring
 
 ## 💡 Next Steps
 1. Try \`help-with-api\` for API-specific guidance
@@ -57,14 +59,14 @@ Organizations, Ledgers, Accounts, Transactions, Assets, Portfolios, Segments, Ba
 
   // API-specific help prompt - more intuitive name
   server.prompt(
-    "help-with-api", 
+    "help-with-api",
     "Show me how to use the Midaz API effectively with practical examples",
     [],
     async () => {
       return {
         description: "Practical guide to Midaz API usage with examples and common workflows",
         messages: [{
-          role: "user", 
+          role: "user",
           content: {
             type: "text",
             text: `# Midaz API Quick Reference Guide
@@ -116,7 +118,7 @@ Ask me to use any specific tool with these parameters!`
   // Learning help prompt - more intuitive name
   server.prompt(
     "help-me-learn",
-    "Get personalized learning guidance for Midaz based on your role and experience", 
+    "Get personalized learning guidance for Midaz based on your role and experience",
     z.object({
       role: z.enum(["developer", "admin", "business", "explorer"]).optional().describe("Your primary role (developer, admin, business, explorer)"),
       experience: z.enum(["beginner", "intermediate", "advanced"]).optional().describe("Your experience level (beginner, intermediate, advanced)")
@@ -124,13 +126,13 @@ Ask me to use any specific tool with these parameters!`
     async (args) => {
       const role = args.role || "developer";
       const experience = args.experience || "beginner";
-      
+
       return {
         description: `Personalized learning path for ${role} at ${experience} level`,
         messages: [{
           role: "user",
           content: {
-            type: "text", 
+            type: "text",
             text: `# Personalized Midaz Learning Path
 
 **Role**: ${role} | **Experience**: ${experience}

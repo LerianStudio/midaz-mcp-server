@@ -1,17 +1,33 @@
-# Midaz MCP Server
+# Lerian MCP Server
 
-Give your AI assistant instant access to Midaz documentation and APIs! This plugin connects Claude, ChatGPT, and other AI assistants to the Midaz financial system, so you can get help with integration, APIs, and troubleshooting directly in your conversations.
+Give your AI assistant instant access to Lerian documentation and APIs! This plugin connects Claude, ChatGPT, and other AI assistants to the Lerian financial system, so you can get help with integration, APIs, and troubleshooting directly in your conversations.
+
+> **🔄 Migration Notice:** This package was previously known as `@lerianstudio/midaz-mcp-server`. Both package names work for backward compatibility, but we recommend migrating to the new `@lerianstudio/lerian-mcp-server` package name.
 
 ## ⚡ 5-Minute Setup
 
 **Step 1:** Choose your AI assistant
 **Step 2:** Copy the configuration below  
 **Step 3:** Restart your AI app
-**Step 4:** Start asking questions about Midaz!
+**Step 4:** Start asking questions about Lerian!
 
 ### 🖥️ Claude Desktop
 
 **Location:** `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows)
+
+```json
+{
+  "mcpServers": {
+    "lerian": {
+      "command": "npx",
+      "args": ["@lerianstudio/lerian-mcp-server@latest"]
+    }
+  }
+}
+```
+
+<details>
+<summary>🔄 <strong>Backward Compatibility</strong> (click to expand)</summary>
 
 ```json
 {
@@ -23,16 +39,34 @@ Give your AI assistant instant access to Midaz documentation and APIs! This plug
   }
 }
 ```
+*The old package name still works but is deprecated. Please migrate to `@lerianstudio/lerian-mcp-server`.*
+</details>
 
 ### 🖥️ Claude Code (Command Line)
 
 ```bash
-# Install once
-npm install -g @lerianstudio/midaz-mcp-server
+# Install once (new package)
+npm install -g @lerianstudio/lerian-mcp-server
 
 # Add to Claude Code
-claude mcp add midaz "midaz-mcp-server"
+claude mcp add lerian "lerian-mcp-server"
 ```
+
+<details>
+<summary>🔄 <strong>Migration from old package</strong> (click to expand)</summary>
+
+```bash
+# Remove old package
+npm uninstall -g @lerianstudio/midaz-mcp-server
+
+# Install new package
+npm install -g @lerianstudio/lerian-mcp-server
+
+# Update Claude Code
+claude mcp remove midaz
+claude mcp add lerian "lerian-mcp-server"
+```
+</details>
 
 ### 💬 ChatGPT Desktop
 
@@ -41,9 +75,9 @@ Add to your ChatGPT Desktop MCP configuration file:
 ```json
 {
   "mcpServers": {
-    "midaz": {
+    "lerian": {
       "command": "npx",
-      "args": ["@lerianstudio/midaz-mcp-server@latest"]
+      "args": ["@lerianstudio/lerian-mcp-server@latest"]
     }
   }
 }
@@ -56,9 +90,9 @@ Add to your ChatGPT Desktop MCP configuration file:
 ```json
 {
   "mcp.servers": {
-    "midaz": {
+    "lerian": {
       "command": "npm",
-      "args": ["exec", "@lerianstudio/midaz-mcp-server@latest"]
+      "args": ["exec", "@lerianstudio/lerian-mcp-server@latest"]
     }
   }
 }
@@ -71,9 +105,9 @@ Add to your ChatGPT Desktop MCP configuration file:
 ```json
 {
   "mcpServers": {
-    "midaz": {
+    "lerian": {
       "command": "npm",
-      "args": ["exec", "@lerianstudio/midaz-mcp-server@latest"]
+      "args": ["exec", "@lerianstudio/lerian-mcp-server@latest"]
     }
   }
 }
@@ -86,9 +120,9 @@ Add to your ChatGPT Desktop MCP configuration file:
 ```json
 {
   "mcpServers": {
-    "midaz": {
+    "lerian": {
       "command": "npm",
-      "args": ["exec", "@lerianstudio/midaz-mcp-server@latest"]
+      "args": ["exec", "@lerianstudio/lerian-mcp-server@latest"]
     }
   }
 }
@@ -98,12 +132,12 @@ Add to your ChatGPT Desktop MCP configuration file:
 
 Once connected, you can ask your AI assistant:
 
-- 📚 **"Explain how Midaz accounts work"**
+- 📚 **"Explain how Lerian accounts work"**
 - 🔧 **"Show me how to create a transaction"**
 - 🏗️ **"What's the difference between onboarding and transaction APIs?"**
 - 💡 **"Generate Go code for creating an organization"**
-- 🐛 **"Help me debug this Midaz integration error"**
-- 📊 **"What data models does Midaz use?"**
+- 🐛 **"Help me debug this Lerian integration error"**
+- 📊 **"What data models does Lerian use?"**
 
 ## 🧙‍♂️ Enhanced Workflow Prompts
 
@@ -121,7 +155,7 @@ Once connected, you can ask your AI assistant:
 ### Advanced Intelligence (NEW!)
 - 📄 **`check-file-balances`** - Multi-format file analysis (CSV/TXT/JSON) with smart UUID extraction
 - 💰 **`check-external-balance`** - External account balance checking by asset (USD, EUR, BTC, etc.)
-- 🔍 **`discover-midaz-hierarchy`** - Explore complete org → ledger → asset → account chains
+- 🔍 **`discover-lerian-hierarchy`** - Explore complete org → ledger → asset → account chains
 - 🛠️ **`show-all-tools`** - Complete catalog of all tools, operations, and parameters
 
 **Enhanced Features:**
@@ -138,13 +172,27 @@ Once connected, you can ask your AI assistant:
 
 1. **Restart your AI app** after adding the configuration
 2. **Check the file location** - make sure you edited the right config file
-3. **Try the basic test**: Ask your AI "Can you access Midaz documentation?"
+3. **Try the basic test**: Ask your AI "Can you access Lerian documentation?"
 
 ### Still Having Issues?
 
 - **Claude Desktop Users**: Verify MCP is enabled in your Claude Desktop version
 - **All Users**: Make sure you have Node.js installed on your computer
-- **Get Support**: [GitHub Issues](https://github.com/lerianstudio/midaz-mcp-server/issues)
+- **Get Support**: [GitHub Issues](https://github.com/lerianstudio/lerian-mcp-server/issues)
+
+### 🔄 Migration Help
+
+**Migrating from Midaz MCP Server?**
+- Both `@lerianstudio/midaz-mcp-server` and `@lerianstudio/lerian-mcp-server` work identically
+- All environment variables work with both `MIDAZ_*` and `LERIAN_*` prefixes
+- Configuration files work in both `.midaz` and `.lerian` directories
+- Commands `midaz-mcp-server` and `lerian-mcp-server` are equivalent
+
+**Recommended Migration Steps:**
+1. Update your MCP configuration to use `@lerianstudio/lerian-mcp-server`
+2. Restart your AI assistant
+3. Optionally update environment variables from `MIDAZ_*` to `LERIAN_*`
+4. Optionally move config files from `.midaz/` to `.lerian/` directories
 
 ## 🔒 Safe & Secure
 

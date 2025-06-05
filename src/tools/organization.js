@@ -4,11 +4,11 @@ import config from "../config.js";
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { 
-    createPaginatedResponse, 
-    wrapToolHandler, 
+import {
+    createPaginatedResponse,
+    wrapToolHandler,
     validateArgs,
-    logToolInvocation 
+    logToolInvocation
 } from "../util/mcp-helpers.js";
 
 // Get package.json version info
@@ -70,7 +70,12 @@ const sampleOrganizationDetails = {
 
 /**
  * Register organization-related tools with the MCP server
+ * 
+ * Provides tools for listing and retrieving organization information from the Lerian system.
+ * Organizations are the top-level entities in the Lerian hierarchy: Organization → Ledger → Portfolio → Account.
+ * 
  * @param {import("@modelcontextprotocol/sdk/server/mcp.js").McpServer} server MCP server instance
+ * @since 3.0.0 - Updated for Lerian branding with backward compatibility
  */
 export const registerOrganizationTools = (server) => {
     // List organizations tool
@@ -147,7 +152,7 @@ export const registerOrganizationTools = (server) => {
         {},
         wrapToolHandler(async (args, extra) => {
             logToolInvocation("midaz-mcp-version", args, extra);
-            
+
             const versionInfo = {
                 name: packageJson.name,
                 version: packageJson.version,

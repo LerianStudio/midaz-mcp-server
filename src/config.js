@@ -1,6 +1,6 @@
 /**
- * Configuration management for the Midaz MCP server
- * This file handles loading and accessing configuration settings including backend connection details.
+ * Configuration management for the Lerian MCP server
+ * Handles environment variables, config files, and default settings
  */
 
 import fs from 'fs';
@@ -9,7 +9,9 @@ import os from 'os';
 import { validateConfig, buildConfigFromEnv, mergeConfigs } from './util/config-validator.js';
 import { loadSecureConfiguration, sanitizeConfig } from './util/config-security.js';
 
-// Default configuration
+/**
+ * Default configuration for the Lerian MCP server
+ */
 const defaultConfig = {
     backend: {
         onboarding: {
@@ -24,8 +26,9 @@ const defaultConfig = {
         retries: 3,
     },
     server: {
-        name: 'midaz-mcp-server',
-        version: '0.1.0',
+        name: 'lerian-mcp-server',
+        version: '3.0.0',
+        description: 'Lerian MCP Server for financial ledger operations'
     },
     useStubs: true, // Default to using stub data if no real connection is available
     logLevel: 'info', // Default log level
@@ -153,14 +156,14 @@ function parseCommandLineArgs() {
  */
 async function autoDetectServices(config) {
     const services = [
-        { 
-            name: 'onboarding', 
+        {
+            name: 'onboarding',
             url: config.backend.onboarding.baseUrl,
             healthPath: '/health',
             apiPath: '/v1/organizations'
         },
-        { 
-            name: 'transaction', 
+        {
+            name: 'transaction',
             url: config.backend.transaction.baseUrl,
             healthPath: '/health',
             apiPath: '/v1/health'
@@ -174,7 +177,7 @@ async function autoDetectServices(config) {
                 console.warn(`Invalid service URL for ${service.name}: ${service.url}`);
                 continue;
             }
-            
+
             // Try health endpoint first
             const healthUrl = `${service.url}${service.healthPath}`;
             const response = await fetch(healthUrl, {
@@ -197,7 +200,7 @@ async function autoDetectServices(config) {
                     console.warn(`Invalid API URL for ${service.name}: ${apiUrl}`);
                     continue;
                 }
-                
+
                 const response = await fetch(apiUrl, {
                     method: 'GET',
                     signal: AbortSignal.timeout(2000)
@@ -218,7 +221,7 @@ async function autoDetectServices(config) {
     if (config.useStubs) {
         // Using stub data mode (silent for MCP protocol)
     } else {
-        // Connected to live Midaz services (silent for MCP protocol)
+        // Connected to live Lerian services (silent for MCP protocol)
     }
 }
 
@@ -394,21 +397,21 @@ export { loadConfig };
  * Validate config file path to prevent path traversal attacks
  */
 function validateConfigPath(configPath) {
-  if (!configPath || typeof configPath !== 'string') {
-    return true;
-  }
-  
-  import('path').then(path => {
-    const resolvedPath = path.resolve(configPath);
-    const allowedDirs = [process.cwd(), '/etc/midaz'];
-    const isAllowed = allowedDirs.some(dir => resolvedPath.startsWith(path.resolve(dir)));
-    
-    if (!isAllowed) {
-      throw new Error(`Config path not allowed: ${configPath}`);
+    if (!configPath || typeof configPath !== 'string') {
+        return true;
     }
-  });
-  
-  return true;
+
+    import('path').then(path => {
+        const resolvedPath = path.resolve(configPath);
+        const allowedDirs = [process.cwd(), '/etc/lerian', '/etc/midaz']; // backward compatibility
+        const isAllowed = allowedDirs.some(dir => resolvedPath.startsWith(path.resolve(dir)));
+
+        if (!isAllowed) {
+            throw new Error(`Config path not allowed: ${configPath}`);
+        }
+    });
+
+    return true;
 }
 
 export default await configPromise; 

@@ -1,7 +1,7 @@
 {
-  "name": "@lerianstudio/midaz-mcp-server",
-  "version": "2.20.0",
-  "description": "A Model Context Protocol (MCP) server for Midaz that provides educational content, model information, and read-only API interactions for developer clients through their LLMs.",
+  "name": "@lerianstudio/lerian-mcp-server",
+  "version": "3.0.0",
+  "description": "A Model Context Protocol (MCP) server for Lerian that provides educational content, model information, and read-only API interactions for developer clients through their LLMs.",
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
@@ -9,7 +9,9 @@
   },
   "type": "module",
   "bin": {
-    "midaz-mcp-server": "./dist/bin/midaz-mcp-server.js",
+    "lerian-mcp-server": "./dist/bin/lerian-mcp-server.js",
+    "midaz-mcp-server": "./dist/bin/lerian-mcp-server.js",
+    "lerian-mcp-config": "./dist/cli.js",
     "midaz-mcp-config": "./dist/cli.js"
   },
   "scripts": {
@@ -17,7 +19,7 @@
     "dev": "ts-node --esm src/index.ts",
     "dev:watch": "ts-node --esm --watch src/index.ts",
     "version:update": "node scripts/update-version.js",
-    "build": "tsc && chmod +x dist/index.js && chmod +x dist/cli.js && chmod +x dist/bin/midaz-mcp-server.js",
+    "build": "tsc && chmod +x dist/index.js && chmod +x dist/cli.js && chmod +x dist/bin/lerian-mcp-server.js",
     "build:release": "npm run version:update && npm run build",
     "clean": "rm -rf dist",
     "rebuild": "npm run clean && npm run build",
@@ -43,6 +45,7 @@
     "docs": "typedoc --out docs src/"
   },
   "keywords": [
+    "lerian",
     "midaz",
     "mcp",
     "model-context-protocol",
@@ -59,12 +62,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lerianstudio/midaz-mcp-server.git"
+    "url": "https://github.com/lerianstudio/lerian-mcp-server.git"
   },
   "bugs": {
-    "url": "https://github.com/lerianstudio/midaz-mcp-server/issues"
+    "url": "https://github.com/lerianstudio/lerian-mcp-server/issues"
   },
-  "homepage": "https://github.com/lerianstudio/midaz-mcp-server#readme",
+  "homepage": "https://github.com/lerianstudio/lerian-mcp-server#readme",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -74,7 +77,7 @@
     "README.md",
     "LICENSE"
   ],
-  "author": "Midaz Team",
+  "author": "Lerian Studio",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",
