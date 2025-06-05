@@ -1,3 +1,10 @@
+# [2.21.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.20.0...v2.21.0) (2025-06-05)
+
+
+### Features
+
+* migrate to Lerian company branding with Midaz product support - BREAKING CHANGE: Package name changed to @lerianstudio/lerian-mcp-server - Company-level: Lerian branding (package, repo, binary) - Product-level: Midaz branding (tools, APIs, env vars) - Full backward compatibility maintained - Multi-product architecture ready ([dca222b](https://github.com/lerianstudio/lerian-mcp-server/commit/dca222b3220559787cbc96fb3f8b5c5fcc2be7d4))
+
 # [2.20.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.19.0...v2.20.0) (2025-06-05)
 
 
