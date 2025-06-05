@@ -9,6 +9,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { initializeSecurity } from './util/security.js';
 import { initializeManifest } from './util/docs-manifest.js';
 import { initializeMcpLogger, createLogger, logLifecycleEvent, logConfigEvent, logLoggingConfig } from './util/mcp-logging.js';
+import { globalErrorMonitor, trackAsyncOperation, ErrorSeverity } from './util/error-monitoring.js';
 
 // Import unified tools (consolidates 17 tools into 2)
 import { registerUnifiedDocumentationTool } from './tools/docs-unified.js';
@@ -30,6 +31,7 @@ import { registerAssetTools } from './tools/asset.js';
 import { registerPortfolioTools } from './tools/portfolio.js';
 import { registerSegmentTools } from './tools/segment.js';
 import { registerSdkTools } from './tools/sdk.js';
+import { registerMonitoringTools } from './tools/monitoring.js';
 
 // Resources completely removed - no subscription handlers needed
 
@@ -46,7 +48,7 @@ import { initializeClientDetection } from './util/client-integration.js';
  * @since 3.0.0 - Rebranded from Midaz to Lerian with full backward compatibility
  */
 const main = async () => {
-  try {
+  return await trackAsyncOperation('server_startup', async () => {
     // Initialize silently - no console output until after MCP connection
     initializeSecurity();
     logConfigEvent('security_initialized');
@@ -160,8 +162,12 @@ const main = async () => {
     registerSdkTools(server);
     logger.info('✅ Financial API tools registered', { toolCount: 18, categories: financialTools.length });
 
-    // Total tool count: 2 unified + 18 financial + 1 status = 21 tools (down from ~40)
-    logger.info('🎯 Total tools registered: ~21');
+    // Register monitoring tools
+    registerMonitoringTools(server);
+    logger.info('✅ Monitoring tools registered', { toolCount: 3, features: ['health-status', 'error-metrics', 'performance-metrics'] });
+
+    // Total tool count: 2 unified + 18 financial + 3 monitoring = 23 tools (down from ~40)
+    logger.info('🎯 Total tools registered: ~23');
 
     // Connect to stdio transport
     const transport = new StdioServerTransport();
@@ -182,29 +188,31 @@ const main = async () => {
       timestamp: new Date().toISOString()
     });
     logger.info('Server ready to accept requests');
-  } catch (error) {
-    console.error('❌ Error starting Midaz MCP Server:', error);
-    if (typeof logLifecycleEvent === 'function') {
-      const errorInfo = error instanceof Error ? {
-        error: error.message,
-        stack: error.stack
-      } : {
-        error: String(error)
-      };
-      logLifecycleEvent('startup_failed', {
-        ...errorInfo,
-        timestamp: new Date().toISOString()
-      });
-    }
-    process.exit(1);
-  }
+  }, {
+    version: '2.27.0',
+    transport: 'stdio'
+  });
 };
 
 // Run the main function
-main().catch((error) => {
-  console.error('❌ Fatal error in Midaz MCP Server:', error);
-  if (error instanceof Error) {
-    console.error('Stack trace:', error.stack);
+main().catch((error: unknown) => {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  const errorStack = error instanceof Error ? error.stack : undefined;
+
+  console.error('❌ Fatal error in Lerian MCP Server:', errorMessage);
+  if (errorStack) {
+    console.error('Stack trace:', errorStack);
   }
+
+  // Log the fatal error
+  globalErrorMonitor.logError(
+    error instanceof Error ? error : new Error(String(error)),
+    ErrorSeverity.CRITICAL,
+    {
+      type: 'fatal_startup_error',
+      timestamp: new Date().toISOString()
+    }
+  );
+
   process.exit(1);
 }); 
