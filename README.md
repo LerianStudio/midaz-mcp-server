@@ -85,7 +85,7 @@ Add to your ChatGPT Desktop MCP configuration file:
 
 ### ⚡ Cursor IDE
 
-**Location:** Cursor Settings → MCP Servers
+**Location:** File → Preferences → Cursor Settings → MCP → Add new global MCP Server
 
 ```json
 {
@@ -100,7 +100,7 @@ Add to your ChatGPT Desktop MCP configuration file:
 
 ### 🌊 Windsurf IDE
 
-**Location:** Windsurf Settings → MCP Configuration
+**Location:** File → Preferences → Windsurf Settings → Manage plugins → View raw config
 
 ```json
 {
@@ -115,7 +115,7 @@ Add to your ChatGPT Desktop MCP configuration file:
 
 ### 🔄 Continue IDE
 
-**Location:** Continue Settings → MCP Servers
+**Location:** `~/.continue/config.yaml` (MacOS / Linux) or `%USERPROFILE%\.continue\config.yaml` (Windows)
 
 ```json
 {
