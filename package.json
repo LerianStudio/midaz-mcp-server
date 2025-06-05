@@ -9,10 +9,10 @@
   },
   "type": "module",
   "bin": {
-    "lerian-mcp-server": "./dist/bin/lerian-mcp-server.js",
-    "midaz-mcp-server": "./dist/bin/lerian-mcp-server.js",
-    "lerian-mcp-config": "./dist/cli.js",
-    "midaz-mcp-config": "./dist/cli.js"
+    "lerian-mcp-server": "dist/bin/lerian-mcp-server.js",
+    "midaz-mcp-server": "dist/bin/lerian-mcp-server.js",
+    "lerian-mcp-config": "dist/cli.js",
+    "midaz-mcp-config": "dist/cli.js"
   },
   "scripts": {
     "start": "node dist/index.js",
@@ -67,7 +67,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lerianstudio/lerian-mcp-server.git"
+    "url": "git+https://github.com/lerianstudio/lerian-mcp-server.git"
   },
   "bugs": {
     "url": "https://github.com/lerianstudio/lerian-mcp-server/issues"
