@@ -1,3 +1,10 @@
+# [2.27.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.26.0...v2.27.0) (2025-06-05)
+
+
+### Features
+
+* Enhanced Error Monitoring and Performance Tracking v2.27.0 ([#31](https://github.com/lerianstudio/lerian-mcp-server/issues/31)) ([bb4f080](https://github.com/lerianstudio/lerian-mcp-server/commit/bb4f08030cb18ed3f7f01816961fb83ca386be7d))
+
 # [2.26.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.25.0...v2.26.0) (2025-06-05)
 
 # [2.25.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.24.0...v2.25.0) (2025-06-05)
