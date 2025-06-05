@@ -69,7 +69,7 @@ export const registerMidazApiTools = (server) => {
       }));
 
       const startTime = Date.now();
-      
+
       try {
         // Validate operation parameters
         const validation = validateOperationParams(operation, resource, params);
@@ -112,7 +112,7 @@ export const registerMidazApiTools = (server) => {
         }
 
         const result = await executeApiCall(operation, resource, params, auth.token);
-        
+
         return {
           success: result.success,
           operation,
@@ -146,26 +146,66 @@ export const registerMidazApiTools = (server) => {
 // ===========================================
 
 /**
- * Encrypt sensitive data for cache storage
+ * Encrypt sensitive data for cache storage using AES-256-GCM
  */
 function encryptCacheData(data) {
-  // Simple XOR encryption for demo - use proper crypto in production
-  const key = process.env.CACHE_ENCRYPTION_KEY || 'default_key_change_me';
-  let encrypted = '';
-  for (let i = 0; i < data.length; i++) {
-    encrypted += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  const crypto = require('crypto');
+
+  // Generate a secure key from environment or create a random one
+  let key = process.env.CACHE_ENCRYPTION_KEY;
+  if (!key) {
+    // Generate a random key and warn user
+    key = crypto.randomBytes(32).toString('hex');
+    logger.warn('No CACHE_ENCRYPTION_KEY set, using temporary key. Set CACHE_ENCRYPTION_KEY for persistent caching.');
+  } else if (key.length < 32) {
+    // Derive a proper key from the provided key
+    key = crypto.createHash('sha256').update(key).digest('hex');
   }
-  return Buffer.from(encrypted).toString('base64');
+
+  const keyBuffer = Buffer.from(key.slice(0, 64), 'hex'); // Use first 32 bytes
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipher('aes-256-gcm', keyBuffer);
+  cipher.setAAD(Buffer.from('midaz-cache'));
+
+  let encrypted = cipher.update(data, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+
+  const authTag = cipher.getAuthTag();
+
+  return JSON.stringify({
+    encrypted,
+    iv: iv.toString('hex'),
+    authTag: authTag.toString('hex')
+  });
 }
 
 function decryptCacheData(encryptedData) {
-  const key = process.env.CACHE_ENCRYPTION_KEY || 'default_key_change_me';
-  const data = Buffer.from(encryptedData, 'base64').toString();
-  let decrypted = '';
-  for (let i = 0; i < data.length; i++) {
-    decrypted += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  const crypto = require('crypto');
+
+  try {
+    const { encrypted, iv, authTag } = JSON.parse(encryptedData);
+
+    let key = process.env.CACHE_ENCRYPTION_KEY;
+    if (!key) {
+      throw new Error('No encryption key available for decryption');
+    }
+    if (key.length < 32) {
+      key = crypto.createHash('sha256').update(key).digest('hex');
+    }
+
+    const keyBuffer = Buffer.from(key.slice(0, 64), 'hex');
+    const decipher = crypto.createDecipher('aes-256-gcm', keyBuffer);
+    decipher.setAAD(Buffer.from('midaz-cache'));
+    decipher.setAuthTag(Buffer.from(authTag, 'hex'));
+
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+
+    return decrypted;
+  } catch (error) {
+    logger.warn('Failed to decrypt cache data, clearing cache', { error: error.message });
+    throw error;
   }
-  return decrypted;
 }
 
 /**
@@ -174,7 +214,7 @@ function decryptCacheData(encryptedData) {
 async function getAuthToken() {
   const cacheKey = 'auth_token';
   const cached = responseCache.get(cacheKey);
-  
+
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     try {
       const decryptedToken = decryptCacheData(cached.data);
@@ -186,13 +226,13 @@ async function getAuthToken() {
 
   try {
     const authConfig = config.auth || {};
-    
+
     if (!authConfig.clientId || !authConfig.clientSecret) {
       // Check if API key is available
       if (config.apiKey) {
         return { success: true, token: config.apiKey };
       }
-      
+
       return {
         success: false,
         error: "No authentication configured. Set MIDAZ_CLIENT_ID/MIDAZ_CLIENT_SECRET or MIDAZ_API_KEY"
@@ -213,21 +253,21 @@ async function getAuthToken() {
 
     if (!tokenResponse.ok) {
       logger.error('Token request failed', { status: tokenResponse.status });
-          throw new Error(`Authentication failed: ${tokenResponse.status}`);
+      throw new Error(`Authentication failed: ${tokenResponse.status}`);
     }
 
     const tokenData = await tokenResponse.json();
     const token = tokenData.access_token;
-    
+
     // Cache encrypted token
     const encryptedToken = encryptCacheData(token);
     responseCache.set(cacheKey, {
       data: encryptedToken,
       timestamp: Date.now()
     });
-    
+
     return { success: true, token };
-    
+
   } catch (error) {
     logger.error('Authentication failed', { error: error.message });
     return {
@@ -244,7 +284,7 @@ async function executeApiCall(operation, resource, params, token) {
   const endpoint = buildEndpoint(operation, resource, params);
   const method = mapOperationToMethod(operation);
   const body = ['create', 'update'].includes(operation) ? params.data : null;
-  
+
   for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
     try {
       const response = await fetch(endpoint, {
@@ -281,10 +321,10 @@ async function executeApiCall(operation, resource, params, token) {
       // Server errors (5xx) - retry with backoff
       if (attempt < RETRY_CONFIG.maxRetries) {
         const delay = calculateBackoffDelay(attempt);
-        logger.warn(`API call failed, retrying in ${delay}ms`, { 
-          attempt: attempt + 1, 
-          endpoint, 
-          status: response.status 
+        logger.warn(`API call failed, retrying in ${delay}ms`, {
+          attempt: attempt + 1,
+          endpoint,
+          status: response.status
         });
         await sleep(delay);
         continue;
@@ -300,9 +340,9 @@ async function executeApiCall(operation, resource, params, token) {
     } catch (error) {
       if (attempt < RETRY_CONFIG.maxRetries) {
         const delay = calculateBackoffDelay(attempt);
-        logger.warn(`Network error, retrying in ${delay}ms`, { 
-          attempt: attempt + 1, 
-          error: error.message 
+        logger.warn(`Network error, retrying in ${delay}ms`, {
+          attempt: attempt + 1,
+          error: error.message
         });
         await sleep(delay);
         continue;
@@ -326,59 +366,59 @@ async function executeApiCall(operation, resource, params, token) {
  */
 function validateOperationParams(operation, resource, params) {
   const errors = [];
-  
+
   // Sanitize and validate IDs to prevent injection
   if (params.organizationId) {
     if (!/^[a-zA-Z0-9_-]{1,50}$/.test(params.organizationId)) {
       errors.push('Invalid organizationId format');
     }
   }
-  
+
   if (params.ledgerId) {
     if (!/^[a-zA-Z0-9_-]{1,50}$/.test(params.ledgerId)) {
       errors.push('Invalid ledgerId format');
     }
   }
-  
+
   if (params.accountId) {
     if (!/^[a-zA-Z0-9_-]{1,50}$/.test(params.accountId)) {
       errors.push('Invalid accountId format');
     }
   }
-  
+
   if (params.id) {
     if (!/^[a-zA-Z0-9_-]{1,50}$/.test(params.id)) {
       errors.push('Invalid id format');
     }
   }
-  
+
   // Check required IDs based on resource hierarchy
   if (['ledgers', 'accounts', 'transactions', 'balances'].includes(resource)) {
     if (!params.organizationId) {
       errors.push('organizationId is required for this resource');
     }
   }
-  
+
   if (['accounts', 'transactions', 'balances'].includes(resource)) {
     if (!params.ledgerId) {
       errors.push('ledgerId is required for this resource');
     }
   }
-  
+
   if (['balances'].includes(resource)) {
     if (!params.accountId) {
       errors.push('accountId is required for balance operations');
     }
   }
-  
+
   if (['get', 'update', 'delete'].includes(operation) && !params.id) {
     errors.push('id is required for get/update/delete operations');
   }
-  
+
   if (['create', 'update'].includes(operation) && !params.data) {
     errors.push('data payload is required for create/update operations');
   }
-  
+
   return {
     valid: errors.length === 0,
     error: errors.join('; '),
@@ -399,7 +439,7 @@ function validateOperationParams(operation, resource, params) {
 function buildEndpoint(operation, resource, params) {
   const backend = getBackendForResource(resource);
   let path = '/v1';
-  
+
   // Build hierarchical path
   if (params.organizationId) {
     path += `/organizations/${params.organizationId}`;
@@ -410,25 +450,25 @@ function buildEndpoint(operation, resource, params) {
   if (params.accountId) {
     path += `/accounts/${params.accountId}`;
   }
-  
+
   // Add resource
   path += `/${resource}`;
-  
+
   // Add specific ID for get/update/delete
   if (params.id && ['get', 'update', 'delete'].includes(operation)) {
     path += `/${params.id}`;
   }
-  
+
   // Add query parameters for list operations
   if (operation === 'list' && (params.filters || params.pagination)) {
     const queryParams = new URLSearchParams();
-    
+
     if (params.filters) {
       Object.entries(params.filters).forEach(([key, value]) => {
         // Sanitize query parameters to prevent injection\n        const sanitizedKey = encodeURIComponent(String(key));\n        const sanitizedValue = encodeURIComponent(String(value));\n        queryParams.append(sanitizedKey, sanitizedValue);
       });
     }
-    
+
     if (params.pagination) {
       if (params.pagination.limit) {
         queryParams.append('limit', params.pagination.limit);
@@ -437,12 +477,12 @@ function buildEndpoint(operation, resource, params) {
         queryParams.append('cursor', params.pagination.cursor);
       }
     }
-    
+
     if (queryParams.toString()) {
       path += `?${queryParams.toString()}`;
     }
   }
-  
+
   return `${backend}${path}`;
 }
 
@@ -462,7 +502,7 @@ function getBackendForResource(resource) {
 function mapOperationToMethod(operation) {
   const mapping = {
     'list': 'GET',
-    'get': 'GET', 
+    'get': 'GET',
     'create': 'POST',
     'update': 'PUT',
     'delete': 'DELETE'
@@ -480,7 +520,7 @@ function generateExpectedResponse(operation, resource, params) {
     endpoint: buildEndpoint(operation, resource, params),
     method: mapOperationToMethod(operation)
   };
-  
+
   switch (operation) {
     case 'list':
       return {
@@ -526,7 +566,7 @@ function calculateBackoffDelay(attempt) {
     RETRY_CONFIG.baseDelay * Math.pow(2, attempt),
     RETRY_CONFIG.maxDelay
   );
-  
+
   const jitter = Math.random() * RETRY_CONFIG.jitterMs;
   return exponentialDelay + jitter;
 }
@@ -544,27 +584,27 @@ function sleep(ms) {
 function generateTroubleshootingTips(error) {
   const tips = [];
   const errorMsg = error.message.toLowerCase();
-  
+
   if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
     tips.push('Check network connectivity and API endpoints');
     tips.push('Verify backend services are running');
   }
-  
+
   if (errorMsg.includes('auth') || errorMsg.includes('401')) {
     tips.push('Check authentication credentials');
     tips.push('Verify API key or client credentials are set');
   }
-  
+
   if (errorMsg.includes('404')) {
     tips.push('Verify resource IDs exist');
     tips.push('Check if organization/ledger/account hierarchy is correct');
   }
-  
+
   if (errorMsg.includes('400')) {
     tips.push('Validate request payload structure');
     tips.push('Check required fields and data types');
   }
-  
+
   return tips.length > 0 ? tips : [
     'Check API documentation with midaz_docs',
     'Verify service status with midaz_status',

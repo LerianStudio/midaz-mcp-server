@@ -8,6 +8,7 @@
  */
 
 import { setupUserConfig, setupLocalConfig } from './util/setup.js';
+import { maskSensitiveData } from './util/security-utils.js';
 import config from './config.js';
 import fs from 'fs';
 import path from 'path';
@@ -296,11 +297,11 @@ function showCurrentConfig() {
     console.log('Currently using configuration from:', config._source || 'default');
     console.log('\nOnboarding Backend Settings:');
     console.log(`  Base URL: ${config.backend.onboarding.baseUrl}`);
-    console.log(`  API Key: ${config.backend.onboarding.apiKey || 'none'}`);
+    console.log(`  API Key: ${maskSensitiveData(config.backend.onboarding.apiKey)}`);
 
     console.log('\nTransaction Backend Settings:');
     console.log(`  Base URL: ${config.backend.transaction.baseUrl}`);
-    console.log(`  API Key: ${config.backend.transaction.apiKey || 'none'}`);
+    console.log(`  API Key: ${maskSensitiveData(config.backend.transaction.apiKey)}`);
 
     console.log('\nShared Backend Settings:');
     console.log(`  Timeout: ${config.backend.timeout}ms`);
