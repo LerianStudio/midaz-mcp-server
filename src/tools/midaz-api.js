@@ -164,7 +164,7 @@ function encryptCacheData(data) {
 
   const keyBuffer = Buffer.from(key.slice(0, 64), 'hex'); // Use first 32 bytes
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipher('aes-256-gcm', keyBuffer);
+  const cipher = crypto.createCipheriv('aes-256-gcm', keyBuffer, iv);
   cipher.setAAD(Buffer.from('midaz-cache'));
 
   let encrypted = cipher.update(data, 'utf8', 'hex');
@@ -194,7 +194,7 @@ function decryptCacheData(encryptedData) {
     }
 
     const keyBuffer = Buffer.from(key.slice(0, 64), 'hex');
-    const decipher = crypto.createDecipher('aes-256-gcm', keyBuffer);
+    const decipher = crypto.createDecipheriv('aes-256-gcm', keyBuffer, Buffer.from(iv, 'hex'));
     decipher.setAAD(Buffer.from('midaz-cache'));
     decipher.setAuthTag(Buffer.from(authTag, 'hex'));
 

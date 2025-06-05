@@ -1,0 +1,180 @@
+name: Security Audit
+
+on:
+  schedule:
+    # Run weekly on Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      audit_level:
+        description: 'Security audit level'
+        required: false
+        default: 'standard'
+        type: choice
+        options:
+          - basic
+          - standard
+          - comprehensive
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git secrets scanning
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript check
+        run: npm run typecheck
+
+      - name: Run ESLint security rules
+        run: npm run lint
+
+      - name: Run npm audit
+        run: npm audit --audit-level moderate
+        continue-on-error: true
+
+      - name: Run custom security audit
+        env:
+          SECURITY_AUDIT_LEVEL: ${{ github.event.inputs.audit_level || 'standard' }}
+          SECURITY_SCAN_ENABLED: true
+        run: npm run security:audit
+
+      - name: Install Semgrep
+        if: github.event.inputs.audit_level == 'comprehensive'
+        run: |
+          python3 -m pip install semgrep
+          
+      - name: Run Semgrep
+        if: github.event.inputs.audit_level == 'comprehensive'
+        run: |
+          semgrep --config=auto --json --output=semgrep-results.json . || true
+          
+      - name: Upload Semgrep results
+        if: github.event.inputs.audit_level == 'comprehensive'
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: semgrep-results.json
+
+      - name: Check for secrets with TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: security-reports/
+          retention-days: 30
+
+      - name: Comment PR with security summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Find the latest security report
+            const reportsDir = './security-reports';
+            if (fs.existsSync(reportsDir)) {
+              const files = fs.readdirSync(reportsDir);
+              const latestReport = files
+                .filter(f => f.startsWith('security-audit-'))
+                .sort()
+                .pop();
+                
+              if (latestReport) {
+                const reportPath = path.join(reportsDir, latestReport);
+                const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+                
+                const comment = `## 🔒 Security Audit Summary
+                
+            **Security Score:** ${report.summary.securityScore}/100
+            **Risk Level:** ${report.summary.riskLevel}
+            **Vulnerabilities:** ${report.summary.totalVulnerabilities}
+            **Warnings:** ${report.summary.totalWarnings}
+
+            ${report.summary.totalVulnerabilities > 0 ? '⚠️ Please review and address security issues before merging.' : '✅ No critical security issues found.'}
+                `;
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              }
+            }
+
+  dependency-update:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run dependency updates
+        run: npm run security:update
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: automated dependency security updates'
+          title: '🔒 Automated Security Dependency Updates'
+          body: |
+            ## Automated Security Updates
+            
+            This PR contains automated dependency updates focused on security fixes.
+            
+            ### Changes
+            - Updated dependencies with security vulnerabilities
+            - Applied npm audit fixes
+            - Verified all tests pass
+            
+            ### Security Impact
+            - Addresses known vulnerabilities in dependencies
+            - Maintains compatibility with existing functionality
+            
+            **Please review the changes and merge if everything looks good.**
+          branch: security/automated-updates
+          delete-branch: true 

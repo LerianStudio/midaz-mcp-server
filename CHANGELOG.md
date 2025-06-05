@@ -1,3 +1,14 @@
+# [2.26.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.25.0...v2.26.0) (2025-06-05)
+
+# [2.25.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.24.0...v2.25.0) (2025-06-05)
+
+# [2.24.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.23.0...v2.24.0) (2025-06-05)
+
+
+### Features
+
+* implement comprehensive security framework - Add comprehensive .env.example with all security variables - Create automated security audit script with vulnerability scanning - Add dependency update automation with security focus - Implement GitHub Actions security workflow with TruffleHog - Add security utilities with AES-256-GCM encryption - Create security reports and monitoring system - Add npm scripts for security operations - Update .gitignore for security reports - Improve security patterns to reduce false positives SECURITY: Establishes enterprise-grade security monitoring and automation ([3c0c3b3](https://github.com/lerianstudio/lerian-mcp-server/commit/3c0c3b33f7fa57c8cc849d4ea2ff3af6ae8da2c2))
+
 # [2.23.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.22.0...v2.23.0) (2025-06-05)
 
 # [2.22.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.21.0...v2.22.0) (2025-06-05)

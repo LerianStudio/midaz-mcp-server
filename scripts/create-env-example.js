@@ -1,4 +1,9 @@
-# ===========================================
+#!/usr/bin/env node
+
+import fs from 'fs';
+import path from 'path';
+
+const content = `# ===========================================
 # Lerian MCP Server Environment Configuration
 # ===========================================
 # Copy this file to .env and configure your values
@@ -106,3 +111,8 @@ SESSION_TIMEOUT=3600000  # 1 hour in milliseconds
 # BACKUP_ENCRYPTION_KEY=your_backup_encryption_key_here
 # BACKUP_SCHEDULE=0 3 * * *  # Daily at 3 AM
 # BACKUP_RETENTION_DAYS=30
+`;
+
+const envExamplePath = path.join(process.cwd(), '.env.example');
+fs.writeFileSync(envExamplePath, content);
+console.log('✅ .env.example created successfully'); 

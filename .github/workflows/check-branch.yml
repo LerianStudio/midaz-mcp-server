@@ -16,9 +16,11 @@ jobs:
     steps:
       - name: Check if PR is from develop
         if: github.head_ref != 'develop' && !startsWith(github.head_ref, 'hotfix/')
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           echo "❌ PRs to main branch must come from develop branch or hotfix/* branches"
-          echo "Current branch: ${{ github.head_ref }}"
+          echo "Current branch: $HEAD_REF"
           echo ""
           echo "Please follow the git flow:"
           echo "1. Create feature branches from develop"
