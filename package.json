@@ -1,6 +1,6 @@
 {
   "name": "@lerianstudio/lerian-mcp-server",
-  "version": "2.30.0",
+  "version": "2.30.1",
   "description": "A Model Context Protocol (MCP) server for Lerian that provides educational content, model information, and read-only API interactions for developer clients through their LLMs.",
   "main": "dist/index.js",
   "exports": {
