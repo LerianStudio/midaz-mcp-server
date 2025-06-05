@@ -83,7 +83,7 @@ const main = async () => {
     initializeMcpLogger(server);
     logLoggingConfig();
     const logger = createLogger('server');
-    
+
     // Log startup (to logger only, not console during MCP startup)
     logLifecycleEvent('starting', { version: '2.5.1', capabilities });
     logger.info('Server initialization started', { version: '2.5.1' });
@@ -92,15 +92,15 @@ const main = async () => {
     registerUnifiedDocumentationTool(server);
     registerUnifiedLearningTool(server);
     logger.info('✅ Unified tools registered - 2 tools for MCP client compatibility');
-    
+
     // Register discovery prompts
     registerDiscoveryPrompts(server);
     logger.info('✅ Discovery prompts registered - helps users find and use tools');
-    
+
     // Register workflow prompts
     registerWorkflowPrompts(server);
     logger.info('✅ Workflow prompts registered - contextual wizards and troubleshooting');
-    
+
     // Register advanced prompts
     registerAdvancedPrompts(server);
     logger.info('✅ Advanced prompts registered - CSV analysis, hierarchy discovery, tools catalog');
@@ -110,17 +110,17 @@ const main = async () => {
       try {
         // Get registered prompts directly from the server
         const registeredPrompts = (server as any)._registeredPrompts || {};
-        logger.info('Listing prompts', { 
+        logger.info('Listing prompts', {
           promptCount: Object.keys(registeredPrompts).length,
           promptNames: Object.keys(registeredPrompts)
         });
-        
+
         const prompts = Object.entries(registeredPrompts)
           .filter(([, prompt]: [string, any]) => prompt.enabled)
           .map(([name, prompt]: [string, any]) => ({
             name,
             description: prompt.description,
-            arguments: prompt.argsSchema 
+            arguments: prompt.argsSchema
               ? Object.entries(prompt.argsSchema.shape).map(([argName, field]: [string, any]) => ({
                 name: argName,
                 description: field.description,
@@ -128,7 +128,7 @@ const main = async () => {
               }))
               : undefined
           }));
-        
+
         logger.info('Returning prompts', { resultCount: prompts.length });
         return { prompts };
       } catch (error) {
@@ -140,7 +140,7 @@ const main = async () => {
 
     // Register financial/ledger tools (18 tools total)
     const financialTools = [
-      'organization', 'ledger', 'account', 'transaction', 
+      'organization', 'ledger', 'account', 'transaction',
       'balance', 'asset', 'portfolio', 'segment', 'sdk'
     ];
     registerOrganizationTools(server);
@@ -159,33 +159,33 @@ const main = async () => {
 
     // Connect to stdio transport
     const transport = new StdioServerTransport();
-    
-    // Initialize client detection system before connecting
+
+    await server.connect(transport);
+
+    // Initialize client detection system AFTER connecting to avoid race conditions
     const clientContext = await initializeClientDetection(server);
-    logger.info('Client detected and configured', { 
+    logger.info('Client detected and configured', {
       client: clientContext.client.name,
       capabilities: Object.keys(clientContext.capabilities).length
     });
-    
-    await server.connect(transport);
-    
+
     // Log internally only - no console output to keep stdio clean
-    logLifecycleEvent('started', { 
-      transport: 'stdio', 
+    logLifecycleEvent('started', {
+      transport: 'stdio',
       client: clientContext.client.name,
-      timestamp: new Date().toISOString() 
+      timestamp: new Date().toISOString()
     });
     logger.info('Server ready to accept requests');
   } catch (error) {
     console.error('❌ Error starting Midaz MCP Server:', error);
     if (typeof logLifecycleEvent === 'function') {
       const errorInfo = error instanceof Error ? {
-        error: error.message, 
+        error: error.message,
         stack: error.stack
       } : {
         error: String(error)
       };
-      logLifecycleEvent('startup_failed', { 
+      logLifecycleEvent('startup_failed', {
         ...errorInfo,
         timestamp: new Date().toISOString()
       });
