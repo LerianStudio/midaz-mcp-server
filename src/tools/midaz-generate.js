@@ -21,34 +21,34 @@ export const registerMidazGenerateTools = (server) => {
     "midaz_generate",
     "Generate working code for Midaz integration. Detects user context (language, framework, deployment) and outputs production-ready code with error handling, retries, and environment variables.",
     {
-      useCase: z.string().describe("Specific use case (e.g., 'nodejs payment flow', 'python balance checker', 'docker integration')"),
-      language: z.enum(['javascript', 'typescript', 'python', 'go', 'shell', 'docker']).optional().describe("Programming language (auto-detected if not specified)"),
+      useCase: z.string().describe("Specific use case (e.g., 'nodejs payment flow', 'python balance checker', 'shell integration')"),
+      language: z.enum(['javascript', 'typescript', 'python', 'go', 'shell']).optional().describe("Programming language (auto-detected if not specified)"),
       framework: z.enum(['express', 'fastapi', 'gin', 'plain']).optional().describe("Framework context (auto-detected if not specified)"),
       complexity: z.enum(['basic', 'production', 'enterprise']).default('production').describe("Code complexity level"),
-      features: z.array(z.enum(['error-handling', 'retries', 'logging', 'validation', 'testing', 'docker'])).default(['error-handling', 'retries', 'logging']).describe("Include specific features")
+      features: z.array(z.enum(['error-handling', 'retries', 'logging', 'validation', 'testing'])).default(['error-handling', 'retries', 'logging']).describe("Include specific features")
     },
     wrapToolHandler(async (args, extra) => {
       const { useCase, language, framework, complexity, features } = validateArgs(args, z.object({
         useCase: z.string(),
-        language: z.enum(['javascript', 'typescript', 'python', 'go', 'shell', 'docker']).optional(),
+        language: z.enum(['javascript', 'typescript', 'python', 'go', 'shell']).optional(),
         framework: z.enum(['express', 'fastapi', 'gin', 'plain']).optional(),
         complexity: z.enum(['basic', 'production', 'enterprise']).default('production'),
-        features: z.array(z.enum(['error-handling', 'retries', 'logging', 'validation', 'testing', 'docker'])).default(['error-handling', 'retries', 'logging'])
+        features: z.array(z.enum(['error-handling', 'retries', 'logging', 'validation', 'testing'])).default(['error-handling', 'retries', 'logging'])
       }));
 
       try {
         // Auto-detect context if not provided
         const detectedContext = await detectContext(useCase, language, framework);
-        
+
         // Generate code based on use case and context
         const generatedCode = await generateCode(
-          useCase, 
-          detectedContext.language, 
-          detectedContext.framework, 
-          complexity, 
+          useCase,
+          detectedContext.language,
+          detectedContext.framework,
+          complexity,
           features
         );
-        
+
         return {
           useCase,
           detectedContext,
@@ -83,13 +83,13 @@ export const registerMidazGenerateTools = (server) => {
  */
 async function detectContext(useCase, language, framework) {
   const useCaseLower = useCase.toLowerCase();
-  
+
   // Auto-detect language if not provided
   const detectedLanguage = language || detectLanguage(useCaseLower);
-  
+
   // Auto-detect framework if not provided  
   const detectedFramework = framework || detectFramework(useCaseLower, detectedLanguage);
-  
+
   return {
     language: detectedLanguage,
     framework: detectedFramework,
@@ -111,13 +111,11 @@ function detectLanguage(useCase) {
   if (useCase.includes('go') || useCase.includes('golang') || useCase.includes('gin')) {
     return 'go';
   }
-  if (useCase.includes('docker') || useCase.includes('container')) {
-    return 'docker';
-  }
+
   if (useCase.includes('shell') || useCase.includes('bash') || useCase.includes('script')) {
     return 'shell';
   }
-  
+
   // Default based on common use cases
   return 'javascript';
 }
@@ -126,20 +124,20 @@ function detectFramework(useCase, language) {
   if (useCase.includes('express')) return 'express';
   if (useCase.includes('fastapi')) return 'fastapi';
   if (useCase.includes('gin')) return 'gin';
-  
+
   // Default frameworks by language
   const defaults = {
     javascript: 'express',
-    typescript: 'express', 
+    typescript: 'express',
     python: 'fastapi',
     go: 'gin'
   };
-  
+
   return defaults[language] || 'plain';
 }
 
 function detectDeployment(useCase) {
-  if (useCase.includes('docker')) return 'docker';
+
   if (useCase.includes('kubernetes') || useCase.includes('k8s')) return 'kubernetes';
   if (useCase.includes('aws') || useCase.includes('lambda')) return 'aws';
   if (useCase.includes('cloud')) return 'cloud';
@@ -166,14 +164,14 @@ function detectPatterns(useCase) {
 function sanitizeTemplateParams(params) {
   const sanitized = {};
   const allowedKeys = ['organizationId', 'ledgerId', 'accountId', 'amount', 'currency', 'description'];
-  
+
   for (const key of allowedKeys) {
     if (params[key] !== undefined) {
       // Only allow alphanumeric, hyphens, underscores
       sanitized[key] = String(params[key]).replace(/[^\w\-]/g, '').substring(0, 100);
     }
   }
-  
+
   return sanitized;
 }
 
@@ -182,7 +180,7 @@ function sanitizeTemplateParams(params) {
  */
 function safeTemplateReplace(template, params) {
   const sanitized = sanitizeTemplateParams(params);
-  
+
   // Use only predefined safe replacements
   const safeReplacements = {
     '${ORGANIZATION_ID}': sanitized.organizationId || 'your_organization_id',
@@ -192,12 +190,12 @@ function safeTemplateReplace(template, params) {
     '${CURRENCY}': sanitized.currency || 'USD',
     '${DESCRIPTION}': sanitized.description || 'Payment transaction'
   };
-  
+
   let result = template;
   for (const [placeholder, value] of Object.entries(safeReplacements)) {
     result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value);
   }
-  
+
   return result;
 }
 
@@ -208,21 +206,21 @@ async function generateCode(useCase, language, framework, complexity, features) 
   // Validate and sanitize useCase input
   const allowedUseCases = ['payment', 'balance', 'webhook', 'transaction', 'account', 'organization'];
   const sanitizedUseCase = allowedUseCases.find(uc => useCase.toLowerCase().includes(uc)) || 'payment';
-  
+
   const generators = {
     javascript: generateJavaScript,
     typescript: generateTypeScript,
     python: generatePython,
     go: generateGo,
     shell: generateShell,
-    docker: generateDocker
+
   };
-  
+
   const generator = generators[language];
   if (!generator) {
     throw new Error(`Code generation not supported for ${language}`);
   }
-  
+
   return await generator(sanitizedUseCase, framework, complexity, features);
 }
 
@@ -231,19 +229,19 @@ async function generateCode(useCase, language, framework, complexity, features) 
  */
 async function generateJavaScript(useCase, framework, complexity, features) {
   const useCaseLower = useCase.toLowerCase();
-  
+
   if (useCaseLower.includes('payment') || useCaseLower.includes('transaction')) {
     return generatePaymentFlow('javascript', framework, complexity, features);
   }
-  
+
   if (useCaseLower.includes('balance')) {
     return generateBalanceChecker('javascript', framework, complexity, features);
   }
-  
+
   if (useCaseLower.includes('webhook')) {
     return generateWebhookHandler('javascript', framework, complexity, features);
   }
-  
+
   // Default: API client
   return generateApiClient('javascript', framework, complexity, features);
 }
@@ -256,7 +254,7 @@ function generatePaymentFlow(language, framework, complexity, features) {
   const hasLogging = features.includes('logging');
   const hasValidation = features.includes('validation');
   const hasErrorHandling = features.includes('error-handling');
-  
+
   // Use static, safe templates with no user interpolation
   const SAFE_PAYMENT_TEMPLATE = `/**
  * Midaz Payment Service
@@ -404,7 +402,7 @@ class MidazPaymentService {
 }
 
 module.exports = MidazPaymentService;`;
-  
+
   return {
     'payment-service.js': SAFE_PAYMENT_TEMPLATE,
     "package.json": "{\"name\": \"payment-service\"}",
@@ -417,7 +415,7 @@ async function generateTypeScript() { return { "service.ts": "// TypeScript" }; 
 async function generatePython() { return { "service.py": "# Python" }; }
 async function generateGo() { return { "service.go": "// Go" }; }
 async function generateShell() { return { "service.sh": "#!/bin/bash" }; }
-async function generateDocker() { return { "Dockerfile": "FROM node:18" }; }
+
 function generateBalanceChecker() { return { "balance.js": "// Balance" }; }
 function generateWebhookHandler() { return { "webhook.js": "// Webhook" }; }
 function generateApiClient() { return { "client.js": "// Client" }; }
@@ -429,13 +427,9 @@ function generateDeploymentInstructions(context, features) {
       '2. Copy .env.example to .env and configure',
       '3. Run: npm start'
     ],
-    docker: [
-      '1. Build image: docker build -t midaz-service .',
-      '2. Run container: docker run -d --env-file .env midaz-service',
-      '3. Check logs: docker logs <container_id>'
-    ]
+
   };
-  
+
   return instructions[context.deployment] || instructions.local;
 }
 
@@ -458,7 +452,7 @@ function generateEnvironmentVariables(context) {
 function generateNextSteps(useCase, context) {
   return [
     'Test the generated code with your Midaz instance',
-    'Review error handling for your specific use cases', 
+    'Review error handling for your specific use cases',
     'Add monitoring and alerting for production use',
     'Consider implementing webhook handlers for async notifications',
     'Review security best practices in the documentation'

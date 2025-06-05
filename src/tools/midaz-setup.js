@@ -11,20 +11,21 @@ import { wrapToolHandler, validateArgs } from "../util/mcp-helpers.js";
  * @param {import("@modelcontextprotocol/sdk/server/mcp.js").McpServer} server MCP server instance
  */
 export const registerMidazSetupTools = (server) => {
-  // Local Docker setup instructions
+  // Local development setup instructions
   server.tool(
     "get-midaz-local-setup",
-    "Get step-by-step instructions for setting up Midaz backend locally using Docker",
+    "Get step-by-step instructions for setting up Midaz backend locally for development",
     {
       format: z.enum(["detailed", "quick"]).optional().describe("Level of detail in instructions")
     },
     wrapToolHandler(async (args, extra) => {
       const format = args.format || "detailed";
-      
+
       const quickInstructions = `## Quick Local Setup
 
 **Prerequisites:**
-- Docker and Docker Compose installed
+- Git and Make utility installed
+- Development environment ready
 
 **Commands:**
 \`\`\`bash
@@ -52,9 +53,9 @@ make up
       const detailedInstructions = `## Detailed Local Setup Guide
 
 ### Prerequisites
-- **Docker Desktop** or **Docker Engine** with Docker Compose
 - **Git** for cloning the repository
 - **Make** utility (usually pre-installed on macOS/Linux)
+- **Development environment** (Node.js, Go, or preferred language)
 
 ### Step-by-Step Installation
 
@@ -77,10 +78,10 @@ This command creates necessary environment files and configures the services.
 make up
 \`\`\`
 This command will:
-- Pull required Docker images
+- Set up local development environment
 - Start infrastructure services (databases, message queues, monitoring)
 - Build and start Midaz microservices
-- Set up networking between services
+- Configure networking between services
 
 #### 4. Services Overview
 
@@ -102,7 +103,7 @@ This command will:
 #### 5. Verification Steps
 \`\`\`bash
 # Check all services are running
-docker-compose ps
+make status
 
 # Test Onboarding API
 curl http://localhost:3000/health
@@ -139,17 +140,17 @@ make clean
 
 **Common Issues:**
 1. **Port conflicts**: Ensure ports 3000, 3001, 5432, 27017, 5672, 6379 are available
-2. **Docker memory**: Increase Docker memory allocation to at least 4GB
+2. **Memory allocation**: Ensure sufficient system memory (at least 4GB available)
 3. **Permission issues**: Run \`sudo make up\` if permission errors occur
 
 **Logs:**
 \`\`\`bash
 # View logs for all services
-docker-compose logs
+make logs
 
 # View logs for specific service
-docker-compose logs onboarding-service
-docker-compose logs transaction-service
+make logs-onboarding
+make logs-transaction
 \`\`\`
 
 ### Next Steps
@@ -310,7 +311,7 @@ For detailed Helm chart documentation, visit: https://docs.lerian.studio/deploym
     },
     wrapToolHandler(async (args, extra) => {
       const provider = args.provider || "aws";
-      
+
       const instructions = `## Cloud Deployment with Terraform + Helm
 
 ### Overview
@@ -372,12 +373,12 @@ This creates:
 #### 4. Configure kubectl
 \`\`\`bash
 # ${provider === 'aws' ? 'AWS' : provider === 'gcp' ? 'GCP' : 'Azure'} specific command
-${provider === 'aws' 
-  ? 'aws eks update-kubeconfig --region us-west-2 --name midaz-production'
-  : provider === 'gcp'
-  ? 'gcloud container clusters get-credentials midaz-production --zone us-central1'
-  : 'az aks get-credentials --resource-group midaz-rg --name midaz-production'
-}
+${provider === 'aws'
+          ? 'aws eks update-kubeconfig --region us-west-2 --name midaz-production'
+          : provider === 'gcp'
+            ? 'gcloud container clusters get-credentials midaz-production --zone us-central1'
+            : 'az aks get-credentials --resource-group midaz-rg --name midaz-production'
+        }
 \`\`\`
 
 #### 5. Deploy Midaz with Helm
@@ -459,7 +460,7 @@ For complete cloud deployment guides, visit: https://docs.lerian.studio/deployme
     wrapToolHandler(async (args, extra) => {
       const comparison = `## Midaz Deployment Options Comparison
 
-### 🖥️ Local Development (Docker)
+### 🖥️ Local Development
 **Best for:** Development, testing, proof-of-concept
 
 **Pros:**
@@ -540,7 +541,7 @@ For complete cloud deployment guides, visit: https://docs.lerian.studio/deployme
 
 ### 🚀 Recommended Path
 
-1. **Start Local:** Begin with Docker for development
+1. **Start Local:** Begin with local development setup
 2. **Staging Environment:** Use Helm on managed Kubernetes
 3. **Production:** Graduate to cloud deployment with Terraform
 

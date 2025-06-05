@@ -1,6 +1,6 @@
-# Midaz MCP Server - System Sequence Diagrams
+# Lerian MCP Server - System Sequence Diagrams
 
-Visual documentation of system interactions, data flows, and business processes for the Midaz Model Context Protocol server.
+Visual documentation of system interactions, data flows, and business processes for the Lerian Model Context Protocol server that provides access to Midaz financial ledger services.
 
 ## 📋 Diagram Categories
 
@@ -36,7 +36,7 @@ Visual documentation of system interactions, data flows, and business processes 
 
 ## 🔍 System Overview
 
-The Midaz MCP Server acts as an intelligent proxy between MCP clients (like Claude Desktop) and the Midaz financial ledger backend services. It provides:
+The Lerian MCP Server acts as an intelligent proxy between MCP clients (like Claude Desktop) and the Midaz financial ledger backend services. It provides:
 
 - **21 Financial Tools**: Complete coverage of organizations, ledgers, accounts, transactions, balances
 - **2 Unified Tools**: Documentation and learning tools with multiple operations  

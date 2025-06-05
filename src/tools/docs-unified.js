@@ -9,10 +9,10 @@ import { wrapToolHandler, validateArgs } from "../util/mcp-helpers.js";
 import { createLogger } from "../util/mcp-logging.js";
 
 // Import all existing documentation utilities
-import { 
-  getAvailableResources, 
+import {
+  getAvailableResources,
   searchResources,
-  getResourcesByCategory 
+  getResourcesByCategory
 } from "../util/docs-manifest.js";
 import { fetchDocumentation } from "../util/docs-fetcher.js";
 import {
@@ -55,29 +55,29 @@ export const registerUnifiedDocumentationTool = (server) => {
         'read',             // Read full content of specific documentation page
         'browse'            // Browse available documentation by category
       ]).describe("Documentation operation to perform. Common: 'getting-started' (new users), 'search' (find topics), 'api-reference' (endpoint details), 'code-examples' (implementation help)."),
-      
+
       // Operation-specific parameters with detailed guidance
       endpoint: z.string().optional().describe("API endpoint name or path (REQUIRED for: api-reference with specific endpoint). Examples: 'organizations', 'create-transaction', '/v1/organizations/{id}/ledgers'. Use specific endpoint names for targeted documentation, or omit for complete API reference."),
-      
+
       query: z.string().optional().describe("Search query, 2-100 characters (REQUIRED for: search, search-endpoints). Examples: 'create transaction', 'authentication setup', 'error handling', 'portfolio management'. Use specific terms for better results. Avoid single words - use phrases that describe what you want to accomplish."),
-      
+
       method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]).optional().describe("HTTP method filter (optional for: search-endpoints). Filters search results to show only endpoints that use this HTTP method. Useful when you know you need to 'POST' to create something or 'GET' to retrieve data."),
-      
+
       language: z.enum(["curl", "javascript", "typescript", "go", "python"]).default("curl").describe("Programming language for code examples (for: code-examples, sdk-docs). 'curl' for REST API examples, 'javascript'/'typescript' for web/Node.js, 'go' for backend services, 'python' for scripts/data analysis."),
-      
+
       useCase: z.string().optional().describe("Specific use case for code generation, 5-100 characters (REQUIRED for: code-examples). Examples: 'create first transaction', 'user account onboarding', 'check account balance', 'transfer between portfolios', 'handle payment errors'. Be specific about the business scenario you're implementing."),
-      
+
       path: z.string().optional().describe("Exact documentation file path (REQUIRED for: read operation). Format: '/category/filename.md' or 'section/subsection'. Examples: '/reference/create-asset.md', '/guides/getting-started.md', 'models/transaction'. Get valid paths from browse or sitemap operations first."),
-      
+
       category: z.string().optional().describe("Documentation category filter (optional for: browse). Valid categories: 'api' (REST endpoints), 'guides' (tutorials), 'examples' (code samples), 'models' (data structures), 'components' (system parts). Omit to see all categories."),
-      
+
       format: z.enum(["summary", "detailed", "examples-only"]).default("detailed").describe("Response detail level. 'summary': 1-2 paragraphs overview (~200 chars), 'detailed': complete documentation with explanations, 'examples-only': just code blocks and usage samples without explanatory text."),
-      
+
       includeExamples: z.boolean().default(true).describe("Whether to include code examples and snippets in the response. Set to false for text-only documentation without code blocks. Examples include curl commands, SDK usage, and configuration snippets."),
-      
+
       maxResults: z.number().min(1).max(50).default(10).describe("Maximum search results to return (for: search, search-endpoints). Range: 1-50, default: 10. Use lower numbers (1-5) for focused searches, higher numbers (10-20) for comprehensive exploration. Large numbers may return less relevant results.")
     },
-    
+
     wrapToolHandler(async (args, extra) => {
       const {
         operation,
@@ -93,7 +93,7 @@ export const registerUnifiedDocumentationTool = (server) => {
         maxResults
       } = validateArgs(args, z.object({
         operation: z.enum([
-          'api-reference', 'search-endpoints', 'getting-started', 
+          'api-reference', 'search-endpoints', 'getting-started',
           'best-practices', 'architecture', 'sdk-docs',
           'code-examples', 'workflows', 'troubleshooting',
           'search', 'sitemap', 'read', 'browse'
@@ -110,65 +110,65 @@ export const registerUnifiedDocumentationTool = (server) => {
         maxResults: z.number().min(1).max(50).default(10)
       }));
 
-      logger.info('Processing unified documentation request', { 
-        operation, 
+      logger.info('Processing unified documentation request', {
+        operation,
         endpoint,
         query,
-        format 
+        format
       });
 
       try {
         switch (operation) {
           case 'api-reference':
             return await handleApiReference(endpoint, format, includeExamples);
-            
+
           case 'search-endpoints':
             if (!query) throw new Error("Query parameter required for search-endpoints operation");
             return await handleSearchEndpoints(query, method, includeExamples, maxResults);
-            
+
           case 'getting-started':
             return await handleGettingStarted(format, includeExamples);
-            
+
           case 'best-practices':
             return await handleBestPractices(format);
-            
+
           case 'architecture':
             return await handleArchitecture(format);
-            
+
           case 'sdk-docs':
             return await handleSDKDocs(language, format);
-            
+
           case 'code-examples':
             if (!useCase) throw new Error("useCase parameter required for code-examples operation");
             return await handleCodeExamples(useCase, language, format);
-            
+
           case 'workflows':
             return await handleWorkflows(format);
-            
+
           case 'troubleshooting':
             return await handleTroubleshooting(format);
-            
+
           case 'search':
             if (!query) throw new Error("Query parameter required for search operation");
             return await handleSearch(query, category, maxResults);
-            
+
           case 'sitemap':
             return await handleSitemap(format);
-            
+
           case 'read':
             if (!path) throw new Error("Path parameter required for read operation");
             return await handleRead(path);
-            
+
           case 'browse':
             return await handleBrowse(category);
-            
+
           default:
             throw new Error(`Unknown operation: ${operation}`);
         }
       } catch (error) {
-        logger.error('Error in unified documentation tool', { 
-          operation, 
-          error: error.message 
+        logger.error('Error in unified documentation tool', {
+          operation,
+          error: error.message
         });
         throw error;
       }
@@ -183,21 +183,21 @@ export const registerUnifiedDocumentationTool = (server) => {
 async function handleApiReference(endpoint, format, includeExamples) {
   try {
     const apiResources = await getResourcesByCategory('api');
-    
+
     if (endpoint) {
-      const specificResource = apiResources.find(r => 
+      const specificResource = apiResources.find(r =>
         r.title.toLowerCase().includes(endpoint.toLowerCase()) ||
         r.path.toLowerCase().includes(endpoint.toLowerCase())
       );
-      
+
       if (!specificResource) {
         return `No API documentation found for endpoint: ${endpoint}`;
       }
-      
+
       const content = await fetchDocumentation(specificResource.path);
       return formatApiResponse(content, format, includeExamples);
     }
-    
+
     // Return all API documentation
     const allApiContent = await Promise.all(
       apiResources.slice(0, 10).map(async resource => {
@@ -208,7 +208,7 @@ async function handleApiReference(endpoint, format, includeExamples) {
         };
       })
     );
-    
+
     return {
       title: "Complete API Reference",
       endpoints: allApiContent
@@ -225,7 +225,7 @@ async function handleSearchEndpoints(query, method, includeExamples, maxResults)
     const apiSearchResults = searchResults
       .filter(r => r.category === 'api')
       .slice(0, maxResults);
-    
+
     const results = await Promise.all(
       apiSearchResults.map(async resource => {
         const content = await fetchDocumentation(resource.path);
@@ -237,7 +237,7 @@ async function handleSearchEndpoints(query, method, includeExamples, maxResults)
         };
       })
     );
-    
+
     return {
       query,
       totalResults: results.length,
@@ -257,7 +257,7 @@ async function handleGettingStarted(format, includeExamples) {
 3. **First API Call**: Test with organization listing
 
 ## Prerequisites
-- Node.js 18+ or Docker
+- Node.js 18+
 - Midaz API access (optional - works with sample data)
 
 ## Authentication
@@ -284,7 +284,7 @@ curl -X POST -H "Content-Type: application/json" \\
 - Try interactive tutorials with \`midaz-learn\`
 `;
 
-  return format === 'summary' ? 
+  return format === 'summary' ?
     'Complete getting started guide with setup, authentication, and first API calls.' :
     gettingStartedContent;
 }
@@ -321,10 +321,10 @@ async function handleTroubleshooting(format) {
 
 async function handleSearch(query, category, maxResults) {
   const results = await searchResources(query);
-  const filteredResults = category ? 
-    results.filter(r => r.category === category) : 
+  const filteredResults = category ?
+    results.filter(r => r.category === category) :
     results;
-    
+
   return {
     query,
     category: category || 'all',
@@ -358,7 +358,7 @@ async function handleBrowse(category) {
       }))
     };
   }
-  
+
   const allResources = await getAvailableResources();
   const categorized = allResources.reduce((acc, resource) => {
     const cat = resource.category || 'uncategorized';
@@ -370,7 +370,7 @@ async function handleBrowse(category) {
     });
     return acc;
   }, {});
-  
+
   return {
     categories: Object.keys(categorized),
     resources: categorized
@@ -382,7 +382,7 @@ function formatApiResponse(content, format, includeExamples) {
   if (format === 'summary') {
     return content.substring(0, 200) + (content.length > 200 ? '...' : '');
   }
-  
+
   if (format === 'examples-only' && includeExamples) {
     // Extract code blocks and examples
     const codeBlocks = content.match(/```[\s\S]*?```/g) || [];
@@ -390,6 +390,6 @@ function formatApiResponse(content, format, includeExamples) {
       examples: codeBlocks
     };
   }
-  
+
   return content;
 }
