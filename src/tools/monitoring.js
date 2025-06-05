@@ -8,7 +8,7 @@
 
 import { z } from "zod";
 import { globalErrorMonitor } from '../util/error-monitoring.js';
-import { wrapToolHandler, logToolInvocation, validateArgs } from "../util/mcp-helpers.js";
+import { wrapToolHandler, logToolInvocation } from "../util/mcp-helpers.js";
 
 /**
  * Register monitoring tools with the MCP server
