@@ -1,3 +1,10 @@
+# [2.20.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.19.0...v2.20.0) (2025-06-05)
+
+
+### Bug Fixes
+
+* **server:** resolve race condition with Cursor 1.0 - Move client detection after server.connect() to avoid method interception race - Fixes 'No server info found' errors in Cursor 1.0 ([8e99521](https://github.com/lerianstudio/midaz-mcp-server/commit/8e99521b593156914fa8a92f664ec4c964bc2b14))
+
 # [2.19.0](https://github.com/lerianstudio/midaz-mcp-server/compare/v2.18.0...v2.19.0) (2025-06-04)
 
 
