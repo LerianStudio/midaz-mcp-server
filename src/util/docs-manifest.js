@@ -244,7 +244,7 @@ async function fetchManifest() {
     const response = await fetch(LLMS_TXT_URL, {
       timeout: 10000, // Increase timeout to 10 seconds
       headers: {
-        'User-Agent': 'Midaz-MCP-Server/2.2.0',
+        'User-Agent': 'Lerian-MCP-Server/2.2.0',
         'Accept': 'text/plain, */*'
       }
     });

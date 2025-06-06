@@ -66,9 +66,9 @@ export function sendLogMessage(level, message, data = {}) {
     const prefix = `${emoji} [${level.toUpperCase()}]`;
     
     if (enableDetailedLogging && Object.keys(data).length > 0) {
-      console.error(`${prefix} ${message}`, logData);
+      console.error('%s %s', prefix, message, logData);
     } else {
-      console.error(`${prefix} ${message}`);
+      console.error('%s %s', prefix, message);
     }
   }
   

@@ -194,9 +194,16 @@ function decryptCacheData(encryptedData) {
     }
 
     const keyBuffer = Buffer.from(key.slice(0, 64), 'hex');
+    const authTagBuffer = Buffer.from(authTag, 'hex');
+    
+    // Verify auth tag length (GCM uses 128-bit/16-byte tags by default)
+    if (authTagBuffer.length !== 16) {
+      throw new Error('Invalid authentication tag length');
+    }
+    
     const decipher = crypto.createDecipheriv('aes-256-gcm', keyBuffer, Buffer.from(iv, 'hex'));
     decipher.setAAD(Buffer.from('midaz-cache'));
-    decipher.setAuthTag(Buffer.from(authTag, 'hex'));
+    decipher.setAuthTag(authTagBuffer);
 
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');

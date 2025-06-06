@@ -528,7 +528,9 @@ function extractSection(content, sectionName) {
   if (!content) return null;
   
   const lines = content.split('\n');
-  const sectionRegex = new RegExp(`^#+\\s*${sectionName}`, 'i');
+  // Escape special regex characters to prevent ReDoS
+  const escapedSectionName = sectionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const sectionRegex = new RegExp(`^#+\\s*${escapedSectionName}`, 'i');
   let startIndex = -1;
   let endIndex = lines.length;
   
