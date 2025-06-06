@@ -252,7 +252,7 @@ async function handleGettingStarted(format, includeExamples) {
   const gettingStartedContent = `# Getting Started with Midaz
 
 ## Quick Setup
-1. **Installation**: \`npm install -g @lerianstudio/midaz-mcp-server\`
+1. **Installation**: \`npm install -g @lerianstudio/lerian-mcp-server\`
 2. **Configuration**: Set up your API credentials
 3. **First API Call**: Test with organization listing
 

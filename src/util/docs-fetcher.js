@@ -120,7 +120,7 @@ export async function fetchDocumentation(resourcePath) {
     const response = await enhancedFetch(fullUrl, {
       headers: {
         'Accept': 'text/html,application/xhtml+xml,text/markdown,text/plain',
-        'User-Agent': 'Midaz-MCP-Server/1.0'
+        'User-Agent': 'Lerian-MCP-Server/1.0'
       },
       timeout: 10000
     });

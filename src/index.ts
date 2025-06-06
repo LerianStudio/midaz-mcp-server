@@ -83,7 +83,7 @@ const main = async () => {
     // Create the MCP server with declared capabilities
     const server = new McpServer({
       name: 'lerian-mcp-server',
-      version: '3.0.0',
+      version: '2.27.1',
       capabilities
     });
 

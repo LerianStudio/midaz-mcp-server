@@ -402,7 +402,9 @@ function validateConfigPath(configPath) {
     }
 
     import('path').then(path => {
-        const resolvedPath = path.resolve(configPath);
+        // Sanitize input to prevent path traversal
+        const sanitizedPath = configPath.replace(/\.\./g, '').replace(/\/\//g, '/');
+        const resolvedPath = path.resolve(sanitizedPath);
         const allowedDirs = [process.cwd(), '/etc/lerian', '/etc/midaz']; // backward compatibility
         const isAllowed = allowedDirs.some(dir => resolvedPath.startsWith(path.resolve(dir)));
 

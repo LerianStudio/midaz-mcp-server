@@ -23,7 +23,7 @@ export const configSchema = z.object({
   }).describe('Backend service configurations'),
   
   server: z.object({
-    name: z.string().default('midaz-mcp-server').describe('Server name'),
+    name: z.string().default('lerian-mcp-server').describe('Server name'),
     version: z.string().regex(/^\d+\.\d+\.\d+$/).default('0.1.0').describe('Server version')
   }).describe('Server metadata'),
   
@@ -154,13 +154,22 @@ function setNestedValue(obj, path, value) {
   
   for (let i = 0; i < parts.length - 1; i++) {
     const part = parts[i];
+    // Prevent prototype pollution
+    if (part === '__proto__' || part === 'constructor' || part === 'prototype') {
+      throw new Error(`Invalid configuration key: ${part}`);
+    }
     if (!current[part]) {
       current[part] = {};
     }
     current = current[part];
   }
   
-  current[parts[parts.length - 1]] = value;
+  const lastPart = parts[parts.length - 1];
+  // Prevent prototype pollution on final key
+  if (lastPart === '__proto__' || lastPart === 'constructor' || lastPart === 'prototype') {
+    throw new Error(`Invalid configuration key: ${lastPart}`);
+  }
+  current[lastPart] = value;
 }
 
 /**

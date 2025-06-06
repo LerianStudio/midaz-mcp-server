@@ -25,7 +25,7 @@ export function createDefaultConfigFile(configPath) {
             retries: 3,
         },
         server: {
-            name: 'midaz-mcp-server',
+            name: 'lerian-mcp-server',
             version: '0.1.0'
         },
         useStubs: false,

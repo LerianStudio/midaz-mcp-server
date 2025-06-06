@@ -203,7 +203,7 @@ export function getServerCapabilities() {
     },
     // Server info
     info: {
-      name: 'midaz-mcp-server',
+      name: 'lerian-mcp-server',
       version: '0.1.0',
       description: 'MCP server for Midaz financial ledger system'
     }
@@ -277,8 +277,11 @@ export function validateResourceUri(uri, template) {
   // Extract template parameters
   const templateParams = template.match(/\{(\w+)\}/g)?.map(p => p.slice(1, -1)) || [];
   
-  // Create regex from template
-  let regexStr = template.replace(/\{(\w+)\}/g, '([^/]+)');
+  // Create regex from template with input validation
+  // Escape special characters first to prevent ReDoS
+  const escapedTemplate = template.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Then restore our parameter placeholders
+  let regexStr = escapedTemplate.replace(/\\\{(\w+)\\\}/g, '([^/]+)');
   regexStr = `^${regexStr}$`;
   
   const regex = new RegExp(regexStr);

@@ -85,7 +85,7 @@ jobs:
       - name: Check NPM publish status
         id: check_npm
         run: |
-          if npm view @lerianstudio/midaz-mcp-server@${{ needs.validate-release.outputs.version }} version 2>/dev/null; then
+          if npm view @lerianstudio/lerian-mcp-server@${{ needs.validate-release.outputs.version }} version 2>/dev/null; then
             echo "Package already published"
             echo "already_published=true" >> $GITHUB_OUTPUT
           else
@@ -107,9 +107,9 @@ jobs:
           sleep 10
           
           # Try to verify the package, but don't fail if it's not found immediately
-          if npm view @lerianstudio/midaz-mcp-server@${{ needs.validate-release.outputs.version }} >/dev/null 2>&1; then
+          if npm view @lerianstudio/lerian-mcp-server@${{ needs.validate-release.outputs.version }} >/dev/null 2>&1; then
             echo "✅ Package successfully published and available!"
-            npm view @lerianstudio/midaz-mcp-server@${{ needs.validate-release.outputs.version }}
+            npm view @lerianstudio/lerian-mcp-server@${{ needs.validate-release.outputs.version }}
           else
             echo "⚠️ Package not immediately available, but this is normal for new packages"
             echo "It may take a few minutes for NPM to propagate the package"
@@ -174,15 +174,15 @@ jobs:
 
             ### NPM
             \`\`\`bash
-            npm install -g @lerianstudio/midaz-mcp-server@${version}
+            npm install -g @lerianstudio/lerian-mcp-server@${version}
             # or
-            npx @lerianstudio/midaz-mcp-server@${version}
+            npx @lerianstudio/lerian-mcp-server@${version}
             \`\`\`
 
 
             ### GitHub Packages
             \`\`\`bash
-            npm install -g @lerianstudio/midaz-mcp-server@${version} --registry=https://npm.pkg.github.com
+            npm install -g @lerianstudio/lerian-mcp-server@${version} --registry=https://npm.pkg.github.com
             \`\`\`
             `;
 
