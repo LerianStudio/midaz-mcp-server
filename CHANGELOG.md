@@ -1,3 +1,10 @@
+# [2.29.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.28.0...v2.29.0) (2025-06-06)
+
+
+### Features
+
+* update repository name and change license to Apache v2.0 ([#35](https://github.com/lerianstudio/lerian-mcp-server/issues/35)) ([c97d92f](https://github.com/lerianstudio/lerian-mcp-server/commit/c97d92f27c913c592b20dad1b52c462197f4903b))
+
 # [2.28.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.27.0...v2.28.0) (2025-06-05)
 
 # [2.27.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.26.0...v2.27.0) (2025-06-05)
