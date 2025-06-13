@@ -1,3 +1,24 @@
+# [2.31.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.30.0...v2.31.0) (2025-06-13)
+
+
+### Bug Fixes
+
+* add missing GitHub Actions permissions for PR comments - Add pull-requests: write and issues: write permissions to security.yml and check-branch.yml workflows - Fixes 'Resource not accessible by integration' error (HTTP 403) - Allows GitHub Actions to comment on PRs and add labels - Resolves CI/CD pipeline permission issues ([c874ee7](https://github.com/lerianstudio/lerian-mcp-server/commit/c874ee710800a002fe07103cf0d1ccfaea937f67))
+* add missing package-lock.json for CI/CD dependency caching ([c7c676b](https://github.com/lerianstudio/lerian-mcp-server/commit/c7c676b72f30004c0cfddbd4a79323437ee7e987))
+* add organization authentication to dual-publish workflow ([8647046](https://github.com/lerianstudio/lerian-mcp-server/commit/8647046ac8c089ef062236f5f46a42e8322a5edf))
+* resolve code review issues from Kodus AI bot - Fix recursive call bug in calculateHealthScore() method - Implement actual average response time calculation - Add totalDuration and totalOperations tracking - Remove mutual recursion between calculateHealthScore and getMetrics - Addresses critical runtime error and maintainability issues ([80e1a8e](https://github.com/lerianstudio/lerian-mcp-server/commit/80e1a8e694d0ddeef48b562f8bbd6950f1d771db))
+* resolve npm package.json warnings for bin paths and repository URL ([e01947a](https://github.com/lerianstudio/lerian-mcp-server/commit/e01947ab0f31ecbd286e9b1400e6c2ea7b29843d))
+* resolve sitemap operation error and prompts registration issues - Fix sitemap operation by properly fetching resources before calling generateSitemap() - Fix prompts registration by implementing fallback prompt list handler - Add comprehensive test suite for all tools and prompts (90% success rate) - Create dual NPM publish workflow and script for backward compatibility - Fix GitHub Actions workflow context access issues - Add npm run publish:dual command for manual dual publishing ([7d25166](https://github.com/lerianstudio/lerian-mcp-server/commit/7d2516692ac4e8f35c3557e4b95abdde8adb6b4c))
+* update .env.example for local Docker development setup ([e07efb7](https://github.com/lerianstudio/lerian-mcp-server/commit/e07efb7fefce27c7eede88bc6f83fced3ed7e6da))
+* update dual-publish workflow to use NODE_AUTH_TOKEN for NPM authentication ([4a4a26d](https://github.com/lerianstudio/lerian-mcp-server/commit/4a4a26d6de10233ff911604aa2679994e1ee5c9c))
+* update local Docker container configuration for development ([aafcae5](https://github.com/lerianstudio/lerian-mcp-server/commit/aafcae5c724f84622e794b2f920e12185d304276))
+
+
+### Features
+
+* add comprehensive error monitoring and performance tracking - Enhanced error monitoring with severity levels and context tracking - Real-time performance monitoring with operation timing - Health scoring system (0-100) based on errors and performance - 3 new monitoring tools: health-status, error-metrics, performance-metrics - Version 2.27.0 ([5bda9f5](https://github.com/lerianstudio/lerian-mcp-server/commit/5bda9f5f05eeebc4a16b9e4ab46f20fb12a99844))
+* update repository name and change license to Apache v2.0 ([d751db7](https://github.com/lerianstudio/lerian-mcp-server/commit/d751db79ee76599d676e2a9fe3297625464e8edd))
+
 # [2.30.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.29.0...v2.30.0) (2025-06-09)
 
 # [2.29.0](https://github.com/lerianstudio/lerian-mcp-server/compare/v2.28.0...v2.29.0) (2025-06-06)
