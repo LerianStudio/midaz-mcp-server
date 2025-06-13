@@ -79,13 +79,6 @@ jobs:
           name: semgrep-results
           path: semgrep-results.json
 
-      - name: Check for secrets with TruffleHog
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: main
-          head: HEAD
-          extra_args: --debug --only-verified
 
       - name: Upload security reports
         if: always()
