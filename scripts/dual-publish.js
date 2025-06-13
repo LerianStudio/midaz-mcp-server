@@ -8,7 +8,7 @@
 
 import { execSync } from 'child_process';
 import { readFileSync, writeFileSync, copyFileSync } from 'fs';
-import { join } from 'path';
+import { } from 'path';
 
 const packageJsonPath = 'package.json';
 const backupPath = 'package.json.backup';
